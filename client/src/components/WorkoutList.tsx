@@ -3,6 +3,8 @@ import { workoutAPI } from "../services/api";
 import { Link } from "react-router-dom";
 import { Workout } from "../types";
 import "./WorkoutList.css";
+import Button from "./Button";
+import { Trash2 } from "lucide-react";
 
 const WorkoutList = () => {
   const [workouts, setWorkouts] = useState<Workout[]>([]);
@@ -31,7 +33,8 @@ const WorkoutList = () => {
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (e: React.MouseEvent, id: string) => {
+    e.preventDefault();
     if (window.confirm("Are you sure you want to delete this workout?")) {
       try {
         await workoutAPI.delete(id);
@@ -53,6 +56,18 @@ const WorkoutList = () => {
   const getTotalSets = (workout: Workout): number => {
     return workout.exercises.reduce(
       (total, exercise) => total + exercise.sets.length,
+      0,
+    );
+  };
+
+  const getTotalVolume = (workout: Workout): number => {
+    return workout.exercises.reduce(
+      (total, exercise) =>
+        total +
+        exercise.sets.reduce(
+          (setTotal, set) => setTotal + set.reps * set.weight,
+          0,
+        ),
       0,
     );
   };
@@ -84,7 +99,11 @@ const WorkoutList = () => {
       ) : (
         <div className="workouts-grid">
           {workouts.map((workout) => (
-            <div key={workout._id} className="workout-card">
+            <Link
+              key={workout._id}
+              className="workout-card"
+              to={`/workout/${workout._id}`}
+            >
               <div className="workout-card-header">
                 <h3>{workout.title || "Untitled Workout"}</h3>
                 <span className="workout-date">{formatDate(workout.date)}</span>
@@ -96,22 +115,20 @@ const WorkoutList = () => {
                 <p className="workout-sets">
                   {getTotalSets(workout)} total sets
                 </p>
+                <p className="workout-volume">
+                  {Math.round(getTotalVolume(workout))} kg volume
+                </p>
               </div>
               <div className="workout-card-actions">
-                <Link
-                  to={`/workout/${workout._id}`}
-                  className="btn btn-secondary"
+                <Button
+                  title="Delete Workout"
+                  onClick={(e) => handleDelete(e, workout._id)}
+                  variant="icon-only"
                 >
-                  View Details
-                </Link>
-                <button
-                  onClick={() => handleDelete(workout._id)}
-                  className="btn btn-danger"
-                >
-                  Delete
-                </button>
+                  <Trash2 />
+                </Button>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       )}

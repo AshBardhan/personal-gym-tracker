@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { workoutAPI } from "../services/api";
-import { Workout } from "../types";
+import { Set, Workout } from "../types";
 import Button from "./Button";
 import "./WorkoutDetail.css";
 
@@ -56,9 +56,13 @@ const WorkoutDetail = () => {
     });
   };
 
-  const getTotalSets = (workout: Workout): number => {
+  const getExerciseVolume = (sets: Set[]): number => {
+    return sets.reduce((total, set) => total + set.reps * set.weight, 0);
+  };
+
+  const getTotalWorkoutVolume = (workout: Workout): number => {
     return workout.exercises.reduce(
-      (total, exercise) => total + exercise.sets.length,
+      (total, exercise) => total + getExerciseVolume(exercise.sets),
       0,
     );
   };
@@ -100,11 +104,13 @@ const WorkoutDetail = () => {
       <div className="detail-card">
         <h1>{workout.title || "Untitled Workout"}</h1>
         <div className="detail-meta">
-          <span className="meta-item">Date: {formatDate(workout.date)}</span>
-          <span className="meta-item">
-            {workout.exercises.length} exercises
-          </span>
-          <span className="meta-item">{getTotalSets(workout)} total sets</span>
+          <div>
+            <strong>Date:</strong> {formatDate(workout.date)}
+          </div>
+          <div>
+            <strong>Total Volume:</strong>
+            &nbsp;{Math.round(getTotalWorkoutVolume(workout))} kg
+          </div>
         </div>
 
         <div className="exercises-section">
@@ -117,7 +123,13 @@ const WorkoutDetail = () => {
                 <div key={index} className="exercise-row">
                   <div className="exercise-number">{index + 1}</div>
                   <div className="exercise-details">
-                    <h3>{exercise.name}</h3>
+                    <h3>
+                      {exercise.name}
+                      <span className="exercise-volume">
+                        <strong>{getExerciseVolume(exercise.sets)} kg</strong>
+                        &nbsp;volume
+                      </span>
+                    </h3>
                     <div className="sets-table">
                       {exercise.sets.map((set, setIndex) => (
                         <div key={setIndex} className="set-row">
