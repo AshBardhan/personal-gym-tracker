@@ -1,0 +1,88 @@
+.workout-list {
+  padding: 0 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.workout-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.workout-list-header h1 {
+  margin: 0;
+}
+
+.workouts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.workout-card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
+}
+
+.workout-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.workout-card-header {
+  border-bottom: 2px solid #ecf0f1;
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+}
+
+.workout-card-header h3 {
+  margin: 0 0 0.5rem 0;
+}
+
+.workout-date {
+  color: #7f8c8d;
+  font-size: 0.9rem;
+}
+
+.workout-card-body {
+  margin-bottom: 1rem;
+}
+
+.workout-exercises {
+  color: #3498db;
+  font-weight: 500;
+  margin: 0.5rem 0;
+}
+
+.workout-sets {
+  color: #27ae60;
+  font-weight: 500;
+  margin: 0.5rem 0;
+  font-size: 0.9rem;
+}
+
+.workout-card-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.no-workouts {
+  text-align: center;
+  padding: 3rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.no-workouts p {
+  color: #7f8c8d;
+  font-size: 1.1rem;
+  margin-bottom: 1.5rem;
+}
