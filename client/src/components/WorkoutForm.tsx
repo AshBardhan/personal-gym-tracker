@@ -1,30 +1,37 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Trash2, X } from "lucide-react";
 import { workoutAPI } from "../services/api";
-import { Exercise, Set } from "../types";
+import { useWorkoutFormStore } from "../stores/workoutFormStore";
 import Input from "./Input";
 import Button from "./Button";
 import "./WorkoutForm.css";
-
-interface ExerciseInput extends Omit<Exercise, "sets"> {
-  sets: Set[];
-}
 
 const WorkoutForm = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const isEditMode = Boolean(id);
 
-  const [formData, setFormData] = useState({
-    title: "",
-    date: new Date().toISOString().split("T")[0],
-  });
-  const [exercises, setExercises] = useState<ExerciseInput[]>([
-    { name: "", sets: [{ reps: 0, weight: 0 }] },
-  ]);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [submitAttempted, setSubmitAttempted] = useState(false);
+  // Zustand store
+  const {
+    formData,
+    exercises,
+    loading,
+    submitAttempted,
+    updateFormField,
+    addExercise,
+    removeExercise,
+    updateExerciseName,
+    addSet,
+    removeSet,
+    updateSet,
+    setLoading,
+    setSubmitAttempted,
+    getValidExercises,
+    hasValidExercises,
+    resetForm,
+    loadWorkoutData,
+  } = useWorkoutFormStore();
 
   // Hardcoded userId for demo - would come from auth in real app
   const userId = "673092a6fd2a34e8e4b91234";
@@ -33,6 +40,9 @@ const WorkoutForm = () => {
   useEffect(() => {
     if (isEditMode && id) {
       loadWorkout(id);
+    } else {
+      // Reset form when creating new workout
+      resetForm();
     }
   }, [id, isEditMode]);
 
@@ -42,32 +52,26 @@ const WorkoutForm = () => {
       const response = await workoutAPI.getById(workoutId);
       const workout = response.data;
 
-      setFormData({
+      loadWorkoutData({
         title: workout.title || "",
         date: new Date(workout.date).toISOString().split("T")[0],
+        exercises: workout.exercises,
       });
-      setExercises(workout.exercises);
     } catch (error) {
       console.error("Error loading workout:", error);
-    } finally {
       setLoading(false);
     }
   };
 
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    updateFormField(e.target.name as "title" | "date", e.target.value);
   };
 
   const handleExerciseNameChange = (
     exerciseIndex: number,
     e: React.ChangeEvent<HTMLInputElement>,
   ) => {
-    const updatedExercises = [...exercises];
-    updatedExercises[exerciseIndex].name = e.target.value;
-    setExercises(updatedExercises);
+    updateExerciseName(exerciseIndex, e.target.value);
   };
 
   const handleSetChange = (
@@ -76,47 +80,26 @@ const WorkoutForm = () => {
     field: "reps" | "weight",
     value: string,
   ) => {
-    const updatedExercises = [...exercises];
-    updatedExercises[exerciseIndex].sets[setIndex][field] =
-      parseFloat(value) || 0;
-    setExercises(updatedExercises);
+    updateSet(exerciseIndex, setIndex, field, parseFloat(value) || 0);
   };
 
-  const addExercise = () => {
-    setExercises([...exercises, { name: "", sets: [{ reps: 0, weight: 0 }] }]);
+  const handleAddExercise = () => {
+    addExercise();
     console.log("New exercise added");
   };
 
-  const removeExercise = (index: number) => {
-    setExercises(exercises.filter((_, i) => i !== index));
+  const handleRemoveExercise = (index: number) => {
+    removeExercise(index);
     console.log("Exercise removed");
   };
 
-  const addSet = (exerciseIndex: number) => {
-    setExercises((current) =>
-      current.map((ex, idx) =>
-        idx === exerciseIndex
-          ? {
-              ...ex,
-              sets: [...ex.sets, { reps: 0, weight: 0 }],
-            }
-          : ex,
-      ),
-    );
+  const handleAddSet = (exerciseIndex: number) => {
+    addSet(exerciseIndex);
     console.log("New set added to exercise", exerciseIndex);
   };
 
-  const removeSet = (exerciseIndex: number, setIndex: number) => {
-    setExercises((prev) =>
-      prev.map((ex, idx) =>
-        idx === exerciseIndex
-          ? {
-              ...ex,
-              sets: [...ex.sets.filter((_, i) => i !== setIndex)],
-            }
-          : ex,
-      ),
-    );
+  const handleRemoveSet = (exerciseIndex: number, setIndex: number) => {
+    removeSet(exerciseIndex, setIndex);
     console.log("Set removed");
   };
 
@@ -124,17 +107,14 @@ const WorkoutForm = () => {
     e.preventDefault();
     setSubmitAttempted(true);
 
-    // Filter out empty exercises (no name or no valid sets)
-    const validExercises = exercises.filter(
-      (ex) => ex.name.trim() && ex.sets.some((s) => s.reps > 0),
-    );
-
-    if (validExercises.length === 0) {
+    if (!hasValidExercises()) {
       console.error(
         "Validation error: Cannot save workout - At least one valid exercise is required",
       );
       return;
     }
+
+    const validExercises = getValidExercises();
 
     try {
       const workoutData = {
@@ -154,13 +134,13 @@ const WorkoutForm = () => {
         console.log("Workout created successfully");
       }
 
+      resetForm();
       navigate("/");
     } catch (error) {
       console.error("Error saving workout:", error);
       if (error instanceof Error) {
         console.error("Error message:", error.message);
       }
-      // Log the full error object for debugging
       console.error("Full error details:", JSON.stringify(error, null, 2));
     }
   };
@@ -190,28 +170,30 @@ const WorkoutForm = () => {
               </div>
             </div>
 
-            <div className="form-group">
-              <label htmlFor="title">Workout Title (Optional)</label>
-              <input
-                type="text"
-                id="title"
-                name="title"
-                value={formData.title}
-                onChange={handleFormChange}
-                placeholder="e.g., Upper Body Day"
-              />
-            </div>
+            <div className="form-group form-group-parent">
+              <div className="form-group-child">
+                <label htmlFor="title">Workout Title (Optional)</label>
+                <input
+                  type="text"
+                  id="title"
+                  name="title"
+                  value={formData.title}
+                  onChange={handleFormChange}
+                  placeholder="e.g., Upper Body Day"
+                />
+              </div>
 
-            <div className="form-group">
-              <label htmlFor="date">Date</label>
-              <input
-                type="date"
-                id="date"
-                name="date"
-                value={formData.date}
-                onChange={handleFormChange}
-                required
-              />
+              <div className="form-group-child">
+                <label htmlFor="date">Date</label>
+                <input
+                  type="date"
+                  id="date"
+                  name="date"
+                  value={formData.date}
+                  onChange={handleFormChange}
+                  required
+                />
+              </div>
             </div>
           </div>
 
@@ -237,7 +219,7 @@ const WorkoutForm = () => {
                     type="button"
                     disabled={exercises.length === 1}
                     variant="icon-only"
-                    onClick={() => removeExercise(exerciseIndex)}
+                    onClick={() => handleRemoveExercise(exerciseIndex)}
                     title="Remove exercise"
                   >
                     <Trash2 size={18} />
@@ -295,7 +277,9 @@ const WorkoutForm = () => {
                           type="button"
                           variant="icon-only"
                           disabled={exercise.sets.length === 1}
-                          onClick={() => removeSet(exerciseIndex, setIndex)}
+                          onClick={() =>
+                            handleRemoveSet(exerciseIndex, setIndex)
+                          }
                           title="Remove set"
                         >
                           <X size={20} />
@@ -307,7 +291,7 @@ const WorkoutForm = () => {
                   <Button
                     type="button"
                     variant="positive"
-                    onClick={() => addSet(exerciseIndex)}
+                    onClick={() => handleAddSet(exerciseIndex)}
                   >
                     Add Set
                   </Button>
@@ -315,19 +299,20 @@ const WorkoutForm = () => {
               </div>
             ))}
 
-            <Button type="button" variant="positive" onClick={addExercise}>
+            <Button
+              type="button"
+              variant="positive"
+              onClick={handleAddExercise}
+            >
               Add Exercise
             </Button>
 
-            {submitAttempted &&
-              !exercises.some(
-                (ex) => ex.name.trim() && ex.sets.some((s) => s.reps > 0),
-              ) && (
-                <div className="error-message">
-                  Please add at least one valid exercise with sets to save the
-                  workout
-                </div>
-              )}
+            {submitAttempted && !hasValidExercises() && (
+              <div className="error-message">
+                Please add at least one valid exercise with sets to save the
+                workout
+              </div>
+            )}
           </div>
         </form>
       )}

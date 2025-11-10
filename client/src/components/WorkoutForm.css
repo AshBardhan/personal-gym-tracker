@@ -27,10 +27,19 @@
 
 .form-section h2 {
   font-size: 1.3rem;
+  margin-bottom: 1em;
 }
 
 .form-group {
-  margin-bottom: 1rem;
+  margin-bottom: 1em;
+}
+
+.form-group-parent {
+  display: flex;
+  gap: 1rem;
+}
+
+.form-group-child {
   flex: 1;
 }
 

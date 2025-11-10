@@ -36,6 +36,7 @@ npm run preview
 - React Router DOM
 - Axios
 - Lucide React (icons)
+- Zustand (state management)
 
 ## Project Structure
 
@@ -50,6 +51,8 @@ src/
 │   ├── Input.css
 │   ├── Button.tsx         # Reusable button with variants
 │   └── Button.css
+├── stores/          # Zustand state stores
+│   └── workoutFormStore.ts
 ├── services/        # API service layer
 │   └── api.ts
 ├── types/           # TypeScript type definitions

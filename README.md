@@ -81,6 +81,7 @@ npm run dev
 - **React Router** - Routing
 - **Axios** - HTTP client
 - **Lucide React** - Icon library
+- **Zustand** - State management
 
 ## Project Structure
 
@@ -97,6 +98,8 @@ personal-gym-tracker/
 │   │   │   ├── Input.css
 │   │   │   ├── Button.tsx         # Reusable button with variants
 │   │   │   └── Button.css
+│   │   ├── stores/         # Zustand state management
+│   │   │   └── workoutFormStore.ts
 │   │   ├── services/       # API service layer
 │   │   │   └── api.ts
 │   │   ├── types/          # TypeScript type definitions
@@ -294,6 +297,13 @@ curl -X POST http://localhost:5000/api/workouts \
 - **Input component**: Self-contained validation state, red border on error, customizable error messages
 - **Button component**: Six variants (primary, secondary, danger, add, icon-only, danger-icon) for consistent styling
 - **Icon integration**: Professional Lucide React SVG icons throughout the UI
+
+### State Management with Zustand
+- **Centralized form state**: Workout form state managed in a Zustand store
+- **Clean component code**: Components consume store actions without prop drilling
+- **Predictable updates**: Immutable state updates with clear action names
+- **Easy testing**: Store logic separated from UI components
+- **DevTools support**: Zustand DevTools integration for debugging
 
 ### Form Validation
 - **Field-level validation**: Each input validates independently
