@@ -82,6 +82,7 @@ npm run dev
 - **Axios** - HTTP client
 - **Lucide React** - Icon library
 - **Zustand** - State management
+- **MSW** - Mock Service Worker for API mocking
 
 ## Project Structure
 
@@ -100,6 +101,12 @@ personal-gym-tracker/
 │   │   │   └── Button.css
 │   │   ├── stores/         # Zustand state management
 │   │   │   └── workoutFormStore.ts
+│   │   ├── mocks/          # MSW API mocking
+│   │   │   ├── browser.ts
+│   │   │   ├── server.ts
+│   │   │   ├── handlers.ts
+│   │   │   ├── data.ts
+│   │   │   └── README.md
 │   │   ├── services/       # API service layer
 │   │   │   └── api.ts
 │   │   ├── types/          # TypeScript type definitions
@@ -316,6 +323,40 @@ curl -X POST http://localhost:5000/api/workouts \
 - **TypeScript**: Configured for ES2020 module output
 - **Import extensions**: All imports use `.js` extensions for ESM compatibility
 - **Modern JavaScript**: Leverages latest ES features throughout
+
+### API Mocking with MSW
+- **Mock Service Worker**: Intercepts API calls in development mode
+- **No backend required**: Develop frontend without running the server
+- **Consistent test data**: 3 sample workouts with full CRUD support
+- **Easy toggle**: Switch between mock and real API via environment variable
+- **Test-ready**: Pre-configured for unit testing with MSW server setup
+- **In-memory storage**: Mock data persists during session, resets on refresh
+
+For complete MSW documentation, see `client/src/mocks/README.md`.
+
+## Development Modes
+
+### Development with Mock API (Default)
+```bash
+# Frontend only - uses MSW for API mocking
+cd client
+npm run dev
+```
+The app will run with mock data at http://localhost:5173. No backend server needed!
+
+### Development with Real API
+```bash
+# 1. Start backend server
+cd server
+npm run dev
+
+# 2. Disable MSW in client/.env file
+VITE_ENABLE_MSW=false
+
+# 3. Start frontend
+cd client
+npm run dev
+```
 
 ## Future Enhancements
 
