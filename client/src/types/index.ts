@@ -5,6 +5,8 @@ export interface Set {
 
 export interface Exercise {
   name: string;
+  category?: string;
+  muscleGroup?: string[];
   sets: Set[];
 }
 

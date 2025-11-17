@@ -1,4 +1,4 @@
-import { useState, InputHTMLAttributes } from "react";
+import { useState, InputHTMLAttributes, RefObject } from "react";
 import "./Input.css";
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
@@ -6,6 +6,7 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   validate?: (value: string | number) => boolean;
   errorMessage?: string;
   showErrorOnBlur?: boolean;
+  ref?: RefObject<HTMLInputElement | null>;
 }
 
 const Input = ({
@@ -14,6 +15,7 @@ const Input = ({
   errorMessage = "This field is required",
   showErrorOnBlur = true,
   className = "",
+  ref,
   ...props
 }: InputProps) => {
   const [touched, setTouched] = useState(false);
@@ -48,6 +50,7 @@ const Input = ({
       {label && <label htmlFor={props.id}>{label}</label>}
       <input
         {...props}
+        ref={ref}
         className={`${className} ${showError ? "input--error" : ""}`.trim()}
         onBlur={handleBlur}
         onChange={handleChange}

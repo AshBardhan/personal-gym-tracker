@@ -13,6 +13,8 @@ export const mockWorkouts: Workout[] = [
     exercises: [
       {
         name: "Bench Press",
+        category: "Chest",
+        muscleGroup: ["Chest", "Triceps", "Shoulders"],
         sets: [
           { reps: 10, weight: 80 },
           { reps: 8, weight: 85 },
@@ -21,6 +23,8 @@ export const mockWorkouts: Workout[] = [
       },
       {
         name: "Shoulder Press",
+        category: "Shoulders",
+        muscleGroup: ["Shoulders", "Triceps"],
         sets: [
           { reps: 12, weight: 30 },
           { reps: 10, weight: 35 },
@@ -29,6 +33,8 @@ export const mockWorkouts: Workout[] = [
       },
       {
         name: "Bicep Curls",
+        category: "Arms",
+        muscleGroup: ["Biceps"],
         sets: [
           { reps: 15, weight: 15 },
           { reps: 12, weight: 17.5 },
@@ -46,6 +52,8 @@ export const mockWorkouts: Workout[] = [
     exercises: [
       {
         name: "Squats",
+        category: "Legs",
+        muscleGroup: ["Quads", "Glutes", "Core"],
         sets: [
           { reps: 10, weight: 100 },
           { reps: 8, weight: 110 },
@@ -54,6 +62,8 @@ export const mockWorkouts: Workout[] = [
       },
       {
         name: "Leg Press",
+        category: "Legs",
+        muscleGroup: ["Quads", "Glutes"],
         sets: [
           { reps: 12, weight: 150 },
           { reps: 10, weight: 160 },
@@ -70,7 +80,9 @@ export const mockWorkouts: Workout[] = [
     date: new Date("2024-11-08").toISOString(),
     exercises: [
       {
-        name: "Deadlifts",
+        name: "Deadlift",
+        category: "Back",
+        muscleGroup: ["Back", "Glutes", "Hamstrings", "Core"],
         sets: [
           { reps: 8, weight: 120 },
           { reps: 6, weight: 130 },
@@ -79,6 +91,8 @@ export const mockWorkouts: Workout[] = [
       },
       {
         name: "Pull-ups",
+        category: "Back",
+        muscleGroup: ["Lats", "Biceps", "Core"],
         sets: [
           { reps: 10, weight: 0 },
           { reps: 8, weight: 5 },
@@ -87,6 +101,8 @@ export const mockWorkouts: Workout[] = [
       },
       {
         name: "Planks",
+        category: "Core",
+        muscleGroup: ["Core"],
         sets: [
           { reps: 60, weight: 0 },
           { reps: 45, weight: 0 },

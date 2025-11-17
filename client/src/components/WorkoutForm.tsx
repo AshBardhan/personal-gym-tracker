@@ -1,10 +1,13 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Trash2, X } from "lucide-react";
 import { workoutAPI } from "../services/api";
 import { useWorkoutFormStore } from "../stores/workoutFormStore";
+import { PREDEFINED_EXERCISES } from "../data/exercises";
 import Input from "./Input";
 import Button from "./Button";
+import SelectBox from "./SelectBox";
+import { getExerciseOptions } from "../data/exerciseOptions";
 import "./WorkoutForm.css";
 
 const WorkoutForm = () => {
@@ -21,7 +24,7 @@ const WorkoutForm = () => {
     updateFormField,
     addExercise,
     removeExercise,
-    updateExerciseName,
+    updateExercise,
     addSet,
     removeSet,
     updateSet,
@@ -35,6 +38,14 @@ const WorkoutForm = () => {
 
   // Hardcoded userId for demo - would come from auth in real app
   const userId = "673092a6fd2a34e8e4b91234";
+
+  // Exercise options for SelectBox
+  const exerciseOptions = getExerciseOptions();
+
+  // Track touched state for exercise names
+  const [exerciseNameTouched, setExerciseNameTouched] = useState<{
+    [key: number]: boolean;
+  }>({});
 
   // Load workout data if in edit mode
   useEffect(() => {
@@ -67,11 +78,22 @@ const WorkoutForm = () => {
     updateFormField(e.target.name as "title" | "date", e.target.value);
   };
 
-  const handleExerciseNameChange = (
-    exerciseIndex: number,
-    e: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    updateExerciseName(exerciseIndex, e.target.value);
+  const handleExerciseNameChange = (exerciseIndex: number, value: string) => {
+    // Find the predefined exercise to get category and muscleGroup
+    const predefinedExercise = PREDEFINED_EXERCISES.find(
+      (ex) => ex.name === value,
+    );
+
+    // Update with full exercise data if predefined, otherwise just name
+    updateExercise(exerciseIndex, {
+      name: value,
+      category: predefinedExercise?.category,
+      muscleGroup: predefinedExercise?.muscleGroup,
+    });
+  };
+
+  const handleExerciseNameBlur = (exerciseIndex: number) => {
+    setExerciseNameTouched((prev) => ({ ...prev, [exerciseIndex]: true }));
   };
 
   const handleSetChange = (
@@ -200,104 +222,112 @@ const WorkoutForm = () => {
           <div className="form-section">
             <h2>Exercises</h2>
 
-            {exercises.map((exercise, exerciseIndex) => (
-              <div key={exerciseIndex} className="exercise-card">
-                <Input
-                  label={`Exercise ${exerciseIndex + 1} Name *`}
-                  type="text"
-                  id={`exerciseName-${exerciseIndex}`}
-                  name="name"
-                  value={exercise.name}
-                  onChange={(e) => handleExerciseNameChange(exerciseIndex, e)}
-                  placeholder="e.g., Bench Press"
-                  validate={(value) => String(value).trim().length > 0}
-                  errorMessage="Exercise name is required"
-                />
+            {exercises.map((exercise, exerciseIndex) => {
+              const hasExerciseNameError =
+                (submitAttempted || exerciseNameTouched[exerciseIndex]) &&
+                !exercise.name.trim();
 
-                <div className="exercise-actions">
-                  <Button
-                    type="button"
-                    disabled={exercises.length === 1}
-                    variant="icon-only"
-                    onClick={() => handleRemoveExercise(exerciseIndex)}
-                    title="Remove exercise"
-                  >
-                    <Trash2 size={18} />
-                  </Button>
-                </div>
+              return (
+                <div key={exerciseIndex} className="exercise-card">
+                  <SelectBox
+                    label={`Exercise Name`}
+                    id={`exercise-name-${exerciseIndex}`}
+                    value={exercise.name}
+                    onChange={(value) =>
+                      handleExerciseNameChange(exerciseIndex, value)
+                    }
+                    onBlur={() => handleExerciseNameBlur(exerciseIndex)}
+                    options={exerciseOptions}
+                    placeholder="Search or Select exercise"
+                    hasError={hasExerciseNameError}
+                    errorMessage="Exercise name is required"
+                  />
 
-                <div className="sets-section">
-                  <h3>Sets</h3>
-
-                  <div className="sets-list">
-                    {exercise.sets.map((set, setIndex) => (
-                      <div key={setIndex} className="set-row">
-                        <span className="set-label">{setIndex + 1}</span>
-                        <div className="set-inputs">
-                          <Input
-                            label="Reps *"
-                            type="number"
-                            id={`reps-${exerciseIndex}-${setIndex}`}
-                            name="reps"
-                            value={set.reps || ""}
-                            onChange={(e) =>
-                              handleSetChange(
-                                exerciseIndex,
-                                setIndex,
-                                "reps",
-                                e.target.value,
-                              )
-                            }
-                            placeholder="10"
-                            min="1"
-                            validate={(value) => Number(value) > 0}
-                            errorMessage="Reps must be greater than 0"
-                          />
-                          <Input
-                            label="Weight (kg)"
-                            type="number"
-                            id={`weight-${exerciseIndex}-${setIndex}`}
-                            name="weight"
-                            value={set.weight || ""}
-                            onChange={(e) =>
-                              handleSetChange(
-                                exerciseIndex,
-                                setIndex,
-                                "weight",
-                                e.target.value,
-                              )
-                            }
-                            placeholder="50"
-                            min="0"
-                            step="0.5"
-                            showErrorOnBlur={false}
-                          />
-                        </div>
-                        <Button
-                          type="button"
-                          variant="icon-only"
-                          disabled={exercise.sets.length === 1}
-                          onClick={() =>
-                            handleRemoveSet(exerciseIndex, setIndex)
-                          }
-                          title="Remove set"
-                        >
-                          <X size={20} />
-                        </Button>
-                      </div>
-                    ))}
+                  <div className="exercise-actions">
+                    <Button
+                      type="button"
+                      disabled={exercises.length === 1}
+                      variant="icon-only"
+                      onClick={() => handleRemoveExercise(exerciseIndex)}
+                      title="Remove exercise"
+                    >
+                      <Trash2 size={18} />
+                    </Button>
                   </div>
 
-                  <Button
-                    type="button"
-                    variant="positive"
-                    onClick={() => handleAddSet(exerciseIndex)}
-                  >
-                    Add Set
-                  </Button>
+                  <div className="sets-section">
+                    <h3>Sets</h3>
+
+                    <div className="sets-list">
+                      {exercise.sets.map((set, setIndex) => (
+                        <div key={setIndex} className="set-row">
+                          <span className="set-label">{setIndex + 1}</span>
+                          <div className="set-inputs">
+                            <Input
+                              label="Reps *"
+                              type="number"
+                              id={`reps-${exerciseIndex}-${setIndex}`}
+                              name="reps"
+                              value={set.reps || ""}
+                              onChange={(e) =>
+                                handleSetChange(
+                                  exerciseIndex,
+                                  setIndex,
+                                  "reps",
+                                  e.target.value,
+                                )
+                              }
+                              placeholder="10"
+                              min="1"
+                              validate={(value) => Number(value) > 0}
+                              errorMessage="Reps must be greater than 0"
+                            />
+                            <Input
+                              label="Weight (kg)"
+                              type="number"
+                              id={`weight-${exerciseIndex}-${setIndex}`}
+                              name="weight"
+                              value={set.weight || ""}
+                              onChange={(e) =>
+                                handleSetChange(
+                                  exerciseIndex,
+                                  setIndex,
+                                  "weight",
+                                  e.target.value,
+                                )
+                              }
+                              placeholder="50"
+                              min="0"
+                              step="0.5"
+                              showErrorOnBlur={false}
+                            />
+                          </div>
+                          <Button
+                            type="button"
+                            variant="icon-only"
+                            disabled={exercise.sets.length === 1}
+                            onClick={() =>
+                              handleRemoveSet(exerciseIndex, setIndex)
+                            }
+                            title="Remove set"
+                          >
+                            <X size={20} />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+
+                    <Button
+                      type="button"
+                      variant="positive"
+                      onClick={() => handleAddSet(exerciseIndex)}
+                    >
+                      Add Set
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
 
             <Button
               type="button"

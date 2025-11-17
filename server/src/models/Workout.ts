@@ -7,6 +7,8 @@ export interface ISet {
 
 export interface IExercise {
   name: string;
+  category?: string;
+  muscleGroup?: string[];
   sets: ISet[];
 }
 
@@ -35,6 +37,15 @@ const exerciseSchema = new Schema<IExercise>({
   name: {
     type: String,
     required: true,
+  },
+  category: {
+    type: String,
+    required: false,
+  },
+  muscleGroup: {
+    type: [String],
+    required: false,
+    default: [],
   },
   sets: {
     type: [setSchema],

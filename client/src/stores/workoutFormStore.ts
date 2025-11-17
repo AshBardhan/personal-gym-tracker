@@ -21,7 +21,10 @@ interface WorkoutFormState {
   // Exercise actions
   addExercise: () => void;
   removeExercise: (index: number) => void;
-  updateExerciseName: (index: number, name: string) => void;
+  updateExercise: (
+    index: number,
+    updates: Partial<Exercise>,
+  ) => void;
 
   // Set actions
   addSet: (exerciseIndex: number) => void;
@@ -90,10 +93,10 @@ export const useWorkoutFormStore = create<WorkoutFormState>((set, get) => ({
       exercises: state.exercises.filter((_, i) => i !== index),
     })),
 
-  updateExerciseName: (index, name) =>
+  updateExercise: (index, updates) =>
     set((state) => ({
       exercises: state.exercises.map((ex, i) =>
-        i === index ? { ...ex, name } : ex,
+        i === index ? { ...ex, ...updates } : ex,
       ),
     })),
 
