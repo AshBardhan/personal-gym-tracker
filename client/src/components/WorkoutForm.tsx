@@ -220,7 +220,9 @@ const WorkoutForm = () => {
           </div>
 
           <div className="form-section">
-            <h2>Exercises</h2>
+            <h2>
+              Exercises {exercises.length > 0 ? `(${exercises.length})` : ""}
+            </h2>
 
             {exercises.map((exercise, exerciseIndex) => {
               const hasExerciseNameError =
@@ -238,7 +240,7 @@ const WorkoutForm = () => {
                     }
                     onBlur={() => handleExerciseNameBlur(exerciseIndex)}
                     options={exerciseOptions}
-                    placeholder="Search or Select exercise"
+                    placeholder="Select Exercise"
                     hasError={hasExerciseNameError}
                     errorMessage="Exercise name is required"
                   />
@@ -258,30 +260,11 @@ const WorkoutForm = () => {
                   <div className="sets-section">
                     <h3>Sets</h3>
 
-                    <div className="sets-list">
+                    <div className="set-list">
                       {exercise.sets.map((set, setIndex) => (
                         <div key={setIndex} className="set-row">
                           <span className="set-label">{setIndex + 1}</span>
                           <div className="set-inputs">
-                            <Input
-                              label="Reps *"
-                              type="number"
-                              id={`reps-${exerciseIndex}-${setIndex}`}
-                              name="reps"
-                              value={set.reps || ""}
-                              onChange={(e) =>
-                                handleSetChange(
-                                  exerciseIndex,
-                                  setIndex,
-                                  "reps",
-                                  e.target.value,
-                                )
-                              }
-                              placeholder="10"
-                              min="1"
-                              validate={(value) => Number(value) > 0}
-                              errorMessage="Reps must be greater than 0"
-                            />
                             <Input
                               label="Weight (kg)"
                               type="number"
@@ -300,6 +283,25 @@ const WorkoutForm = () => {
                               min="0"
                               step="0.5"
                               showErrorOnBlur={false}
+                            />
+                            <Input
+                              label="Reps *"
+                              type="number"
+                              id={`reps-${exerciseIndex}-${setIndex}`}
+                              name="reps"
+                              value={set.reps || ""}
+                              onChange={(e) =>
+                                handleSetChange(
+                                  exerciseIndex,
+                                  setIndex,
+                                  "reps",
+                                  e.target.value,
+                                )
+                              }
+                              placeholder="10"
+                              min="1"
+                              validate={(value) => Number(value) > 0}
+                              errorMessage="Reps must be greater than 0"
                             />
                           </div>
                           <Button

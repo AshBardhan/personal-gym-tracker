@@ -21,10 +21,7 @@ interface WorkoutFormState {
   // Exercise actions
   addExercise: () => void;
   removeExercise: (index: number) => void;
-  updateExercise: (
-    index: number,
-    updates: Partial<Exercise>,
-  ) => void;
+  updateExercise: (index: number, updates: Partial<Exercise>) => void;
 
   // Set actions
   addSet: (exerciseIndex: number) => void;

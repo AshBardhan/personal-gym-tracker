@@ -114,7 +114,12 @@ const WorkoutDetail = () => {
         </div>
 
         <div className="exercises-section">
-          <h2>Exercises</h2>
+          <h2>
+            Exercises{" "}
+            {workout.exercises.length > 0
+              ? `(${workout.exercises.length})`
+              : ""}
+          </h2>
           {workout.exercises.length === 0 ? (
             <p className="no-exercises">No exercises added to this workout</p>
           ) : (
@@ -134,8 +139,9 @@ const WorkoutDetail = () => {
                       {exercise.sets.map((set, setIndex) => (
                         <div key={setIndex} className="set-row">
                           <span className="set-label">{setIndex + 1}</span>
-                          <span className="set-reps">{set.reps} reps</span>
                           <span className="set-weight">{set.weight} kg</span>
+                          <strong>x</strong>
+                          <span className="set-reps">{set.reps} reps</span>
                         </div>
                       ))}
                     </div>

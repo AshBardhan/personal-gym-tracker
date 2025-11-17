@@ -28,7 +28,7 @@ const SelectBox = ({
   onChange,
   onBlur,
   options,
-  placeholder = "Search or select...",
+  placeholder = "Select option",
   hasError = false,
   errorMessage,
   id,
