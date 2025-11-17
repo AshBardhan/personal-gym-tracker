@@ -41,7 +41,7 @@ npm run preview
 
 ## Project Structure
 
-```
+```text
 src/
 ├── components/      # React components
 │   ├── Navbar.tsx
@@ -81,12 +81,14 @@ This project uses Mock Service Worker (MSW) to mock API calls during development
 ### Switching Between Mock and Real API
 
 1. **Use Mock Data** (no backend server needed):
+
    ```bash
    # Set in .env file
    VITE_ENABLE_MSW=true
    ```
 
 2. **Use Real API** (backend server must be running):
+
    ```bash
    # Set in .env file
    VITE_ENABLE_MSW=false
@@ -103,6 +105,7 @@ This project uses Mock Service Worker (MSW) to mock API calls during development
 ### Mock Data
 
 The mock API includes:
+
 - 3 sample workouts with various exercises
 - Demo user account
 - Full CRUD operations (Create, Read, Update, Delete)

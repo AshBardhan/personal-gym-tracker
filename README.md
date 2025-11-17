@@ -5,13 +5,15 @@ A full-stack MERN (MongoDB, Express, React, Node.js) application with TypeScript
 ## Quick Start
 
 ### Prerequisites
+
 - Node.js (v14 or higher)
 - MongoDB (running locally on port 27017)
 - npm or yarn
 
 ### Installation
 
-1. **Install dependencies**
+**1.** **Install dependencies**
+
 ```bash
 # Install server dependencies
 cd server
@@ -22,7 +24,8 @@ cd ../client
 npm install
 ```
 
-2. **Start MongoDB**
+**2.** **Start MongoDB**
+
 ```bash
 # Make sure MongoDB is running
 sudo systemctl status mongod
@@ -30,13 +33,15 @@ sudo systemctl status mongod
 brew services start mongodb-community  # macOS
 ```
 
-3. **Create demo user** (optional)
+**3.** **Create demo user** (optional)
+
 ```bash
 cd server
 npm run setup
 ```
 
-4. **Run the application**
+**4.** **Run the application**
+
 ```bash
 # Terminal 1 - Start backend server
 cd server
@@ -47,7 +52,8 @@ cd client
 npm run dev
 ```
 
-5. **Open the app**
+**5.** **Open the app**
+
 - Frontend: http://localhost:5173
 - Backend API: http://localhost:5000
 
@@ -68,6 +74,7 @@ npm run dev
 ## Tech Stack
 
 ### Backend
+
 - **Node.js** - Runtime environment
 - **Express.js** - Web framework
 - **MongoDB** - Database
@@ -75,6 +82,7 @@ npm run dev
 - **TypeScript** - Static typing
 
 ### Frontend
+
 - **React** - UI library
 - **TypeScript** - Static typing
 - **Vite** - Build tool
@@ -86,7 +94,7 @@ npm run dev
 
 ## Project Structure
 
-```
+```text
 personal-gym-tracker/
 ├── client/                 # React frontend (TypeScript)
 │   ├── src/
@@ -138,20 +146,20 @@ personal-gym-tracker/
 
 1. **Navigate to the app** at http://localhost:5173
 2. **Click "Add Workout"** in the navigation bar
-2. **Fill in workout details**:
+3. **Fill in workout details**:
    - Enter an optional workout title (e.g., "Upper Body Day")
    - Select the date (defaults to today)
-3. **Add exercises** (inline editing):
+4. **Add exercises** (inline editing):
    - A default empty exercise is provided to start
    - Enter exercise name directly in the form
    - Add sets by entering reps and weight inline
    - Click "Add Set" to add more sets to the exercise
    - Click "Add Exercise" to add another exercise
    - Remove exercises or sets using the icon buttons
-4. **Real-time validation**:
+5. **Real-time validation**:
    - Input fields show red borders when invalid
    - Empty exercise names or sets are filtered out on save
-5. **Click "Save Workout"** to save
+6. **Click "Save Workout"** to save
 
 ### Viewing Workouts
 
@@ -183,24 +191,28 @@ NODE_ENV=development
 ## Troubleshooting
 
 ### Backend not starting?
+
 - Ensure MongoDB is running: `sudo systemctl status mongod`
 - Check if port 5000 is available: `lsof -i :5000`
 - Verify `.env` file exists in server directory
 - Check MongoDB connection string in `.env`
 
 ### Frontend not loading?
+
 - Clear browser cache and reload
 - Check browser console for errors
 - Verify backend is running on port 5000
 - Check for TypeScript compilation errors: `npm run build`
 
 ### Can't see workouts?
+
 - Verify the demo userId matches: `673092a6fd2a34e8e4b91234`
 - Check MongoDB connection in server logs
 - Run `npm run setup` to create demo user
 - Check browser network tab for API errors
 
 ### TypeScript errors?
+
 - Delete `node_modules` and reinstall: `rm -rf node_modules && npm install`
 - Check TypeScript version compatibility
 - Run `npm run build` to see compilation errors
@@ -208,6 +220,7 @@ NODE_ENV=development
 ## Available Scripts
 
 ### Server Commands
+
 ```bash
 npm run dev      # Start development server with hot reload
 npm run build    # Compile TypeScript to JavaScript
@@ -216,6 +229,7 @@ npm run setup    # Create/verify demo user
 ```
 
 ### Client Commands
+
 ```bash
 npm run dev      # Start development server with hot reload
 npm run build    # Build for production
@@ -225,6 +239,7 @@ npm run preview  # Preview production build
 ## API Endpoints
 
 ### Users
+
 - `GET /api/users` - Get all users
 - `GET /api/users/:id` - Get user by ID
 - `POST /api/users` - Create new user
@@ -232,6 +247,7 @@ npm run preview  # Preview production build
 - `DELETE /api/users/:id` - Delete user
 
 ### Workouts
+
 - `GET /api/workouts/:userId` - Get all workouts for a user
 - `GET /api/workouts/detail/:id` - Get workout by ID
 - `POST /api/workouts` - Create new workout
@@ -239,6 +255,7 @@ npm run preview  # Preview production build
 - `DELETE /api/workouts/:id` - Delete workout
 
 ### Example: Create a workout
+
 ```bash
 curl -X POST http://localhost:5000/api/workouts \
   -H "Content-Type: application/json" \
@@ -262,6 +279,7 @@ curl -X POST http://localhost:5000/api/workouts \
 ## Database Schema
 
 ### User Model
+
 ```typescript
 {
   name: string;
@@ -271,6 +289,7 @@ curl -X POST http://localhost:5000/api/workouts \
 ```
 
 ### Workout Model
+
 ```typescript
 {
   userId: ObjectId (ref: User);
@@ -294,6 +313,7 @@ curl -X POST http://localhost:5000/api/workouts \
 ## Key Features Explained
 
 ### Inline Editing with Default Items
+
 - **Default state**: Form loads with one empty exercise containing one empty set
 - **Direct editing**: All fields are editable in place - no separate input areas
 - **Add on demand**: Click "Add Exercise" or "Add Set" to expand the form
@@ -301,11 +321,13 @@ curl -X POST http://localhost:5000/api/workouts \
 - **Smart filtering**: Empty exercises and invalid sets are automatically excluded on save
 
 ### Reusable Component Architecture
+
 - **Input component**: Self-contained validation state, red border on error, customizable error messages
 - **Button component**: Six variants (primary, secondary, danger, add, icon-only, danger-icon) for consistent styling
 - **Icon integration**: Professional Lucide React SVG icons throughout the UI
 
 ### State Management with Zustand
+
 - **Centralized form state**: Workout form state managed in a Zustand store
 - **Clean component code**: Components consume store actions without prop drilling
 - **Predictable updates**: Immutable state updates with clear action names
@@ -313,18 +335,21 @@ curl -X POST http://localhost:5000/api/workouts \
 - **DevTools support**: Zustand DevTools integration for debugging
 
 ### Form Validation
+
 - **Field-level validation**: Each input validates independently
 - **Visual feedback**: Red borders appear on blur or submit for invalid fields
 - **Error messages**: Clear, contextual error messages below invalid inputs
 - **Submit protection**: Invalid forms cannot be submitted until errors are fixed
 
 ### ESM Module Support
+
 - **Server**: Full ES module support with `"type": "module"` in package.json
 - **TypeScript**: Configured for ES2020 module output
 - **Import extensions**: All imports use `.js` extensions for ESM compatibility
 - **Modern JavaScript**: Leverages latest ES features throughout
 
 ### API Mocking with MSW
+
 - **Mock Service Worker**: Intercepts API calls in development mode
 - **No backend required**: Develop frontend without running the server
 - **Consistent test data**: 3 sample workouts with full CRUD support
@@ -337,14 +362,17 @@ For complete MSW documentation, see `client/src/mocks/README.md`.
 ## Development Modes
 
 ### Development with Mock API (Default)
+
 ```bash
 # Frontend only - uses MSW for API mocking
 cd client
 npm run dev
 ```
+
 The app will run with mock data at http://localhost:5173. No backend server needed!
 
 ### Development with Real API
+
 ```bash
 # 1. Start backend server
 cd server
@@ -361,6 +389,7 @@ npm run dev
 ## Future Enhancements
 
 ### Short-term
+
 - User authentication (JWT/sessions)
 - Input validation and error handling
 - Mobile responsive design
@@ -368,6 +397,7 @@ npm run dev
 - Workout templates (save and reuse common workouts)
 
 ### Medium-term
+
 - Progress tracking and analytics
 - Charts and visualizations (weight progression, volume, etc.)
 - Goal setting and achievement tracking
@@ -375,6 +405,7 @@ npm run dev
 - Search and filter workouts
 
 ### Long-term
+
 - Photo uploads for progress tracking
 - Workout reminders and notifications
 - Social features (share workouts, follow friends)
@@ -386,6 +417,7 @@ npm run dev
 ## Development Guidelines
 
 ### Code Style
+
 - Use TypeScript for all new code
 - Follow ESLint configuration
 - Use functional components with hooks
@@ -393,6 +425,7 @@ npm run dev
 - Write descriptive variable and function names
 
 ### Adding New Features
+
 1. Update TypeScript types in `types/index.ts`
 2. Add/modify Mongoose models if needed
 3. Update API routes and controllers
@@ -400,6 +433,7 @@ npm run dev
 5. Test thoroughly before committing
 
 ### Production Deployment Checklist
+
 - [ ] Implement authentication system
 - [ ] Add comprehensive input validation
 - [ ] Set up error monitoring (Sentry, etc.)
@@ -415,11 +449,12 @@ npm run dev
 
 ## License
 
-ISC
+MIT
 
 ## Contributing
 
 Contributions are welcome! Feel free to:
+
 - Report bugs
 - Suggest new features
 - Submit pull requests
@@ -429,6 +464,3 @@ Contributions are welcome! Feel free to:
 
 For questions or suggestions, please open an issue on the repository.
 
----
-
-**Happy tracking!**

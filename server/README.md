@@ -41,7 +41,7 @@ npm start
 
 ## Project Structure
 
-```
+```text
 src/
 ├── models/              # Mongoose models
 │   ├── User.ts
@@ -68,6 +68,7 @@ NODE_ENV=development
 ## Module System
 
 This project uses **ES Modules (ESM)**:
+
 - `package.json` includes `"type": "module"`
 - All imports use `.js` extensions (e.g., `./routes/users.js`)
 - TypeScript compiles to ES2020 modules
