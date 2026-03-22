@@ -1,70 +1,29 @@
-import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { workoutAPI } from "../services/api";
-import { Set, Workout } from "../types";
-import Button from "./Button";
+import { useWorkout } from "../hooks/useWorkout";
+import { useWorkoutMutation } from "../hooks/useWorkoutMutation";
+import { getExerciseVolume, getTotalVolume, formatDetailDate, formatVolume } from "../utils/workoutUtils";
+import Button from "../components/ui/Button";
 import "./WorkoutDetail.css";
 
-const WorkoutDetail = () => {
+/**
+ * Workout Detail Page Component
+ * Displays detailed view of a single workout
+ */
+const WorkoutDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [workout, setWorkout] = useState<Workout | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (id) {
-      fetchWorkout();
-    }
-  }, [id]);
-
-  const fetchWorkout = async () => {
-    if (!id) return;
-
-    try {
-      setLoading(true);
-      const response = await workoutAPI.getById(id);
-      setWorkout(response.data);
-      setError(null);
-    } catch (err) {
-      setError("Failed to fetch workout details");
-      console.error("Error fetching workout:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { workout, loading, error } = useWorkout(id);
+  const { deleteWorkout } = useWorkoutMutation();
 
   const handleDelete = async () => {
     if (!id) return;
 
     if (window.confirm("Are you sure you want to delete this workout?")) {
-      try {
-        await workoutAPI.delete(id);
-        navigate("/");
-      } catch (err) {
-        console.error("Error deleting workout:", err);
+      const success = await deleteWorkout(id);
+      if (success) {
+        navigate("/workouts");
       }
     }
-  };
-
-  const formatDate = (date: string): string => {
-    return new Date(date).toLocaleDateString("en-US", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
-
-  const getExerciseVolume = (sets: Set[]): number => {
-    return sets.reduce((total, set) => total + set.reps * set.weight, 0);
-  };
-
-  const getTotalWorkoutVolume = (workout: Workout): number => {
-    return workout.exercises.reduce(
-      (total, exercise) => total + getExerciseVolume(exercise.sets),
-      0,
-    );
   };
 
   if (loading) {
@@ -75,7 +34,7 @@ const WorkoutDetail = () => {
     return (
       <div className="error">
         <p>{error || "Workout not found"}</p>
-        <Button variant="primary" onClick={() => navigate("/")}>
+        <Button variant="primary" onClick={() => navigate("/workouts")}>
           Back to Workouts
         </Button>
       </div>
@@ -85,13 +44,13 @@ const WorkoutDetail = () => {
   return (
     <div className="workout-detail">
       <div className="detail-header">
-        <Button variant="secondary" onClick={() => navigate("/")}>
+        <Button variant="secondary" onClick={() => navigate("/workouts")}>
           ← Back to Workouts
         </Button>
         <div className="header-actions">
           <Button
             variant="primary"
-            onClick={() => navigate(`/edit-workout/${id}`)}
+            onClick={() => navigate(`/workouts/${id}/edit`)}
           >
             Edit Workout
           </Button>
@@ -105,11 +64,12 @@ const WorkoutDetail = () => {
         <h1>{workout.title || "Untitled Workout"}</h1>
         <div className="detail-meta">
           <div>
-            <strong>Date:</strong> {formatDate(workout.date)}
+            <strong>Date:</strong> {formatDetailDate(workout.date)}
           </div>
           <div>
             <strong>Total Volume:</strong>
-            &nbsp;{Math.round(getTotalWorkoutVolume(workout))} kg
+            &nbsp;
+            {formatVolume(getTotalVolume(workout))}
           </div>
         </div>
 
@@ -131,7 +91,11 @@ const WorkoutDetail = () => {
                     <h3>
                       {exercise.name}
                       <span className="exercise-volume">
-                        <strong>{getExerciseVolume(exercise.sets)} kg</strong>
+                        <strong>
+                          {formatVolume(
+                            getExerciseVolume(exercise.sets)
+                          )}
+                        </strong>
                         &nbsp;volume
                       </span>
                     </h3>
@@ -156,4 +120,4 @@ const WorkoutDetail = () => {
   );
 };
 
-export default WorkoutDetail;
+export default WorkoutDetailPage;

@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { Exercise } from "../types";
+import { Exercise } from "../types/workout";
 
 interface WorkoutFormState {
   // Form data

@@ -1,16 +1,21 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Trash2, X } from "lucide-react";
-import { workoutAPI } from "../services/api";
+import { workoutService } from "../services/api/workouts.service";
 import { useWorkoutFormStore } from "../stores/workoutFormStore";
-import { PREDEFINED_EXERCISES } from "../data/exercises";
-import Input from "./Input";
-import Button from "./Button";
-import SelectBox from "./SelectBox";
-import { getExerciseOptions } from "../data/exerciseOptions";
+import { PREDEFINED_EXERCISES } from "../constants/exercises";
+import { config } from "../config/env";
+import { getExerciseOptions } from "../utils/workoutUtils";
+import Input from "../components/ui/Input";
+import Button from "../components/ui/Button";
+import SelectBox from "../components/ui/SelectBox";
 import "./WorkoutForm.css";
 
-const WorkoutForm = () => {
+/**
+ * Workout Form Page Component
+ * Handles both create and edit modes for workouts
+ */
+const WorkoutFormPage = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const isEditMode = Boolean(id);
@@ -36,8 +41,8 @@ const WorkoutForm = () => {
     loadWorkoutData,
   } = useWorkoutFormStore();
 
-  // Hardcoded userId for demo - would come from auth in real app
-  const userId = "673092a6fd2a34e8e4b91234";
+  // Demo userId from env - would come from auth in real app
+  const userId = config.user.DEMO_USER_ID;
 
   // Exercise options for SelectBox
   const exerciseOptions = getExerciseOptions();
@@ -60,8 +65,7 @@ const WorkoutForm = () => {
   const loadWorkout = async (workoutId: string) => {
     try {
       setLoading(true);
-      const response = await workoutAPI.getById(workoutId);
-      const workout = response.data;
+      const workout = await workoutService.getById(workoutId);
 
       loadWorkoutData({
         title: workout.title || "",
@@ -149,15 +153,15 @@ const WorkoutForm = () => {
       console.log("Submitting workout data:", workoutData);
 
       if (isEditMode && id) {
-        await workoutAPI.update(id, workoutData);
+        await workoutService.update(id, workoutData);
         console.log("Workout updated successfully:", id);
       } else {
-        await workoutAPI.create(workoutData);
+        await workoutService.create(workoutData);
         console.log("Workout created successfully");
       }
 
       resetForm();
-      navigate("/");
+      navigate("/workouts");
     } catch (error) {
       console.error("Error saving workout:", error);
       if (error instanceof Error) {
@@ -182,7 +186,7 @@ const WorkoutForm = () => {
                 <Button
                   type="button"
                   variant="secondary"
-                  onClick={() => navigate("/")}
+                  onClick={() => navigate("/workouts")}
                 >
                   Cancel
                 </Button>
@@ -352,4 +356,4 @@ const WorkoutForm = () => {
   );
 };
 
-export default WorkoutForm;
+export default WorkoutFormPage;

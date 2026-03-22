@@ -1,4 +1,4 @@
-import { Workout } from "../types";
+import { Workout } from "../types/workout";
 
 // Mock user ID
 export const MOCK_USER_ID = "673092a6fd2a34e8e4b91234";

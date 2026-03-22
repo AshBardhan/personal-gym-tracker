@@ -1,8 +1,8 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Navbar from "./components/Navbar";
-import WorkoutList from "./components/WorkoutList";
-import WorkoutForm from "./components/WorkoutForm";
-import WorkoutDetail from "./components/WorkoutDetail";
+import Navbar from "./components/layout/Navbar";
+import WorkoutListPage from "./pages/WorkoutListPage";
+import WorkoutDetailPage from "./pages/WorkoutDetailPage";
+import WorkoutFormPage from "./pages/WorkoutFormPage";
 import "./App.css";
 
 const App = () => {
@@ -12,10 +12,14 @@ const App = () => {
         <Navbar />
         <main className="main-content">
           <Routes>
-            <Route path="/" element={<WorkoutList />} />
-            <Route path="/add-workout" element={<WorkoutForm />} />
-            <Route path="/edit-workout/:id" element={<WorkoutForm />} />
-            <Route path="/workout/:id" element={<WorkoutDetail />} />
+            {/* Home - same as workouts list */}
+            <Route path="/" element={<WorkoutListPage />} />
+
+            {/* Workouts - RESTful routes */}
+            <Route path="/workouts" element={<WorkoutListPage />} />
+            <Route path="/workouts/new" element={<WorkoutFormPage />} />
+            <Route path="/workouts/:id" element={<WorkoutDetailPage />} />
+            <Route path="/workouts/:id/edit" element={<WorkoutFormPage />} />
           </Routes>
         </main>
       </div>

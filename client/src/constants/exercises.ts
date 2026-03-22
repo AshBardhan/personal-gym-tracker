@@ -409,27 +409,3 @@ export const PREDEFINED_EXERCISES: PredefinedExercise[] = [
   },
 ];
 
-// Helper function to get exercises by category
-export const getExercisesByCategory = (
-  category: string,
-): PredefinedExercise[] => {
-  return PREDEFINED_EXERCISES.filter((ex) => ex.category === category);
-};
-
-// Helper function to search exercises
-export const searchExercises = (query: string): PredefinedExercise[] => {
-  const lowerQuery = query.toLowerCase();
-  return PREDEFINED_EXERCISES.filter(
-    (ex) =>
-      ex.name.toLowerCase().includes(lowerQuery) ||
-      ex.category.toLowerCase().includes(lowerQuery) ||
-      ex.muscleGroup.some((muscle) =>
-        muscle.toLowerCase().includes(lowerQuery),
-      ),
-  );
-};
-
-// Get all exercise names sorted alphabetically
-export const getAllExerciseNames = (): string[] => {
-  return PREDEFINED_EXERCISES.map((ex) => ex.name).sort();
-};
