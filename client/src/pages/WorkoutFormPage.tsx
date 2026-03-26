@@ -205,10 +205,8 @@ const WorkoutFormPage = () => {
 
             <div className="flex gap-4 mb-4">
               <div className="flex-1">
-                <label htmlFor="title" className="mb-1">
-                  Workout Title (Optional)
-                </label>
-                <input
+                <Input
+                  label="Workout Title (Optional)"
                   type="text"
                   id="title"
                   name="title"
@@ -220,10 +218,8 @@ const WorkoutFormPage = () => {
               </div>
 
               <div className="flex-1">
-                <label htmlFor="date" className="mb-1">
-                  Date
-                </label>
-                <input
+                <Input
+                  label="Date"
                   type="date"
                   id="date"
                   name="date"
@@ -251,21 +247,7 @@ const WorkoutFormPage = () => {
                   key={exerciseIndex}
                   className="bg-gray-50 border border-gray-300 rounded-lg p-6 mb-6 relative"
                 >
-                  <SelectBox
-                    label={`Exercise Name`}
-                    id={`exercise-name-${exerciseIndex}`}
-                    value={exercise.name}
-                    onChange={(value) =>
-                      handleExerciseNameChange(exerciseIndex, value)
-                    }
-                    onBlur={() => handleExerciseNameBlur(exerciseIndex)}
-                    options={exerciseOptions}
-                    placeholder="Select Exercise"
-                    hasError={hasExerciseNameError}
-                    errorMessage="Exercise name is required"
-                  />
-
-                  <div className="absolute top-4 right-4 flex gap-2">
+                  <div className="absolute top-2 right-2 flex">
                     <Button
                       type="button"
                       disabled={exercises.length === 1}
@@ -276,84 +258,96 @@ const WorkoutFormPage = () => {
                       <Trash2 size={18} />
                     </Button>
                   </div>
+                  <div className="space-y-4">
+                    <SelectBox
+                      label={`Exercise Name`}
+                      id={`exercise-name-${exerciseIndex}`}
+                      value={exercise.name}
+                      onChange={(value) =>
+                        handleExerciseNameChange(exerciseIndex, value)
+                      }
+                      onBlur={() => handleExerciseNameBlur(exerciseIndex)}
+                      options={exerciseOptions}
+                      placeholder="Select Exercise"
+                      hasError={hasExerciseNameError}
+                      errorMessage="Exercise name is required"
+                    />
 
-                  <div className="my-6 p-4 bg-white rounded border border-gray-300">
-                    <Text variant="h3" className="m-0 mb-4 text-base">
-                      Sets
-                    </Text>
+                    <div className="space-y-3">
+                      <Text variant="h6">Sets</Text>
 
-                    <div className="flex flex-col mb-4">
-                      {exercise.sets.map((set, setIndex) => (
-                        <div
-                          key={setIndex}
-                          className="flex items-end gap-4 bg-gray-50 rounded"
-                        >
-                          <span className="font-semibold text-blue-500 mb-4 min-w-15">
-                            {setIndex + 1}
-                          </span>
-                          <div className="flex gap-4 flex-1">
-                            <Input
-                              label="Weight (kg)"
-                              type="number"
-                              id={`weight-${exerciseIndex}-${setIndex}`}
-                              name="weight"
-                              value={set.weight || ""}
-                              onChange={(e) =>
-                                handleSetChange(
-                                  exerciseIndex,
-                                  setIndex,
-                                  "weight",
-                                  e.target.value,
-                                )
+                      <div className="flex flex-col gap-2">
+                        {exercise.sets.map((set, setIndex) => (
+                          <div key={setIndex} className="flex gap-3">
+                            <span className="font-semibold text-blue-500 min-w-8 h-8 flex self-start items-center justify-center bg-blue-100 rounded-full">
+                              {setIndex + 1}
+                            </span>
+                            <div className="flex gap-4 flex-1">
+                              <Input
+                                label="Weight (kg)"
+                                type="number"
+                                inputSize="small"
+                                id={`weight-${exerciseIndex}-${setIndex}`}
+                                name="weight"
+                                value={set.weight || ""}
+                                onChange={(e) =>
+                                  handleSetChange(
+                                    exerciseIndex,
+                                    setIndex,
+                                    "weight",
+                                    e.target.value,
+                                  )
+                                }
+                                placeholder="50"
+                                min="0"
+                                step="0.5"
+                                showErrorOnBlur={false}
+                              />
+                              <Input
+                                label="Reps"
+                                type="number"
+                                inputSize="small"
+                                id={`reps-${exerciseIndex}-${setIndex}`}
+                                name="reps"
+                                value={set.reps || ""}
+                                onChange={(e) =>
+                                  handleSetChange(
+                                    exerciseIndex,
+                                    setIndex,
+                                    "reps",
+                                    e.target.value,
+                                  )
+                                }
+                                placeholder="10"
+                                min="1"
+                                validate={(value) => Number(value) > 0}
+                                errorMessage="Reps must be greater than 0"
+                              />
+                            </div>
+                            <Button
+                              type="button"
+                              variant="icon-only"
+                              className="self-center"
+                              disabled={exercise.sets.length === 1}
+                              onClick={() =>
+                                handleRemoveSet(exerciseIndex, setIndex)
                               }
-                              placeholder="50"
-                              min="0"
-                              step="0.5"
-                              showErrorOnBlur={false}
-                            />
-                            <Input
-                              label="Reps *"
-                              type="number"
-                              id={`reps-${exerciseIndex}-${setIndex}`}
-                              name="reps"
-                              value={set.reps || ""}
-                              onChange={(e) =>
-                                handleSetChange(
-                                  exerciseIndex,
-                                  setIndex,
-                                  "reps",
-                                  e.target.value,
-                                )
-                              }
-                              placeholder="10"
-                              min="1"
-                              validate={(value) => Number(value) > 0}
-                              errorMessage="Reps must be greater than 0"
-                            />
+                              title="Remove set"
+                            >
+                              <X size={16} />
+                            </Button>
                           </div>
-                          <Button
-                            type="button"
-                            variant="icon-only"
-                            disabled={exercise.sets.length === 1}
-                            onClick={() =>
-                              handleRemoveSet(exerciseIndex, setIndex)
-                            }
-                            title="Remove set"
-                          >
-                            <X size={20} />
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
+                        ))}
+                      </div>
 
-                    <Button
-                      type="button"
-                      size="small"
-                      variant="secondary"
-                      onClick={() => handleAddSet(exerciseIndex)}
-                    >
-                      Add Set
-                    </Button>
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        onClick={() => handleAddSet(exerciseIndex)}
+                      >
+                        Add Set
+                      </Button>
+                    </div>
                   </div>
                 </div>
               );
