@@ -55,7 +55,7 @@ const initialExercises: Exercise[] = [
   { name: "", sets: [{ reps: 0, weight: 0 }] },
 ];
 
-export const useWorkoutFormStore = create<WorkoutFormState>((set, get) => ({
+export const useWorkoutForm = create<WorkoutFormState>((set, get) => ({
   // Initial state
   formData: initialFormData,
   exercises: initialExercises,

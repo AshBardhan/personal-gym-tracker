@@ -1,5 +1,5 @@
-import apiClient from "./client";
-import { User } from "../../types/workout";
+import apiClient from "./apiClient";
+import { User } from "../types/workout";
 import { AxiosResponse } from "axios";
 
 /**

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Workout } from "../types/workout";
-import { workoutService } from "../services/api/workouts.service";
+import { workoutService } from "../services/workouts.service";
 
 /**
  * Custom hook for workout mutations (create, update, delete)

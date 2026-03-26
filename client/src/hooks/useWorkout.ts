@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Workout } from "../types/workout";
-import { workoutService } from "../services/api/workouts.service";
+import { workoutService } from "../services/workouts.service";
 
 /**
  * Custom hook to fetch a single workout by ID

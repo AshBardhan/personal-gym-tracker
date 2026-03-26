@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Trash2, X } from "lucide-react";
-import { workoutService } from "../services/api/workouts.service";
-import { useWorkoutFormStore } from "../stores/workoutFormStore";
+import { workoutService } from "../services/workouts.service";
+import { useWorkoutForm } from "../stores/workoutFormStore";
 import { PREDEFINED_EXERCISES } from "../constants/exercises";
 import { config } from "../config/env";
 import { getExerciseOptions } from "../utils/workoutUtils";
@@ -39,7 +39,7 @@ const WorkoutFormPage = () => {
     hasValidExercises,
     resetForm,
     loadWorkoutData,
-  } = useWorkoutFormStore();
+  } = useWorkoutForm();
 
   // Demo userId from env - would come from auth in real app
   const userId = config.user.DEMO_USER_ID;
