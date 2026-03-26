@@ -1,5 +1,5 @@
 import { useState, InputHTMLAttributes, RefObject } from "react";
-import "./Input.css";
+import clsx from "clsx";
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string;
@@ -46,17 +46,28 @@ const Input = ({
   const showError = touched && hasError;
 
   return (
-    <div className="input-wrapper">
-      {label && <label htmlFor={props.id}>{label}</label>}
+    <div className="flex-1">
+      {label && (
+        <label htmlFor={props.id} className="mb-1">
+          {label}
+        </label>
+      )}
       <input
         {...props}
         ref={ref}
-        className={`${className} ${showError ? "input--error" : ""}`.trim()}
+        className={clsx(
+          "w-full px-3 py-3 border rounded text-base transition-colors box-border",
+          "focus:outline-none",
+          showError &&
+            "border-red-600 bg-red-50 focus:border-red-700 focus:ring-2 focus:ring-red-200",
+          !showError && "border-gray-300 focus:border-blue-500",
+          className,
+        )}
         onBlur={handleBlur}
         onChange={handleChange}
       />
       {showError && errorMessage && (
-        <span className="input-error-message">{errorMessage}</span>
+        <span className="block text-red-600 text-sm mt-1">{errorMessage}</span>
       )}
     </div>
   );

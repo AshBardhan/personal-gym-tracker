@@ -9,7 +9,7 @@ import { getExerciseOptions } from "../utils/workoutUtils";
 import Input from "../components/ui/Input";
 import Button from "../components/ui/Button";
 import SelectBox from "../components/ui/SelectBox";
-import "./WorkoutForm.css";
+import Text from "../components/ui/Text";
 
 /**
  * Workout Form Page Component
@@ -172,17 +172,24 @@ const WorkoutFormPage = () => {
   };
 
   return (
-    <div className="workout-form-container">
-      <h1>{isEditMode ? "Edit Workout" : "Add New Workout"}</h1>
+    <div className="px-4 max-w-6xl mx-auto">
+      <Text variant="h1" className="mb-8">
+        {isEditMode ? "Edit Workout" : "Add New Workout"}
+      </Text>
 
       {loading ? (
         <div className="loading">Loading workout...</div>
       ) : (
-        <form onSubmit={handleSubmit} className="workout-form">
-          <div className="form-section">
-            <div className="form-heading">
-              <h2>Workout Details</h2>
-              <div className="form-actions">
+        <form
+          onSubmit={handleSubmit}
+          className="bg-white rounded-lg shadow-md p-8 flex flex-col gap-4"
+        >
+          <div>
+            <div className="flex items-center justify-between mb-6">
+              <Text variant="h2" className="mb-0">
+                Workout Details
+              </Text>
+              <div className="flex gap-4">
                 <Button
                   type="button"
                   variant="secondary"
@@ -196,9 +203,11 @@ const WorkoutFormPage = () => {
               </div>
             </div>
 
-            <div className="form-group form-group-parent">
-              <div className="form-group-child">
-                <label htmlFor="title">Workout Title (Optional)</label>
+            <div className="flex gap-4 mb-4">
+              <div className="flex-1">
+                <label htmlFor="title" className="mb-1">
+                  Workout Title (Optional)
+                </label>
                 <input
                   type="text"
                   id="title"
@@ -206,11 +215,14 @@ const WorkoutFormPage = () => {
                   value={formData.title}
                   onChange={handleFormChange}
                   placeholder="e.g., Upper Body Day"
+                  className="w-full px-3 py-3 border border-gray-300 rounded text-base transition-colors box-border focus:outline-none focus:border-blue-500"
                 />
               </div>
 
-              <div className="form-group-child">
-                <label htmlFor="date">Date</label>
+              <div className="flex-1">
+                <label htmlFor="date" className="mb-1">
+                  Date
+                </label>
                 <input
                   type="date"
                   id="date"
@@ -218,15 +230,16 @@ const WorkoutFormPage = () => {
                   value={formData.date}
                   onChange={handleFormChange}
                   required
+                  className="w-full px-3 py-3 border border-gray-300 rounded text-base transition-colors box-border focus:outline-none focus:border-blue-500"
                 />
               </div>
             </div>
           </div>
 
-          <div className="form-section">
-            <h2>
+          <div>
+            <Text variant="h2" className="mb-4">
               Exercises {exercises.length > 0 ? `(${exercises.length})` : ""}
-            </h2>
+            </Text>
 
             {exercises.map((exercise, exerciseIndex) => {
               const hasExerciseNameError =
@@ -234,7 +247,10 @@ const WorkoutFormPage = () => {
                 !exercise.name.trim();
 
               return (
-                <div key={exerciseIndex} className="exercise-card">
+                <div
+                  key={exerciseIndex}
+                  className="bg-gray-50 border border-gray-300 rounded-lg p-6 mb-6 relative"
+                >
                   <SelectBox
                     label={`Exercise Name`}
                     id={`exercise-name-${exerciseIndex}`}
@@ -249,7 +265,7 @@ const WorkoutFormPage = () => {
                     errorMessage="Exercise name is required"
                   />
 
-                  <div className="exercise-actions">
+                  <div className="absolute top-4 right-4 flex gap-2">
                     <Button
                       type="button"
                       disabled={exercises.length === 1}
@@ -261,14 +277,21 @@ const WorkoutFormPage = () => {
                     </Button>
                   </div>
 
-                  <div className="sets-section">
-                    <h3>Sets</h3>
+                  <div className="my-6 p-4 bg-white rounded border border-gray-300">
+                    <Text variant="h3" className="m-0 mb-4 text-base">
+                      Sets
+                    </Text>
 
-                    <div className="set-list">
+                    <div className="flex flex-col mb-4">
                       {exercise.sets.map((set, setIndex) => (
-                        <div key={setIndex} className="set-row">
-                          <span className="set-label">{setIndex + 1}</span>
-                          <div className="set-inputs">
+                        <div
+                          key={setIndex}
+                          className="flex items-end gap-4 bg-gray-50 rounded"
+                        >
+                          <span className="font-semibold text-blue-500 mb-4 min-w-15">
+                            {setIndex + 1}
+                          </span>
+                          <div className="flex gap-4 flex-1">
                             <Input
                               label="Weight (kg)"
                               type="number"
@@ -344,7 +367,7 @@ const WorkoutFormPage = () => {
             </Button>
 
             {submitAttempted && !hasValidExercises() && (
-              <div className="error-message">
+              <div className="bg-red-50 border border-red-600 border-l-4 text-red-700 p-4 rounded my-4">
                 Please add at least one valid exercise with sets to save the
                 workout
               </div>

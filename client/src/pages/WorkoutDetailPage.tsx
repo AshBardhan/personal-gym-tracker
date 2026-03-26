@@ -1,9 +1,14 @@
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { useWorkout } from "../hooks/useWorkout";
 import { useWorkoutMutation } from "../hooks/useWorkoutMutation";
-import { getExerciseVolume, getTotalVolume, formatDetailDate, formatVolume } from "../utils/workoutUtils";
+import {
+  getExerciseVolume,
+  getTotalVolume,
+  formatDetailDate,
+  formatVolume,
+} from "../utils/workoutUtils";
 import Button from "../components/ui/Button";
-import "./WorkoutDetail.css";
+import Text from "../components/ui/Text";
 
 /**
  * Workout Detail Page Component
@@ -27,14 +32,22 @@ const WorkoutDetailPage = () => {
   };
 
   if (loading) {
-    return <div className="loading">Loading workout...</div>;
+    return (
+      <div className="flex items-center justify-center">
+        <Text variant="p" className="text-gray-600 text-lg">
+          Loading workout...
+        </Text>
+      </div>
+    );
   }
 
   if (error || !workout) {
     return (
-      <div className="error">
-        <p>{error || "Workout not found"}</p>
-        <Button variant="primary" onClick={() => navigate("/workouts")}>
+      <div className="flex flex-col items-center justify-center gap-6">
+        <Text variant="p" className="text-red-600 text-lg">
+          {error || "Workout not found"}
+        </Text>
+        <Button variant="primary" as={Link} to="/workouts">
           Back to Workouts
         </Button>
       </div>
@@ -42,16 +55,13 @@ const WorkoutDetailPage = () => {
   }
 
   return (
-    <div className="workout-detail">
-      <div className="detail-header">
-        <Button variant="secondary" onClick={() => navigate("/workouts")}>
+    <div className="px-4 max-w-6xl mx-auto">
+      <div className="flex justify-between items-center mb-8">
+        <Button variant="secondary" as={Link} to="/workouts">
           ← Back to Workouts
         </Button>
-        <div className="header-actions">
-          <Button
-            variant="primary"
-            onClick={() => navigate(`/workouts/${id}/edit`)}
-          >
+        <div className="flex gap-2">
+          <Button variant="primary" as={Link} to={`/workouts/${id}/edit`}>
             Edit Workout
           </Button>
           <Button variant="danger" onClick={handleDelete}>
@@ -60,9 +70,9 @@ const WorkoutDetailPage = () => {
         </div>
       </div>
 
-      <div className="detail-card">
-        <h1>{workout.title || "Untitled Workout"}</h1>
-        <div className="detail-meta">
+      <div className="bg-white rounded-lg shadow-md p-8">
+        <Text variant="h1">{workout.title || "Untitled Workout"}</Text>
+        <div className="mb-2 flex gap-8 flex-wrap items-center">
           <div>
             <strong>Date:</strong> {formatDetailDate(workout.date)}
           </div>
@@ -73,39 +83,59 @@ const WorkoutDetailPage = () => {
           </div>
         </div>
 
-        <div className="exercises-section">
-          <h2>
+        <div className="mt-8">
+          <Text variant="h2" className="mb-6">
             Exercises{" "}
             {workout.exercises.length > 0
               ? `(${workout.exercises.length})`
               : ""}
-          </h2>
+          </Text>
           {workout.exercises.length === 0 ? (
-            <p className="no-exercises">No exercises added to this workout</p>
+            <Text
+              variant="p"
+              className="text-center text-gray-500 py-8 bg-gray-50 rounded"
+            >
+              No exercises added to this workout
+            </Text>
           ) : (
-            <div className="exercises-table">
+            <div className="flex flex-col gap-4">
               {workout.exercises.map((exercise, index) => (
-                <div key={index} className="exercise-row">
-                  <div className="exercise-number">{index + 1}</div>
-                  <div className="exercise-details">
-                    <h3>
+                <div
+                  key={index}
+                  className="flex gap-4 bg-gray-50 p-6 rounded border-l-4 border-l-blue-500"
+                >
+                  <div className="flex items-center justify-center w-10 h-10 bg-blue-500 text-white rounded-full font-bold text-xl shrink-0">
+                    {index + 1}
+                  </div>
+                  <div className="flex-1">
+                    <Text
+                      variant="h3"
+                      className="m-0 mb-4 flex items-center gap-4"
+                    >
                       {exercise.name}
-                      <span className="exercise-volume">
+                      <span className="text-sm font-normal bg-white px-3 py-1 rounded border border-gray-300">
                         <strong>
-                          {formatVolume(
-                            getExerciseVolume(exercise.sets)
-                          )}
+                          {formatVolume(getExerciseVolume(exercise.sets))}
                         </strong>
                         &nbsp;volume
                       </span>
-                    </h3>
-                    <div className="sets-table">
+                    </Text>
+                    <div className="flex flex-col gap-2">
                       {exercise.sets.map((set, setIndex) => (
-                        <div key={setIndex} className="set-row">
-                          <span className="set-label">{setIndex + 1}</span>
-                          <span className="set-weight">{set.weight} kg</span>
+                        <div
+                          key={setIndex}
+                          className="flex items-center gap-2 px-4 py-2 bg-white rounded"
+                        >
+                          <span className="font-semibold text-blue-500 min-w-5">
+                            {setIndex + 1}
+                          </span>
+                          <span className="text-green-600 font-medium">
+                            {set.weight} kg
+                          </span>
                           <strong>x</strong>
-                          <span className="set-reps">{set.reps} reps</span>
+                          <span className="text-gray-600 min-w-20">
+                            {set.reps} reps
+                          </span>
                         </div>
                       ))}
                     </div>

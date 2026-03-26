@@ -3,7 +3,6 @@ import Navbar from "./components/layout/Navbar";
 import WorkoutListPage from "./pages/WorkoutListPage";
 import WorkoutDetailPage from "./pages/WorkoutDetailPage";
 import WorkoutFormPage from "./pages/WorkoutFormPage";
-import "./App.css";
 
 const App = () => {
   return (

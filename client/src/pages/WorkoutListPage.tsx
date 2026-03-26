@@ -2,17 +2,24 @@ import { Link } from "react-router-dom";
 import { Trash2 } from "lucide-react";
 import { useWorkouts } from "../hooks/useWorkouts";
 import { useWorkoutMutation } from "../hooks/useWorkoutMutation";
-import { getTotalSets, getTotalVolume, formatDate, formatVolume } from "../utils/workoutUtils";
+import {
+  getTotalSets,
+  getTotalVolume,
+  formatDate,
+  formatVolume,
+} from "../utils/workoutUtils";
 import { config } from "../config/env";
 import Button from "../components/ui/Button";
-import "./WorkoutList.css";
+import Text from "../components/ui/Text";
 
 /**
  * Workout List Page Component
  * Displays all workouts for the user
  */
 const WorkoutListPage = () => {
-  const { workouts, loading, error, refetch } = useWorkouts(config.user.DEMO_USER_ID);
+  const { workouts, loading, error, refetch } = useWorkouts(
+    config.user.DEMO_USER_ID,
+  );
   const { deleteWorkout } = useWorkoutMutation();
 
   const handleDelete = async (e: React.MouseEvent, id: string) => {
@@ -26,59 +33,78 @@ const WorkoutListPage = () => {
   };
 
   if (loading) {
-    return <div className="loading">Loading workouts...</div>;
+    return (
+      <div className="flex items-center justify-center">
+        <Text variant="p" className="text-gray-600 text-lg">
+          Loading workouts...
+        </Text>
+      </div>
+    );
   }
 
   if (error) {
-    return <div className="error">{error}</div>;
+    return (
+      <div className="flex items-center justify-center">
+        <Text variant="p" className="text-red-600 text-lg">
+          {error}
+        </Text>
+      </div>
+    );
   }
 
   return (
-    <div className="workout-list">
-      <div className="workout-list-header">
-        <h1>My Workouts</h1>
-        <Link to="/workouts/new" className="btn btn-primary">
+    <div className="px-4 max-w-6xl mx-auto">
+      <div className="flex justify-between items-center mb-8">
+        <Text variant="h1" className="m-0">
+          My Workouts
+        </Text>
+        <Button variant="primary" as={Link} to="/workouts/new">
           Add New Workout
-        </Link>
+        </Button>
       </div>
 
       {workouts.length === 0 ? (
-        <div className="no-workouts">
-          <p>No workouts found. Start tracking your fitness journey!</p>
-          <Link to="/workouts/new" className="btn btn-primary">
-            Create Your First Workout
+        <div className="text-center py-12 bg-white rounded-lg shadow-md">
+          <Text variant="p" className="text-gray-500 text-lg mb-6">
+            No workouts found. Start tracking your fitness journey!
+          </Text>
+          <Link to="/workouts/new">
+            <Button variant="primary">Create Your First Workout</Button>
           </Link>
         </div>
       ) : (
-        <div className="workouts-grid">
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-6">
           {workouts.map((workout) => (
             <Link
               key={workout._id}
-              className="workout-card"
+              className="relative bg-white rounded-lg shadow-md p-6 transition-[background-color] no-underline hover:bg-gray-100"
               to={`/workouts/${workout._id}`}
             >
-              <div className="workout-card-header">
-                <h3>{workout.title || "Untitled Workout"}</h3>
-                <span className="workout-date">
+              <div className="mb-4">
+                <Text variant="h3" className="m-0 mb-2">
+                  {workout.title || "Untitled Workout"}
+                </Text>
+                <span className="text-gray-500 text-sm">
                   {formatDate(workout.date)}
                 </span>
               </div>
-              <div className="workout-card-body">
-                <p className="workout-exercises">
+              <div className="flex gap-4 font-medium text-sm flex-wrap">
+                <Text variant="p" className="text-blue-500">
                   {workout.exercises.length} exercise(s)
-                </p>
-                <p className="workout-sets">
+                </Text>
+                <Text variant="p" className="text-green-600">
                   {getTotalSets(workout)} total sets
-                </p>
-                <p className="workout-volume">
-                  {formatVolume(getTotalVolume(workout))}{" "}
-                  volume
-                </p>
+                </Text>
+                <Text variant="p" className="text-orange-500">
+                  {formatVolume(getTotalVolume(workout))} volume
+                </Text>
               </div>
-              <div className="workout-card-actions">
+              <div className="absolute top-2 right-2 flex gap-2">
                 <Button
                   title="Delete Workout"
-                  onClick={(e) => handleDelete(e, workout._id)}
+                  onClick={(e: React.MouseEvent) =>
+                    handleDelete(e, workout._id)
+                  }
                   variant="icon-only"
                 >
                   <Trash2 />

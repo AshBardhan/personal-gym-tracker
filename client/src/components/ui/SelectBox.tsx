@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import Input from "./Input";
-import "./SelectBox.css";
+import clsx from "clsx";
 
 export interface SelectOption {
   value: string;
@@ -149,9 +149,13 @@ const SelectBox = ({
   const showError = touched && hasError;
 
   return (
-    <div className="select-box" ref={wrapperRef}>
-      {label && <label htmlFor={id}>{label}</label>}
-      <div className="select-box-input-wrapper">
+    <div className="relative w-full" ref={wrapperRef}>
+      {label && (
+        <label htmlFor={id} className="block mb-2 font-medium text-gray-700">
+          {label}
+        </label>
+      )}
+      <div className="relative">
         <Input
           ref={inputRef}
           type="text"
@@ -168,11 +172,25 @@ const SelectBox = ({
         />
       </div>
       {isOpen && filteredOptions.length > 0 && (
-        <ul className="select-box-dropdown">
+        <ul
+          className={clsx(
+            "absolute top-full left-0 right-0 mt-1",
+            "bg-white border border-gray-300 rounded shadow-lg",
+            "max-h-80 overflow-y-auto z-[1000]",
+            "list-none p-0 mb-0",
+            "[&::-webkit-scrollbar]:w-2",
+            "[&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-track]:rounded",
+            "[&::-webkit-scrollbar-thumb]:bg-gray-400 [&::-webkit-scrollbar-thumb]:rounded [&::-webkit-scrollbar-thumb:hover]:bg-gray-500",
+          )}
+        >
           {filteredOptions.slice(0, maxVisibleOptions).map((option, index) => (
             <li
               key={option.value}
-              className={index === selectedIndex ? "selected" : ""}
+              className={clsx(
+                "px-4 py-3 cursor-pointer transition-[background-color] border-b border-gray-200 last:border-b-0",
+                index === selectedIndex && "bg-gray-100",
+                index !== selectedIndex && "hover:bg-gray-100",
+              )}
               onClick={() => handleSelectOption(option)}
               onMouseEnter={() => setSelectedIndex(index)}
             >
@@ -180,14 +198,14 @@ const SelectBox = ({
             </li>
           ))}
           {filteredOptions.length > maxVisibleOptions && (
-            <li className="more-results">
+            <li className="text-gray-500 text-sm italic cursor-default text-center py-2 hover:bg-transparent">
               +{filteredOptions.length - maxVisibleOptions} more results...
             </li>
           )}
         </ul>
       )}
       {showError && errorMessage && (
-        <span className="select-box-error-message">{errorMessage}</span>
+        <span className="block text-red-600 text-sm mt-1">{errorMessage}</span>
       )}
     </div>
   );
