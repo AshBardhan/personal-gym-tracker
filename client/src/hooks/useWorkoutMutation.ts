@@ -11,7 +11,7 @@ export const useWorkoutMutation = () => {
   const [error, setError] = useState<string | null>(null);
 
   const createWorkout = async (
-    data: Partial<Workout>
+    data: Partial<Workout>,
   ): Promise<Workout | null> => {
     try {
       setLoading(true);
@@ -33,7 +33,7 @@ export const useWorkoutMutation = () => {
 
   const updateWorkout = async (
     id: string,
-    data: Partial<Workout>
+    data: Partial<Workout>,
   ): Promise<Workout | null> => {
     try {
       setLoading(true);

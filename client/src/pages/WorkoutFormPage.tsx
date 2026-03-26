@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Trash2, X } from "lucide-react";
+import { Trash2, X, AlertTriangle } from "lucide-react";
 import { workoutService } from "../services/workouts.service";
 import { useWorkoutForm } from "../stores/workoutFormStore";
 import { PREDEFINED_EXERCISES } from "../constants/exercises";
@@ -200,6 +200,19 @@ const WorkoutFormPage = () => {
                 </div>
               </div>
 
+              {submitAttempted && !hasValidExercises() && (
+                <div className="bg-red-50 border border-red-600 text-red-700 p-4 rounded my-4 flex items-center gap-3">
+                  <AlertTriangle
+                    className="text-red-600 flex-shrink-0"
+                    size={24}
+                  />
+                  <Text variant="p">
+                    Please add at least one valid exercise with sets to save the
+                    workout.
+                  </Text>
+                </div>
+              )}
+
               <div className="flex gap-4 mb-4">
                 <div className="flex-1">
                   <Input
@@ -357,13 +370,6 @@ const WorkoutFormPage = () => {
               >
                 Add Exercise
               </Button>
-
-              {submitAttempted && !hasValidExercises() && (
-                <div className="bg-red-50 border border-red-600 border-l-4 text-red-700 p-4 rounded my-4">
-                  Please add at least one valid exercise with sets to save the
-                  workout
-                </div>
-              )}
             </div>
           </form>
         </Card>

@@ -22,7 +22,7 @@ apiClient.interceptors.request.use(
     // }
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => Promise.reject(error),
 );
 
 // Response interceptor - centralized error handling
@@ -32,7 +32,7 @@ apiClient.interceptors.response.use(
     // Log errors for debugging
     console.error("API Error:", error.response?.data || error.message);
     return Promise.reject(error);
-  }
+  },
 );
 
 export default apiClient;

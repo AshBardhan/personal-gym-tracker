@@ -12,7 +12,7 @@ export const workoutService = {
    */
   getAllByUser: async (userId: string): Promise<Workout[]> => {
     const response: AxiosResponse<Workout[]> = await apiClient.get(
-      `/workouts/${userId}`
+      `/workouts/${userId}`,
     );
     return response.data;
   },
@@ -22,7 +22,7 @@ export const workoutService = {
    */
   getById: async (id: string): Promise<Workout> => {
     const response: AxiosResponse<Workout> = await apiClient.get(
-      `/workouts/detail/${id}`
+      `/workouts/detail/${id}`,
     );
     return response.data;
   },
@@ -33,7 +33,7 @@ export const workoutService = {
   create: async (workoutData: Partial<Workout>): Promise<Workout> => {
     const response: AxiosResponse<Workout> = await apiClient.post(
       "/workouts",
-      workoutData
+      workoutData,
     );
     return response.data;
   },
@@ -43,11 +43,11 @@ export const workoutService = {
    */
   update: async (
     id: string,
-    workoutData: Partial<Workout>
+    workoutData: Partial<Workout>,
   ): Promise<Workout> => {
     const response: AxiosResponse<Workout> = await apiClient.put(
       `/workouts/${id}`,
-      workoutData
+      workoutData,
     );
     return response.data;
   },

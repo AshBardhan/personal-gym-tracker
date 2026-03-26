@@ -1,5 +1,8 @@
 import { Exercise, Workout, Set } from "../types/workout";
-import { PREDEFINED_EXERCISES, PredefinedExercise } from "../constants/exercises";
+import {
+  PREDEFINED_EXERCISES,
+  PredefinedExercise,
+} from "../constants/exercises";
 import { SelectOption } from "../components/ui/SelectBox";
 
 /**
@@ -18,7 +21,7 @@ export const isValidExercise = (exercise: Exercise): boolean => {
   return Boolean(
     exercise.name.trim() &&
       exercise.sets.length > 0 &&
-      exercise.sets.some((set) => set.reps > 0 || set.weight > 0)
+      exercise.sets.some((set) => set.reps > 0 || set.weight > 0),
   );
 };
 
@@ -61,7 +64,7 @@ export const getExerciseVolume = (sets: Set[]): number => {
 export const getTotalSets = (workout: Workout): number => {
   return workout.exercises.reduce(
     (total, exercise) => total + exercise.sets.length,
-    0
+    0,
   );
 };
 
@@ -71,7 +74,7 @@ export const getTotalSets = (workout: Workout): number => {
 export const getTotalVolume = (workout: Workout): number => {
   return workout.exercises.reduce(
     (total, exercise) => total + getExerciseVolume(exercise.sets),
-    0
+    0,
   );
 };
 
@@ -83,7 +86,7 @@ export const getTotalVolume = (workout: Workout): number => {
  * Get exercises filtered by category
  */
 export const getExercisesByCategory = (
-  category: string
+  category: string,
 ): PredefinedExercise[] => {
   return PREDEFINED_EXERCISES.filter((ex) => ex.category === category);
 };
@@ -98,8 +101,8 @@ export const searchExercises = (query: string): PredefinedExercise[] => {
       ex.name.toLowerCase().includes(lowerQuery) ||
       ex.category.toLowerCase().includes(lowerQuery) ||
       ex.muscleGroup.some((muscle) =>
-        muscle.toLowerCase().includes(lowerQuery)
-      )
+        muscle.toLowerCase().includes(lowerQuery),
+      ),
   );
 };
 

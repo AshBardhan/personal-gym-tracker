@@ -408,4 +408,3 @@ export const PREDEFINED_EXERCISES: PredefinedExercise[] = [
     muscleGroup: ["Legs", "Cardio"],
   },
 ];
-

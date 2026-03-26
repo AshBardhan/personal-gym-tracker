@@ -29,7 +29,7 @@ export const userService = {
   create: async (userData: Partial<User>): Promise<User> => {
     const response: AxiosResponse<User> = await apiClient.post(
       "/users",
-      userData
+      userData,
     );
     return response.data;
   },
@@ -40,7 +40,7 @@ export const userService = {
   update: async (id: string, userData: Partial<User>): Promise<User> => {
     const response: AxiosResponse<User> = await apiClient.put(
       `/users/${id}`,
-      userData
+      userData,
     );
     return response.data;
   },
