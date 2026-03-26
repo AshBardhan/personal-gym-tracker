@@ -9,6 +9,7 @@ import {
 } from "../utils/workoutUtils";
 import Button from "../components/ui/Button";
 import Text from "../components/ui/Text";
+import Card from "../components/ui/Card";
 
 /**
  * Workout Detail Page Component
@@ -70,9 +71,9 @@ const WorkoutDetailPage = () => {
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow-md p-8">
-        <Text variant="h1">{workout.title || "Untitled Workout"}</Text>
-        <div className="mb-2 flex gap-8 flex-wrap items-center">
+      <Card>
+        <Text variant="h2">{workout.title || "Untitled Workout"}</Text>
+        <div className="mt-1 flex gap-8 flex-wrap items-center">
           <div>
             <strong>Date:</strong> {formatDetailDate(workout.date)}
           </div>
@@ -83,8 +84,8 @@ const WorkoutDetailPage = () => {
           </div>
         </div>
 
-        <div className="mt-8">
-          <Text variant="h2" className="mb-6">
+        <div className="mt-4">
+          <Text variant="h3" className="mb-4">
             Exercises{" "}
             {workout.exercises.length > 0
               ? `(${workout.exercises.length})`
@@ -102,15 +103,15 @@ const WorkoutDetailPage = () => {
               {workout.exercises.map((exercise, index) => (
                 <div
                   key={index}
-                  className="flex gap-4 bg-gray-50 p-6 rounded border-l-4 border-l-blue-500"
+                  className="flex gap-3 bg-gray-50 p-3 rounded-md border"
                 >
-                  <div className="flex items-center justify-center w-10 h-10 bg-blue-500 text-white rounded-full font-bold text-xl shrink-0">
+                  <div className="flex items-center justify-center min-w-8 h-8 bg-blue-500 text-white rounded-full font-bold text-nase shrink-0">
                     {index + 1}
                   </div>
                   <div className="flex-1">
                     <Text
-                      variant="h3"
-                      className="m-0 mb-4 flex items-center gap-4"
+                      variant="h4"
+                      className="m-0 mb-2 flex items-center gap-2"
                     >
                       {exercise.name}
                       <span className="text-sm font-normal bg-white px-3 py-1 rounded border border-gray-300">
@@ -122,10 +123,7 @@ const WorkoutDetailPage = () => {
                     </Text>
                     <div className="flex flex-col gap-2">
                       {exercise.sets.map((set, setIndex) => (
-                        <div
-                          key={setIndex}
-                          className="flex items-center gap-2 px-4 py-2 bg-white rounded"
-                        >
+                        <div key={setIndex} className="flex items-center gap-2">
                           <span className="font-semibold text-blue-500 min-w-5">
                             {setIndex + 1}
                           </span>
@@ -145,7 +143,7 @@ const WorkoutDetailPage = () => {
             </div>
           )}
         </div>
-      </div>
+      </Card>
     </div>
   );
 };

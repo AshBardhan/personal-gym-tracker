@@ -64,7 +64,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             className={clsx(
               "cursor-pointer font-medium",
               showError && "text-red-600",
-              !showError && "text-gray-700",
+              !showError && "text-gray-800",
               inputSize === "small" && "text-xs",
               inputSize === "normal" && "text-sm",
             )}

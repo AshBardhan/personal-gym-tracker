@@ -11,6 +11,7 @@ import {
 import { config } from "../config/env";
 import Button from "../components/ui/Button";
 import Text from "../components/ui/Text";
+import Card from "../components/ui/Card";
 
 /**
  * Workout List Page Component
@@ -73,12 +74,12 @@ const WorkoutListPage = () => {
           </Button>
         </div>
       ) : (
-        <div className="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {workouts.map((workout) => (
-            <Link
+            <Card
               key={workout._id}
-              className="relative bg-white rounded-lg shadow-md p-6 transition-[background-color] no-underline hover:bg-gray-100"
-              to={`/workouts/${workout._id}`}
+              className="relative"
+              href={`/workouts/${workout._id}`}
             >
               <div className="mb-4">
                 <Text variant="h3" className="m-0 mb-2">
@@ -107,10 +108,10 @@ const WorkoutListPage = () => {
                   }
                   variant="icon-only"
                 >
-                  <Trash2 />
+                  <Trash2 size={20} />
                 </Button>
               </div>
-            </Link>
+            </Card>
           ))}
         </div>
       )}
