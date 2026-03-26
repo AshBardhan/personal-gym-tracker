@@ -10,6 +10,7 @@ import {
 import Button from "../components/ui/Button";
 import Text from "../components/ui/Text";
 import Card from "../components/ui/Card";
+import Metric from "../components/ui/Metric";
 
 /**
  * Workout Detail Page Component
@@ -74,14 +75,14 @@ const WorkoutDetailPage = () => {
       <Card>
         <Text variant="h2">{workout.title || "Untitled Workout"}</Text>
         <div className="mt-1 flex gap-8 flex-wrap items-center">
-          <div>
+          <Text className="text-gray-600 text-sm">
             <strong>Date:</strong> {formatDetailDate(workout.date)}
-          </div>
-          <div>
+          </Text>
+          <Text className="text-gray-600 text-sm">
             <strong>Total Volume:</strong>
             &nbsp;
             {formatVolume(getTotalVolume(workout))}
-          </div>
+          </Text>
         </div>
 
         <div className="mt-4">
@@ -114,12 +115,14 @@ const WorkoutDetailPage = () => {
                       className="m-0 mb-2 flex items-center gap-2"
                     >
                       {exercise.name}
-                      <span className="text-sm font-normal bg-white px-3 py-1 rounded border border-gray-300">
-                        <strong>
-                          {formatVolume(getExerciseVolume(exercise.sets))}
-                        </strong>
-                        &nbsp;volume
-                      </span>
+                      <Metric
+                        direction="row"
+                        size="sm"
+                        label="volume"
+                        value={formatVolume(getExerciseVolume(exercise.sets))}
+                        reverse={true}
+                        className="bg-white p-2 rounded border border-gray-300"
+                      />
                     </Text>
                     <div className="flex flex-col gap-2">
                       {exercise.sets.map((set, setIndex) => (

@@ -12,6 +12,7 @@ import { config } from "../config/env";
 import Button from "../components/ui/Button";
 import Text from "../components/ui/Text";
 import Card from "../components/ui/Card";
+import Metric from "../components/ui/Metric";
 
 /**
  * Workout List Page Component
@@ -82,23 +83,29 @@ const WorkoutListPage = () => {
               href={`/workouts/${workout._id}`}
             >
               <div className="mb-4">
-                <Text variant="h3" className="m-0 mb-2">
+                <Text variant="h3" className="mb-1">
                   {workout.title || "Untitled Workout"}
                 </Text>
-                <span className="text-gray-500 text-sm">
+                <Text className="text-gray-500 text-xs">
                   {formatDate(workout.date)}
-                </span>
+                </Text>
               </div>
-              <div className="flex gap-4 font-medium text-sm flex-wrap">
-                <Text variant="p" className="text-blue-500">
-                  {workout.exercises.length} exercise(s)
-                </Text>
-                <Text variant="p" className="text-green-600">
-                  {getTotalSets(workout)} total sets
-                </Text>
-                <Text variant="p" className="text-orange-500">
-                  {formatVolume(getTotalVolume(workout))} volume
-                </Text>
+              <div className="grid grid-cols-3 gap-4">
+                <Metric
+                  label="exercises"
+                  value={workout.exercises.length}
+                  reverse={true}
+                />
+                <Metric
+                  label="sets"
+                  value={getTotalSets(workout)}
+                  reverse={true}
+                />
+                <Metric
+                  label="volume"
+                  value={formatVolume(getTotalVolume(workout))}
+                  reverse={true}
+                />
               </div>
               <div className="absolute top-2 right-2 flex gap-2">
                 <Button
