@@ -174,7 +174,7 @@ const WorkoutFormPage = () => {
   return (
     <div className="px-4 max-w-6xl mx-auto">
       <Text variant="h1" className="mb-8">
-        {isEditMode ? "Edit Workout" : "Add New Workout"}
+        {isEditMode ? "Edit Workout" : "New Workout"}
       </Text>
 
       {loading ? (
@@ -348,7 +348,8 @@ const WorkoutFormPage = () => {
 
                     <Button
                       type="button"
-                      variant="positive"
+                      size="small"
+                      variant="secondary"
                       onClick={() => handleAddSet(exerciseIndex)}
                     >
                       Add Set

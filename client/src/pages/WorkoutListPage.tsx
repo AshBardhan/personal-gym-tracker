@@ -58,8 +58,8 @@ const WorkoutListPage = () => {
         <Text variant="h1" className="m-0">
           My Workouts
         </Text>
-        <Button variant="primary" as={Link} to="/workouts/new">
-          Add New Workout
+        <Button variant="primary" size="large" as={Link} to="/workouts/new">
+          New Workout
         </Button>
       </div>
 
@@ -68,9 +68,9 @@ const WorkoutListPage = () => {
           <Text variant="p" className="text-gray-500 text-lg mb-6">
             No workouts found. Start tracking your fitness journey!
           </Text>
-          <Link to="/workouts/new">
-            <Button variant="primary">Create Your First Workout</Button>
-          </Link>
+          <Button variant="primary" as={Link} to="/workouts/new" size="large">
+            Create Your First Workout
+          </Button>
         </div>
       ) : (
         <div className="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-6">

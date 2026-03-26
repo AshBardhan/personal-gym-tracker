@@ -48,7 +48,7 @@ const WorkoutDetailPage = () => {
           {error || "Workout not found"}
         </Text>
         <Button variant="primary" as={Link} to="/workouts">
-          Back to Workouts
+          ← Back
         </Button>
       </div>
     );
@@ -58,7 +58,7 @@ const WorkoutDetailPage = () => {
     <div className="px-4 max-w-6xl mx-auto">
       <div className="flex justify-between items-center mb-8">
         <Button variant="secondary" as={Link} to="/workouts">
-          ← Back to Workouts
+          ← Back
         </Button>
         <div className="flex gap-2">
           <Button variant="primary" as={Link} to={`/workouts/${id}/edit`}>
