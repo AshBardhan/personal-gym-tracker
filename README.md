@@ -2,450 +2,219 @@
 
 A full-stack MERN (MongoDB, Express, React, Node.js) application with TypeScript for tracking gym workouts and exercises.
 
-## Quick Start
+## Features Overview
 
-### Prerequisites
+- **Workout Management** - Create, edit, and delete workouts with optional titles
+- **Exercise Tracking** - Track multiple exercises per workout with sets (reps and weight)
+- **Date Organization** - Organize workouts by date for easy tracking
+- **Inline Editing** - Real-time validation with visual feedback
+- **Modern UI** - Professional interface with Tailwind CSS and Lucide icons
+- **Data Persistence** - MongoDB database for reliable storage
+- **API Mocking** - MSW integration for offline development
+- **Type Safety** - Full TypeScript support across the stack
 
-- Node.js (v14 or higher)
-- MongoDB (running locally on port 27017)
-- npm or yarn
+## Routing
 
-### Installation
+### Application Routes (Frontend)
 
-**1.** **Install dependencies**
+| Route | Component | Description |
+|-------|-----------|-------------|
+| `/` | WorkoutListPage | Home page - workout grid view |
+| `/workouts` | WorkoutListPage | All workouts list |
+| `/workouts/new` | WorkoutFormPage | Create new workout |
+| `/workouts/:id` | WorkoutDetailPage | View workout details |
+| `/workouts/:id/edit` | WorkoutFormPage | Edit existing workout |
 
-```bash
-# Install server dependencies
-cd server
-npm install
+### API Routes (Backend)
 
-# Install client dependencies
-cd ../client
-npm install
-```
-
-**2.** **Start MongoDB**
-
-```bash
-# Make sure MongoDB is running
-sudo systemctl status mongod
-# or
-brew services start mongodb-community  # macOS
-```
-
-**3.** **Create demo user** (optional)
-
-```bash
-cd server
-npm run setup
-```
-
-**4.** **Run the application**
-
-```bash
-# Terminal 1 - Start backend server
-cd server
-npm run dev
-
-# Terminal 2 - Start frontend client
-cd client
-npm run dev
-```
-
-**5.** **Open the app**
-
-- Frontend: http://localhost:5173
-- Backend API: http://localhost:5000
-
-## Features
-
-- Create and manage workouts with optional titles
-- Track exercises with multiple sets (reps and weight)
-- Date-based workout organization
-- **Inline editing** with default empty exercise/set on form load
-- **Real-time validation** with visual feedback (red borders)
-- **Reusable components**: Input with self-contained validation, Button with variants
-- **Professional UI** with Lucide React icons
-- Add/Edit/Delete individual sets and exercises
-- View detailed workout history
-- Full TypeScript support for type safety
-- **ESM modules** throughout the stack
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/users` | Get all users |
+| `GET` | `/api/users/:id` | Get user by ID |
+| `POST` | `/api/users` | Create new user |
+| `PUT` | `/api/users/:id` | Update user |
+| `DELETE` | `/api/users/:id` | Delete user |
+| `GET` | `/api/workouts/:userId` | Get all workouts for user |
+| `GET` | `/api/workouts/detail/:id` | Get workout by ID |
+| `POST` | `/api/workouts` | Create new workout |
+| `PUT` | `/api/workouts/:id` | Update workout |
+| `DELETE` | `/api/workouts/:id` | Delete workout |
 
 ## Tech Stack
 
 ### Backend
 
-- **Node.js** - Runtime environment
+- **Node.js** - JavaScript runtime
 - **Express.js** - Web framework
-- **MongoDB** - Database
-- **Mongoose** - ODM for MongoDB
+- **MongoDB** - NoSQL database
+- **Mongoose** - MongoDB ODM
 - **TypeScript** - Static typing
 
 ### Frontend
 
-- **React** - UI library
+- **React 19** - UI library
 - **TypeScript** - Static typing
-- **Vite** - Build tool
-- **React Router** - Routing
+- **Vite** - Build tool & dev server
+- **React Router** - Client-side routing
 - **Axios** - HTTP client
-- **Lucide React** - Icon library
 - **Zustand** - State management
-- **MSW** - Mock Service Worker for API mocking
+- **Tailwind CSS** - Utility-first CSS
+- **MSW** - API mocking for development
 
 ## Project Structure
 
 ```text
 personal-gym-tracker/
-├── client/                 # React frontend (TypeScript)
+├── client/                 # React frontend
 │   ├── src/
-│   │   ├── components/     # React components
-│   │   │   ├── Navbar.tsx
-│   │   │   ├── WorkoutList.tsx
-│   │   │   ├── WorkoutForm.tsx
-│   │   │   ├── WorkoutDetail.tsx
-│   │   │   ├── Input.tsx          # Reusable input with validation
-│   │   │   ├── Input.css
-│   │   │   ├── Button.tsx         # Reusable button with variants
-│   │   │   └── Button.css
-│   │   ├── stores/         # Zustand state management
-│   │   │   └── workoutFormStore.ts
-│   │   ├── mocks/          # MSW API mocking
-│   │   │   ├── browser.ts
-│   │   │   ├── server.ts
-│   │   │   ├── handlers.ts
-│   │   │   ├── data.ts
-│   │   │   └── README.md
-│   │   ├── services/       # API service layer
-│   │   │   └── api.ts
-│   │   ├── types/          # TypeScript type definitions
-│   │   │   └── index.ts
-│   │   ├── App.tsx         # Main app component
-│   │   └── main.tsx        # Entry point
-│   ├── tsconfig.json       # TypeScript config
+│   │   ├── components/     # UI components
+│   │   ├── pages/          # Page components
+│   │   ├── services/       # API services
+│   │   ├── stores/         # State management
+│   │   ├── hooks/          # Custom hooks
+│   │   ├── types/          # TypeScript types
+│   │   ├── mocks/          # MSW handlers
+│   │   ├── config/         # Configuration
+│   │   └── utils/          # Utilities
+│   ├── docs/               # Frontend documentation
 │   └── package.json
-└── server/                 # Express backend (TypeScript)
+│
+└── server/                 # Express backend
     ├── src/
     │   ├── models/         # Mongoose models
-    │   │   ├── User.ts
-    │   │   └── Workout.ts
     │   ├── routes/         # API routes
-    │   │   ├── users.ts
-    │   │   └── workouts.ts
-    │   ├── config/         # Configuration files
-    │   │   └── db.ts
-    │   ├── server.ts       # Server entry point
-    │   └── createDemoUser.ts
-    ├── dist/               # Compiled JavaScript (ESM)
-    ├── tsconfig.json       # TypeScript config
+    │   ├── config/         # Configuration
+    │   └── server.ts       # Entry point
+    ├── docs/               # Backend documentation
     └── package.json
 ```
 
-## How to Use
+## Installation
 
-### Creating a Workout
+### Prerequisites
 
-1. **Navigate to the app** at http://localhost:5173
-2. **Click "Add Workout"** in the navigation bar
-3. **Fill in workout details**:
-   - Enter an optional workout title (e.g., "Upper Body Day")
-   - Select the date (defaults to today)
-4. **Add exercises** (inline editing):
-   - A default empty exercise is provided to start
-   - Enter exercise name directly in the form
-   - Add sets by entering reps and weight inline
-   - Click "Add Set" to add more sets to the exercise
-   - Click "Add Exercise" to add another exercise
-   - Remove exercises or sets using the icon buttons
-5. **Real-time validation**:
-   - Input fields show red borders when invalid
-   - Empty exercise names or sets are filtered out on save
-6. **Click "Save Workout"** to save
+- Node.js (v14 or higher)
+- MongoDB (running locally or cloud connection)
+- npm or yarn
 
-### Viewing Workouts
+### Quick Start
 
-- **Home page** displays all your workouts in a grid layout
-- **Click on any workout card** to view detailed information:
-  - All exercises with their names
-  - All sets with reps and weight for each exercise
-  - Total exercise and set counts
+**Terminal 1 - Server:**
 
-### Managing Workouts
+```bash
+# Enter the server directory and install dependencies
+cd server
+npm install
 
-- **Edit**: Click "Edit Workout" on the detail page to modify exercises and sets
-- **Delete**: Use the delete button on workout cards or detail page
-- **Edit inline**: All exercises and sets are editable directly in the form
-- **Validation**: Invalid inputs show red borders for instant feedback
+# Create server/.env with the MongoDB connection settings
+
+# Start MongoDB if using a local database
+sudo systemctl start mongod
+
+# Create the demo user (optional)
+npm run setup
+
+# Start the backend
+npm run dev
+```
+
+**Terminal 2 - Client:**
+
+```bash
+# Enter the client directory and install dependencies
+cd client
+npm install
+
+# Create client/.env with the API and MSW settings
+
+# Start the frontend
+npm run dev
+```
+
+**Access the app:**
+- Frontend: http://localhost:5173
+- Backend API: http://localhost:5000
+
+## Documentation
+
+### Frontend Documentation
+- [Client README](client/README.md) - Frontend overview, tech stack, and structure
+- [Frontend ADR](client/docs/ADR.md) - Architecture decisions and rationale
+- [Frontend Improvements](client/docs/IMPROVEMENTS.md) - Planned enhancements
+
+### Backend Documentation
+- [Server README](server/README.md) - Backend overview, tech stack, and structure
+- [Backend ADR](server/docs/ADR.md) - Architecture decisions and rationale
+- [Database Setup](server/docs/DATABASE_SETUP.md) - MongoDB setup and schema
+- [Backend Improvements](server/docs/IMPROVEMENTS.md) - Planned enhancements
+
+## Development
+
+### Development Modes
+
+**With Mock API (Default)** - No backend required:
+```bash
+cd client
+npm run dev
+```
+
+**With Real API** - Backend must be running:
+```bash
+# Terminal 1
+cd server && npm run dev
+
+# Terminal 2  
+cd client && npm run dev
+```
+
+### Available Scripts
+
+**Server Commands:**
+```bash
+npm run dev      # Start development server
+npm run build    # Compile TypeScript
+npm start        # Start production server
+npm run setup    # Create demo user
+```
+
+**Client Commands:**
+```bash
+npm run dev      # Start development server
+npm run build    # Build for production
+npm run preview  # Preview production build
+```
 
 ## Configuration
 
-The application uses environment variables for configuration. Edit `server/.env`:
-
-```env
+### Server Environment (.env)
+```text
 MONGODB_URI=mongodb://localhost:27017/gym-tracker
 PORT=5000
 NODE_ENV=development
 ```
 
-**Note**: The application currently uses a hardcoded demo userId: `673092a6fd2a34e8e4b91234`
+### Client Environment (.env)
+```text
+VITE_API_BASE_URL=http://localhost:5000/api
+VITE_ENABLE_MSW=true
+VITE_DEMO_USER_ID=673092a6fd2a34e8e4b91234
+```
 
 ## Troubleshooting
 
-### Backend not starting?
-
+### Backend Issues
 - Ensure MongoDB is running: `sudo systemctl status mongod`
-- Check if port 5000 is available: `lsof -i :5000`
+- Check port 5000 availability: `lsof -i :5000`
 - Verify `.env` file exists in server directory
-- Check MongoDB connection string in `.env`
 
-### Frontend not loading?
-
+### Frontend Issues
 - Clear browser cache and reload
 - Check browser console for errors
-- Verify backend is running on port 5000
-- Check for TypeScript compilation errors: `npm run build`
+- Verify backend is running (if not using MSW)
 
-### Can't see workouts?
+## Legacy Project Structure
 
-- Verify the demo userId matches: `673092a6fd2a34e8e4b91234`
-- Check MongoDB connection in server logs
-- Run `npm run setup` to create demo user
-- Check browser network tab for API errors
-
-### TypeScript errors?
-
-- Delete `node_modules` and reinstall: `rm -rf node_modules && npm install`
-- Check TypeScript version compatibility
-- Run `npm run build` to see compilation errors
-
-## Available Scripts
-
-### Server Commands
-
-```bash
-npm run dev      # Start development server with hot reload
-npm run build    # Compile TypeScript to JavaScript
-npm start        # Start production server
-npm run setup    # Create/verify demo user
-```
-
-### Client Commands
-
-```bash
-npm run dev      # Start development server with hot reload
-npm run build    # Build for production
-npm run preview  # Preview production build
-```
-
-## API Endpoints
-
-### Users
-
-- `GET /api/users` - Get all users
-- `GET /api/users/:id` - Get user by ID
-- `POST /api/users` - Create new user
-- `PUT /api/users/:id` - Update user
-- `DELETE /api/users/:id` - Delete user
-
-### Workouts
-
-- `GET /api/workouts/:userId` - Get all workouts for a user
-- `GET /api/workouts/detail/:id` - Get workout by ID
-- `POST /api/workouts` - Create new workout
-- `PUT /api/workouts/:id` - Update workout
-- `DELETE /api/workouts/:id` - Delete workout
-
-### Example: Create a workout
-
-```bash
-curl -X POST http://localhost:5000/api/workouts \
-  -H "Content-Type: application/json" \
-  -d '{
-    "userId": "673092a6fd2a34e8e4b91234",
-    "title": "Chest Day",
-    "date": "2025-11-10",
-    "exercises": [
-      {
-        "name": "Bench Press",
-        "sets": [
-          { "reps": 10, "weight": 80 },
-          { "reps": 8, "weight": 85 },
-          { "reps": 6, "weight": 90 }
-        ]
-      }
-    ]
-  }'
-```
-
-## Database Schema
-
-### User Model
-
-```typescript
-{
-  name: string;
-  email: string (unique);
-  createdAt: Date;
-}
-```
-
-### Workout Model
-
-```typescript
-{
-  userId: ObjectId (ref: User);
-  title?: string (optional);
-  date: Date;
-  exercises: [
-    {
-      name: string;
-      sets: [
-        {
-          reps: number;
-          weight: number;
-        }
-      ];
-    }
-  ];
-  createdAt: Date;
-}
-```
-
-## Key Features Explained
-
-### Inline Editing with Default Items
-
-- **Default state**: Form loads with one empty exercise containing one empty set
-- **Direct editing**: All fields are editable in place - no separate input areas
-- **Add on demand**: Click "Add Exercise" or "Add Set" to expand the form
-- **Remove easily**: Icon buttons (Trash/X) for quick deletion
-- **Smart filtering**: Empty exercises and invalid sets are automatically excluded on save
-
-### Reusable Component Architecture
-
-- **Input component**: Self-contained validation state, red border on error, customizable error messages
-- **Button component**: Six variants (primary, secondary, danger, add, icon-only, danger-icon) for consistent styling
-- **Icon integration**: Professional Lucide React SVG icons throughout the UI
-
-### State Management with Zustand
-
-- **Centralized form state**: Workout form state managed in a Zustand store
-- **Clean component code**: Components consume store actions without prop drilling
-- **Predictable updates**: Immutable state updates with clear action names
-- **Easy testing**: Store logic separated from UI components
-- **DevTools support**: Zustand DevTools integration for debugging
-
-### Form Validation
-
-- **Field-level validation**: Each input validates independently
-- **Visual feedback**: Red borders appear on blur or submit for invalid fields
-- **Error messages**: Clear, contextual error messages below invalid inputs
-- **Submit protection**: Invalid forms cannot be submitted until errors are fixed
-
-### ESM Module Support
-
-- **Server**: Full ES module support with `"type": "module"` in package.json
-- **TypeScript**: Configured for ES2020 module output
-- **Import extensions**: All imports use `.js` extensions for ESM compatibility
-- **Modern JavaScript**: Leverages latest ES features throughout
-
-### API Mocking with MSW
-
-- **Mock Service Worker**: Intercepts API calls in development mode
-- **No backend required**: Develop frontend without running the server
-- **Consistent test data**: 3 sample workouts with full CRUD support
-- **Easy toggle**: Switch between mock and real API via environment variable
-- **Test-ready**: Pre-configured for unit testing with MSW server setup
-- **In-memory storage**: Mock data persists during session, resets on refresh
-
-For complete MSW documentation, see `client/src/mocks/README.md`.
-
-## Development Modes
-
-### Development with Mock API (Default)
-
-```bash
-# Frontend only - uses MSW for API mocking
-cd client
-npm run dev
-```
-
-The app will run with mock data at http://localhost:5173. No backend server needed!
-
-### Development with Real API
-
-```bash
-# 1. Start backend server
-cd server
-npm run dev
-
-# 2. Disable MSW in client/.env file
-VITE_ENABLE_MSW=false
-
-# 3. Start frontend
-cd client
-npm run dev
-```
-
-## Future Enhancements
-
-### Short-term
-
-- User authentication (JWT/sessions)
-- Input validation and error handling
-- Mobile responsive design
-- Dark mode support
-- Workout templates (save and reuse common workouts)
-
-### Medium-term
-
-- Progress tracking and analytics
-- Charts and visualizations (weight progression, volume, etc.)
-- Goal setting and achievement tracking
-- Exercise library with suggested weights
-- Search and filter workouts
-
-### Long-term
-
-- Photo uploads for progress tracking
-- Workout reminders and notifications
-- Social features (share workouts, follow friends)
-- Mobile app (React Native)
-- Progressive Web App (PWA)
-- Workout plans and programs
-- AI-powered exercise recommendations
-
-## Development Guidelines
-
-### Code Style
-
-- Use TypeScript for all new code
-- Follow ESLint configuration
-- Use functional components with hooks
-- Keep components small and focused
-- Write descriptive variable and function names
-
-### Adding New Features
-
-1. Update TypeScript types in `types/index.ts`
-2. Add/modify Mongoose models if needed
-3. Update API routes and controllers
-4. Create/update React components
-5. Test thoroughly before committing
-
-### Production Deployment Checklist
-
-- [ ] Implement authentication system
-- [ ] Add comprehensive input validation
-- [ ] Set up error monitoring (Sentry, etc.)
-- [ ] Configure environment variables properly
-- [ ] Add rate limiting to API endpoints
-- [ ] Set up CI/CD pipeline
-- [ ] Add unit and integration tests
-- [ ] Optimize database queries
-- [ ] Add caching layer (Redis)
-- [ ] Set up logging system
-- [ ] Configure HTTPS/SSL
-- [ ] Add database backups
+> **Note:** For detailed project structure, see [client/README.md](client/README.md) and [server/README.md](server/README.md)
 
 ## License
 
@@ -454,13 +223,8 @@ MIT
 ## Contributing
 
 Contributions are welcome! Feel free to:
-
 - Report bugs
 - Suggest new features
 - Submit pull requests
 - Improve documentation
-
-## Contact
-
-For questions or suggestions, please open an issue on the repository.
 

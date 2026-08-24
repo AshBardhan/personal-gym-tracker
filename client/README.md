@@ -1,24 +1,196 @@
 # Gym Tracker - Frontend
 
-This is the React + TypeScript frontend for the Personal Gym Tracker application.
+React + TypeScript frontend for the Personal Gym Tracker application with modern tooling and offline development support.
 
-## Documentation
+## Features Overview
 
-Please see the main [README.md](../README.md) in the root directory for complete documentation, including:
+### Core Features
 
-- Installation and setup instructions
-- Usage guide
-- API documentation
-- Database schema
-- Development guidelines
+- **Workout Management** - Create, view, edit, and delete workouts
+- **Inline Editing** - Real-time form editing with visual validation feedback
+- **Exercise Tracking** - Multiple exercises per workout with unlimited sets
+- **Date Organization** - Calendar-based workout organization
+- **Responsive Design** - Modern, mobile-friendly UI
 
-## Quick Start
+### User Experience
+
+- **Visual Feedback** - Red borders for invalid inputs, loading states
+- **Default States** - Pre-populated forms with empty exercise/set templates
+- **Instant Validation** - Field-level validation on blur and submit
+- **Icon Integration** - Professional Lucide React SVG icons throughout
+- **Smooth Navigation** - Client-side routing with React Router
+
+### Developer Experience
+
+- **API Mocking** - MSW integration for offline development
+- **Type Safety** - Full TypeScript coverage
+- **State Management** - Zustand for predictable state updates
+- **Hot Reload** - Instant feedback with Vite HMR
+- **Component Library** - Reusable UI components (Button, Input, Card, etc.)
+
+## Tech Stack
+
+| Category | Technology | Version | Purpose |
+| -------- | ---------- | ------- | ------- |
+| **Core** | React | 19.2 | UI library with hooks |
+| **Language** | TypeScript | 5.9 | Static typing and tooling |
+| **Build Tool** | Vite | 7.2 | Fast dev server & bundler |
+| **Routing** | React Router DOM | 7.9 | Client-side navigation |
+| **HTTP Client** | Axios | 1.13 | Promise-based API calls |
+| **State** | Zustand | 5.0 | Lightweight state management |
+| **Styling** | Tailwind CSS | 3.4 | Utility-first CSS framework |
+| **Icons** | Lucide React | 0.553 | SVG icon components |
+| **Mocking** | MSW | 2.12 | Service worker for API mocking |
+| **Dev Tools** | ESLint | 9.39 | Code linting |
+
+See [Architecture Decision Records](docs/ADR.md) for technology rationale.
+
+## Project Structure
+
+```text
+client/
+├── public/
+│   └── mockServiceWorker.js        # MSW service worker
+│
+├── src/
+│   ├── components/                  # Reusable components
+│   │   ├── layout/
+│   │   │   └── Navbar.tsx          # Main navigation bar
+│   │   └── ui/                     # UI primitives
+│   │       ├── Button.tsx          # 6 variants (primary, secondary, etc.)
+│   │       ├── Card.tsx            # Card container
+│   │       ├── Input.tsx           # Self-validating input
+│   │       ├── Metric.tsx          # Stat display
+│   │       ├── SelectBox.tsx       # Custom select
+│   │       ├── Skeleton.tsx        # Loading skeleton
+│   │       └── Text.tsx            # Typography
+│   │
+│   ├── pages/                       # Page-level components
+│   │   ├── WorkoutListPage.tsx     # Home - workout grid
+│   │   ├── WorkoutDetailPage.tsx   # Single workout view
+│   │   └── WorkoutFormPage.tsx     # Create/edit form
+│   │
+│   ├── services/                    # API layer
+│   │   ├── apiClient.ts            # Configured Axios instance
+│   │   ├── users.service.ts        # User API calls
+│   │   └── workouts.service.ts     # Workout API calls
+│   │
+│   ├── stores/                      # Zustand stores
+│   │   └── workoutFormStore.ts     # Form state & actions
+│   │
+│   ├── hooks/                       # Custom React hooks
+│   │   ├── useWorkout.ts           # Fetch single workout
+│   │   ├── useWorkouts.ts          # Fetch all workouts
+│   │   └── useWorkoutMutation.ts   # Create/update/delete
+│   │
+│   ├── mocks/                       # MSW setup
+│   │   ├── browser.ts              # Browser service worker
+│   │   ├── server.ts               # Node server (for tests)
+│   │   ├── handlers.ts             # Request handlers
+│   │   ├── data.ts                 # Mock data
+│   │   └── README.md               # MSW documentation
+│   │
+│   ├── types/                       # TypeScript definitions
+│   │   └── workout.ts              # Workout, Exercise, Set types
+│   │
+│   ├── config/                      # App configuration
+│   │   └── env.ts                  # Environment variables
+│   │
+│   ├── constants/                   # Static data
+│   │   └── exercises.ts            # Exercise suggestions
+│   │
+│   ├── utils/                       # Utility functions
+│   │   └── workoutUtils.ts         # Workout helpers
+│   │
+│   ├── App.tsx                      # Root component with routing
+│   ├── main.tsx                     # Entry point
+│   └── index.css                    # Global styles
+│
+├── docs/                            # Documentation
+│   ├── ADR.md                       # Architecture decisions
+│   └── IMPROVEMENTS.md              # Planned enhancements
+│
+├── vite.config.js                   # Vite configuration
+├── tailwind.config.js               # Tailwind CSS config
+├── postcss.config.js                # PostCSS config
+├── tsconfig.json                    # TypeScript config
+├── eslint.config.js                 # ESLint config
+└── package.json                     # Dependencies & scripts
+```
+
+## Mocking with MSW for Offline Development
+
+### Overview
+
+Mock Service Worker (MSW) intercepts HTTP requests at the network level, allowing frontend development without running the backend server.
+
+### How It Works
+
+1. **Service Worker Registration** - MSW installs a service worker in the browser
+2. **Request Interception** - All API calls to `http://localhost:5000` are intercepted
+3. **Mock Responses** - Handlers return mock data from in-memory storage
+4. **Full CRUD** - Create, read, update, and delete operations supported
+5. **Session Persistence** - Data persists during browser session, resets on refresh
+
+### Configuration
+
+**Enable/Disable MSW** - Set in `.env`:
+
+```bash
+# Use mock data (no backend needed)
+VITE_ENABLE_MSW=true
+
+# Use real API (backend must be running)
+VITE_ENABLE_MSW=false
+```
+
+### Mock Data
+
+- **Default workouts:** 3 sample workouts with various exercises
+- **Demo user:** `673092a6fd2a34e8e4b91234`
+- **Operations:** Full CRUD with in-memory storage
+
+### Benefits
+
+- **No Backend Dependency** - Develop UI independently
+- **Consistent Data** - Same test data every time
+- **Fast Iteration** - No server startup time
+- **Offline Work** - No internet connection needed
+- **Test Ready** - Pre-configured for unit tests
+
+See [src/mocks/README.md](src/mocks/README.md) for complete MSW documentation.
+
+## Getting Started
+
+### Installation
 
 ```bash
 # Install dependencies
 npm install
 
-# Start development server
+# Optional: Generate MSW service worker (already included)
+npx msw init public/ --save
+```
+
+### Environment Variables
+
+Create `.env` file:
+
+```text
+# API Configuration
+VITE_API_BASE_URL=http://localhost:5000/api
+
+# Demo user (for development)
+VITE_DEMO_USER_ID=673092a6fd2a34e8e4b91234
+
+# Enable/disable MSW
+VITE_ENABLE_MSW=true
+```
+
+### Development
+
+```bash
+# Start dev server with MSW (default)
 npm run dev
 
 # Build for production
@@ -26,165 +198,14 @@ npm run build
 
 # Preview production build
 npm run preview
+
+# Lint code
+npm run lint
 ```
 
-## Tech Stack
+## Documentation
 
-- React 18
-- TypeScript
-- Vite
-- React Router DOM
-- Axios
-- Lucide React (icons)
-- Zustand (state management)
-- MSW (Mock Service Worker - API mocking)
-
-## Project Structure
-
-```text
-src/
-├── components/      # React components
-│   ├── Navbar.tsx
-│   ├── WorkoutList.tsx
-│   ├── WorkoutForm.tsx
-│   ├── WorkoutDetail.tsx
-│   ├── Input.tsx          # Reusable input with validation
-│   ├── Input.css
-│   ├── Button.tsx         # Reusable button with variants
-│   └── Button.css
-├── stores/          # Zustand state stores
-│   └── workoutFormStore.ts
-├── mocks/           # MSW mock API handlers
-│   ├── browser.ts         # Browser service worker
-│   ├── server.ts          # Node server (for testing)
-│   ├── handlers.ts        # HTTP request handlers
-│   ├── data.ts            # Mock data
-│   └── README.md
-├── services/        # API service layer
-│   └── api.ts
-├── types/           # TypeScript type definitions
-│   └── index.ts
-├── App.tsx          # Main app component
-├── main.tsx         # Entry point
-└── setupTests.ts    # Test setup with MSW
-```
-
-## API Mocking with MSW
-
-This project uses Mock Service Worker (MSW) to mock API calls during development and testing.
-
-### Default Behavior
-
-- **Development mode**: MSW is enabled by default, using mock data
-- **Production mode**: MSW is disabled, uses real API
-
-### Switching Between Mock and Real API
-
-1. **Use Mock Data** (no backend server needed):
-
-   ```bash
-   # Set in .env file
-   VITE_ENABLE_MSW=true
-   ```
-
-2. **Use Real API** (backend server must be running):
-
-   ```bash
-   # Set in .env file
-   VITE_ENABLE_MSW=false
-   ```
-
-### Benefits
-
-- ✅ Develop without running the backend server
-- ✅ Consistent test data for development
-- ✅ Ready for unit testing
-- ✅ Faster development iteration
-- ✅ Network-independent development
-
-### Mock Data
-
-The mock API includes:
-
-- 3 sample workouts with various exercises
-- Demo user account
-- Full CRUD operations (Create, Read, Update, Delete)
-
-See `src/mocks/README.md` for complete documentation.
-
-## Potential Improvements
-
-### MUST-HAVE (Security & Stability)
-
-#### 1. Authentication & Authorization
-
-- Implement user authentication (JWT tokens)
-- Add protected routes
-- Store auth tokens securely
-- Add login/register pages
-- Handle token refresh
-
-#### 2. Error Handling & User Feedback
-
-- Add error boundaries to catch React component errors
-- Implement toast/notification system for success/error messages
-- Add try-catch blocks in API calls with user-friendly error messages
-- Handle network failures gracefully
-
-#### 3. Environment Configuration
-
-- Move hardcoded API URL to environment variables
-- Create `.env.example` file with required variables
-- Add different configs for dev/staging/production
-
-### HIGH PRIORITY (User Experience & Quality)
-
-#### 4. Form Validation
-
-- Add form validation library (Zod, Yup, or React Hook Form)
-- Improve inline validation with better error messages
-- Add client-side validation before API calls
-- Validate date ranges, numeric inputs
-
-#### 5. Testing
-
-- Add unit tests (Vitest/Jest + React Testing Library)
-- Add integration tests for critical flows
-- Test MSW handlers
-- Add E2E tests (Playwright/Cypress)
-
-### MEDIUM PRIORITY (Enhancement & Optimization)
-
-#### 6. Performance Optimization
-
-- Add React.memo for expensive components
-- Implement lazy loading for routes (`React.lazy`)
-- Add infinite scroll or pagination for workout lists
-- Optimize re-renders in `WorkoutForm`
-- Add debouncing for search/filter inputs
-
-#### 7. Accessibility (a11y)
-
-- Add ARIA labels and roles
-- Ensure keyboard navigation works
-- Add focus management
-- Test with screen readers
-- Improve color contrast
-
-#### 8. UX Enhancements
-
-- Add loading skeletons instead of spinners
-- Implement optimistic UI updates
-- Add confirmation dialogs for delete actions
-- Add search/filter functionality for workouts
-- Add workout statistics/charts (progress tracking)
-- Export workout data (CSV/PDF)
-
-#### 9. Code Quality
-
-- Add PropTypes or improve TypeScript interfaces
-- Extract magic numbers/strings to constants
-- Add better TypeScript strict mode
-- Create custom hooks for reusable logic
-
-For more information, visit the [main README](../README.md).
+- [Architecture Decision Records](docs/ADR.md) - Technology choices and rationale
+- [Improvements](docs/IMPROVEMENTS.md) - Planned enhancements and roadmap
+- [Main README](../README.md) - Project overview and setup
+- [Server Documentation](../server/README.md) - Backend API documentation

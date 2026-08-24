@@ -1,172 +1,150 @@
 # Gym Tracker - Backend
 
-This is the Express + TypeScript backend for the Personal Gym Tracker application.
+Express + TypeScript backend API for the Personal Gym Tracker application with MongoDB database.
 
-## Documentation
+## Features Overview
 
-Please see the main [README.md](../README.md) in the root directory for complete documentation, including:
+### Core Features
 
-- Installation and setup instructions
-- API endpoints
-- Database schema
-- Development guidelines
+- **RESTful API** - Standard REST endpoints for CRUD operations
+- **User Management** - Create and manage user accounts
+- **Workout Management** - Full CRUD for workouts with nested exercises
+- **Data Validation** - Mongoose schema validation
+- **CORS Enabled** - Cross-origin resource sharing configured
 
-## Quick Start
+### Technical Features
+
+- **TypeScript** - Full type safety across the codebase
+- **ESM Modules** - Modern ES2020 module system
+- **MongoDB** - NoSQL document database with Mongoose ODM
+- **Environment Config** - dotenv for configuration management
+- **Hot Reload** - nodemon for development server
+
+## Tech Stack
+
+| Category | Technology | Version | Purpose |
+| -------- | ---------- | ------- | ------- |
+| **Runtime** | Node.js | 22+ | JavaScript runtime |
+| **Framework** | Express.js | 4.18 | Web application framework |
+| **Language** | TypeScript | 5.9 | Static typing |
+| **Database** | MongoDB | Latest | NoSQL document database |
+| **ODM** | Mongoose | 8.0 | MongoDB object modeling |
+| **Middleware** | CORS | 2.8 | Cross-origin support |
+| **Config** | dotenv | 16.3 | Environment variables |
+| **Dev Tools** | nodemon | 3.1 | Development server |
+| **Dev Tools** | ts-node | 10.9 | TypeScript execution |
+
+See [Architecture Decision Records](docs/ADR.md) for technology rationale.
+
+## Project Structure
+
+```text
+server/
+├── src/
+│   ├── models/                      # Mongoose models
+│   │   ├── User.ts                  # User schema & model
+│   │   └── Workout.ts               # Workout schema & model
+│   │
+│   ├── routes/                      # API routes
+│   │   ├── users.ts                 # User endpoints
+│   │   └── workouts.ts              # Workout endpoints
+│   │
+│   ├── config/                      # Configuration
+│   │   └── db.ts                    # MongoDB connection
+│   │
+│   ├── server.ts                    # Express server setup
+│   └── createDemoUser.ts            # Demo user creation script
+│
+├── dist/                            # Compiled JavaScript (ES2020)
+│
+├── docs/                            # Documentation
+│   ├── ADR.md                       # Architecture decisions
+│   ├── DATABASE_SETUP.md            # Database configuration
+│   └── IMPROVEMENTS.md              # Planned enhancements
+│
+├── .env                             # Environment variables (not in git)
+├── tsconfig.json                    # TypeScript configuration
+└── package.json                     # Dependencies & scripts
+```
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js 22+ and npm 9+
+- MongoDB (for local setup)
+
+### Installation
 
 ```bash
 # Install dependencies
 npm install
 
-# Create demo user
+# Create .env file
+cp .env.example .env
+# Edit .env with your MongoDB URI
+```
+
+### Environment Variables
+
+Create `.env` file in server directory:
+
+```text
+# MongoDB Configuration
+MONGODB_URI=mongodb://localhost:27017/gym-tracker
+
+# Server Configuration
+PORT=5000
+NODE_ENV=development
+```
+
+### Development
+
+```bash
+# Create demo user (optional)
 npm run setup
 
-# Start development server
+# Start development server with hot reload
 npm run dev
 
-# Build TypeScript
+# Build TypeScript to JavaScript
 npm run build
 
 # Start production server
 npm start
 ```
 
-## Tech Stack
+### API Access
 
-- Node.js
-- Express.js
-- TypeScript
-- MongoDB
-- Mongoose
-- **ESM Modules** (ES2020)
+- API Base URL: `http://localhost:5000`
+- API Endpoints: `http://localhost:5000/api`
 
-## Project Structure
+## API Endpoints
 
-```text
-src/
-├── models/              # Mongoose models
-│   ├── User.ts
-│   └── Workout.ts
-├── routes/              # API routes
-│   ├── users.ts
-│   └── workouts.ts
-├── config/              # Configuration
-│   └── db.ts
-├── server.ts            # Server entry point
-└── createDemoUser.ts    # Demo user script
-```
+### Users
 
-## Environment Variables
+| Method | Endpoint | Description | Request Body |
+| ------ | -------- | ----------- | ------------ |
+| `GET` | `/api/users` | Get all users | None |
+| `GET` | `/api/users/:id` | Get user by ID | None |
+| `POST` | `/api/users` | Create new user | `{ name, email }` |
+| `PUT` | `/api/users/:id` | Update user | `{ name?, email? }` |
+| `DELETE` | `/api/users/:id` | Delete user | None |
 
-Create a `.env` file in the server directory:
+### Workouts
 
-```env
-MONGODB_URI=mongodb://localhost:27017/gym-tracker
-PORT=5000
-NODE_ENV=development
-```
+| Method | Endpoint | Description | Request Body |
+| ------ | -------- | ----------- | ------------ |
+| `GET` | `/api/workouts/:userId` | Get all workouts for user | None |
+| `GET` | `/api/workouts/detail/:id` | Get workout by ID | None |
+| `POST` | `/api/workouts` | Create new workout | See below |
+| `PUT` | `/api/workouts/:id` | Update workout | See below |
+| `DELETE` | `/api/workouts/:id` | Delete workout | None |
 
-## Module System
+## Documentation
 
-This project uses **ES Modules (ESM)**:
-
-- `package.json` includes `"type": "module"`
-- All imports use `.js` extensions (e.g., `./routes/users.js`)
-- TypeScript compiles to ES2020 modules
-- Use `node --loader ts-node/esm` for running TypeScript files
-
-## Potential Improvements
-
-### MUST-HAVE (Security & Stability)
-
-#### 1. Authentication & Authorization
-
-- Implement JWT-based authentication
-- Add password hashing (bcrypt)
-- Protect routes with auth middleware
-- Add role-based access control (RBAC)
-- Implement refresh token strategy
-
-#### 2. Input Validation & Sanitization
-
-- Add validation middleware (Joi, Zod, express-validator)
-- Validate all incoming request data
-- Sanitize inputs to prevent injection attacks
-- Add proper TypeScript types for request bodies
-
-#### 3. Error Handling
-
-- Create centralized error handling middleware
-- Add custom error classes
-- Return consistent error response format
-- Don't expose internal error details in production
-- Log errors appropriately
-
-#### 4. Security
-
-- Add helmet.js for security headers
-- Implement rate limiting (express-rate-limit)
-- Add CSRF protection
-- Sanitize MongoDB queries to prevent injection
-- Add input length limits
-- Implement CORS properly (not allow all origins in production)
-
-#### 5. Environment & Configuration
-
-- Validate environment variables on startup
-- Add different configs for environments
-- Use config management library
-- Add `.env.example` with all required variables
-
-### HIGH PRIORITY (API Quality)
-
-#### 6. Logging & Monitoring
-
-- Add structured logging (Winston, Pino)
-- Log important events (auth attempts, errors, etc.)
-- Add request logging middleware (morgan)
-- Implement health check endpoints
-- Add performance monitoring
-
-#### 7. API Improvements
-
-- Add API versioning (`/api/v1/...`)
-- Implement pagination, sorting, filtering
-- Add field selection (sparse fieldsets)
-- Create API documentation (Swagger/OpenAPI)
-- Add request/response compression
-- Implement caching strategy (Redis)
-
-#### 8. Database Optimization
-
-- Add indexes on frequently queried fields (userId, date)
-- Implement pagination for workout queries
-- Add database connection pooling configuration
-- Consider archiving old workouts
-- Add data migration scripts
-
-### MEDIUM PRIORITY (Maintainability)
-
-#### 9. Testing
-
-- Add unit tests for models, routes, utilities
-- Add integration tests for API endpoints
-- Test database operations
-- Add test coverage reporting
-- Mock external dependencies
-
-#### 10. Code Organization
-
-- Add controllers layer (separate from routes)
-- Create middleware folder (auth, validation, error)
-- Add utils/helpers folder
-- Implement service layer for business logic
-- Add constants file
-
-#### 11. Data Management
-
-- Add soft delete for workouts (instead of hard delete)
-- Implement workout templates feature
-- Add data export functionality
-- Implement backup strategy
-
-For more information, visit the [main README](../README.md).
+- [Architecture Decision Records](docs/ADR.md) - Technology choices and rationale
+- [Database Setup](docs/DATABASE_SETUP.md) - MongoDB configuration and schema
+- [Improvements](docs/IMPROVEMENTS.md) - Planned enhancements and roadmap
+- [Main README](../README.md) - Project overview and setup
+- [Client Documentation](../client/README.md) - Frontend application documentation
