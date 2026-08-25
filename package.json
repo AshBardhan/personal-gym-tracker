@@ -1,0 +1,24 @@
+{
+  "name": "personal-gym-tracker",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Full-stack personal gym tracker",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently --kill-others --names client,server --prefix-colors cyan,yellow \"npm run dev:client\" \"npm run dev:server\"",
+    "dev:client": "npm run dev --prefix client",
+    "dev:server": "npm run dev --prefix server",
+    "build": "concurrently --kill-others-on-fail --names client,server --prefix-colors cyan,yellow \"npm run build:client\" \"npm run build:server\"",
+    "build:client": "npm run build --prefix client",
+    "build:server": "npm run build --prefix server",
+    "lint": "npm run lint --prefix client && npm run lint --prefix server",
+    "check:release": "npm run lint && npm run build",
+    "version:client": "npm version --prefix client --no-git-tag-version",
+    "version:server": "npm version --prefix server --no-git-tag-version",
+    "release": "node scripts/release.mjs",
+    "postversion": "node scripts/postversion.mjs"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}

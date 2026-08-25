@@ -1,6 +1,6 @@
 # Personal Gym Tracker
 
-A full-stack MERN (MongoDB, Express, React, Node.js) application with TypeScript for tracking gym workouts and exercises.
+A full-stack MERN application with TypeScript support for tracking gym workouts and exercises.
 
 ## Features Overview
 
@@ -18,7 +18,7 @@ A full-stack MERN (MongoDB, Express, React, Node.js) application with TypeScript
 ### Application Routes (Frontend)
 
 | Route | Component | Description |
-|-------|-----------|-------------|
+| ----- | --------- | ----------- |
 | `/` | WorkoutListPage | Home page - workout grid view |
 | `/workouts` | WorkoutListPage | All workouts list |
 | `/workouts/new` | WorkoutFormPage | Create new workout |
@@ -28,7 +28,7 @@ A full-stack MERN (MongoDB, Express, React, Node.js) application with TypeScript
 ### API Routes (Backend)
 
 | Method | Endpoint | Description |
-|--------|----------|-------------|
+| ------ | -------- | ----------- |
 | `GET` | `/api/users` | Get all users |
 | `GET` | `/api/users/:id` | Get user by ID |
 | `POST` | `/api/users` | Create new user |
@@ -78,7 +78,6 @@ personal-gym-tracker/
 │   │   └── utils/          # Utilities
 │   ├── docs/               # Frontend documentation
 │   └── package.json
-│
 └── server/                 # Express backend
     ├── src/
     │   ├── models/         # Mongoose models
@@ -99,132 +98,58 @@ personal-gym-tracker/
 
 ### Quick Start
 
-**Terminal 1 - Server:**
-
 ```bash
-# Enter the server directory and install dependencies
-cd server
+# Install root tooling and application dependencies.
 npm install
+npm install --prefix client
+npm install --prefix server
 
-# Create server/.env with the MongoDB connection settings
+# Configure server/.env for MongoDB and client/.env for the API and MSW.
 
-# Start MongoDB if using a local database
+# Start local MongoDB and optionally create the demo user.
 sudo systemctl start mongod
+npm run setup --prefix server
 
-# Create the demo user (optional)
-npm run setup
-
-# Start the backend
+# Start both applications or either application independently.
 npm run dev
+npm run dev:client
+npm run dev:server
+
+# Build both applications or either application independently.
+npm run build
+npm run build:client
+npm run build:server
+
+# Check code quality and release readiness.
+npm run lint
+npm run check:release
+
+# Bump changed components, then create the application release.
+npm run version:client -- patch
+npm run version:server -- minor
+npm run release -- patch "release summary"
 ```
 
-**Terminal 2 - Client:**
+### Access the apps
 
-```bash
-# Enter the client directory and install dependencies
-cd client
-npm install
-
-# Create client/.env with the API and MSW settings
-
-# Start the frontend
-npm run dev
-```
-
-**Access the app:**
-- Frontend: http://localhost:5173
-- Backend API: http://localhost:5000
+- React Client: `http://localhost:5173`
+- Node.js Server: `http://localhost:5000`
 
 ## Documentation
 
 ### Frontend Documentation
+
 - [Client README](client/README.md) - Frontend overview, tech stack, and structure
 - [Frontend ADR](client/docs/ADR.md) - Architecture decisions and rationale
 - [Frontend Improvements](client/docs/IMPROVEMENTS.md) - Planned enhancements
 
 ### Backend Documentation
+
 - [Server README](server/README.md) - Backend overview, tech stack, and structure
 - [Backend ADR](server/docs/ADR.md) - Architecture decisions and rationale
 - [Database Setup](server/docs/DATABASE_SETUP.md) - MongoDB setup and schema
 - [Backend Improvements](server/docs/IMPROVEMENTS.md) - Planned enhancements
 
-## Development
-
-### Development Modes
-
-**With Mock API (Default)** - No backend required:
-```bash
-cd client
-npm run dev
-```
-
-**With Real API** - Backend must be running:
-```bash
-# Terminal 1
-cd server && npm run dev
-
-# Terminal 2  
-cd client && npm run dev
-```
-
-### Available Scripts
-
-**Server Commands:**
-```bash
-npm run dev      # Start development server
-npm run build    # Compile TypeScript
-npm start        # Start production server
-npm run setup    # Create demo user
-```
-
-**Client Commands:**
-```bash
-npm run dev      # Start development server
-npm run build    # Build for production
-npm run preview  # Preview production build
-```
-
-## Configuration
-
-### Server Environment (.env)
-```text
-MONGODB_URI=mongodb://localhost:27017/gym-tracker
-PORT=5000
-NODE_ENV=development
-```
-
-### Client Environment (.env)
-```text
-VITE_API_BASE_URL=http://localhost:5000/api
-VITE_ENABLE_MSW=true
-VITE_DEMO_USER_ID=673092a6fd2a34e8e4b91234
-```
-
-## Troubleshooting
-
-### Backend Issues
-- Ensure MongoDB is running: `sudo systemctl status mongod`
-- Check port 5000 availability: `lsof -i :5000`
-- Verify `.env` file exists in server directory
-
-### Frontend Issues
-- Clear browser cache and reload
-- Check browser console for errors
-- Verify backend is running (if not using MSW)
-
-## Legacy Project Structure
-
-> **Note:** For detailed project structure, see [client/README.md](client/README.md) and [server/README.md](server/README.md)
-
 ## License
 
 MIT
-
-## Contributing
-
-Contributions are welcome! Feel free to:
-- Report bugs
-- Suggest new features
-- Submit pull requests
-- Improve documentation
-
