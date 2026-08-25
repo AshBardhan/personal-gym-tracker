@@ -1,7 +1,7 @@
 {
   "name": "gym-tracker-server",
-  "version": "1.0.0",
-  "description": "Backend server for personal gym tracker",
+  "version": "1.0.1",
+  "description": "Backend Server for Personal Gym Tracker",
   "main": "dist/server.js",
   "type": "module",
   "scripts": {

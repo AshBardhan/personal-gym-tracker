@@ -1,7 +1,7 @@
 {
   "name": "gym-tracker-client",
-  "version": "1.0.0",
-  "description": "Frontend client UI for personal gym tracker",
+  "version": "1.0.1",
+  "description": "Frontend Client UI for Personal Gym Tracker",
   "type": "module",
   "scripts": {
     "dev": "vite",

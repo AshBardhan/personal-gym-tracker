@@ -124,10 +124,10 @@ npm run build:server
 npm run lint
 npm run check:release
 
-# Bump changed components, then create the application release.
-npm run version:client -- patch
-npm run version:server -- minor
-npm run release -- patch "release summary"
+# Bump changed components, then create the application release (patch by default).
+npm run version:client
+npm run version:server --minor
+npm run release -m "release summary" --minor
 ```
 
 ### Access the apps
