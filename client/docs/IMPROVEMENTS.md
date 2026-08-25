@@ -2,6 +2,28 @@
 
 ## High Priority
 
+### Workout Tracking and Progress History
+
+- **Focused domain contracts**: Adopt stable exercise identities and purpose-specific API types.
+  - Separate workout summaries, details, form inputs, templates, records, and progress responses.
+  - Replace name-based exercise selection and `Partial<Workout>` mutation payloads.
+  - Keep MSW fixtures and handlers synchronized with the server contracts.
+- **Dashboard experience**: Combine workout history, progress distribution, and templates.
+  - Provide view, duplicate, and delete actions for workout and template summaries.
+  - Add create-workout and create-template actions.
+  - Chart primary-muscle volume for 7 days, 30 days, or all time.
+- **Workout and template editing**: Support ordered exercise workflows.
+  - Add, replace, remove, and reorder workout exercises and their raw sets.
+  - Create and edit templates containing ordered exercises without completed set data.
+  - Instantiate templates into workout forms with empty sets that users must complete.
+- **Performance details**: Make workout records and exercise progress visible.
+  - Calculate loaded-workout volume and estimated 1RM metrics on the client.
+  - Compare workout sets with server-owned all-time records and display exact record badges.
+  - Add exercise lifetime statistics, collapsed history with expandable sets, and progress graphs for volume, max weight, and estimated 1RM.
+- **Workflow coverage**: Verify calculations and cross-resource mutations.
+  - Test formulas, source-ID badge matching, ordering, and empty-set template instantiation.
+  - Cover workout and template CRUD, duplication, dashboard periods, and record changes after workout mutations.
+
 ### Authentication and Authorization
 
 - **Authentication flow**: Add secure account access for production use.
@@ -100,13 +122,10 @@
 - **Workout discovery**: Make workout history easier to navigate.
   - Search by title or exercise.
   - Filter by date range and muscle group.
-- **Progress insights**: Summarize workout activity and performance.
-  - Track workout frequency, volume, and personal records.
-  - Add weight-progression charts.
+- **Data export**: Support portable workout summaries.
   - Export workout data to CSV or PDF.
 - **Workout editing**: Improve repeated data-entry workflows.
   - Reorder exercises with drag and drop.
-  - Save and reuse workout templates.
   - Add keyboard shortcuts for common actions.
 
 ### Accessibility

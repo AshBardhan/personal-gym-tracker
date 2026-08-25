@@ -2,6 +2,29 @@
 
 ## High Priority
 
+### Workout Domain and Progress History
+
+- **Stable workout data**: Base workout history on catalog-backed exercise identities and raw sets.
+  - Add a stable exercise catalog with primary and secondary muscle groups.
+  - Store ordered workout exercises with exercise metadata snapshots and raw repetitions and weight.
+  - Distinguish the user-selected performance date from the database creation timestamp.
+- **Workout templates**: Support reusable, user-owned exercise sequences.
+  - Store ordered exercise references without completed sets or statistics.
+  - Support template CRUD, independent duplication, and workout-draft instantiation with empty sets.
+- **All-time exercise records**: Persist best single-set volume and estimated 1RM per user and exercise.
+  - Store source workout, workout-exercise, and set identifiers for record badges.
+  - Recalculate affected records transactionally after workout creation, update, or deletion.
+  - Add an idempotent reconciliation command for recovery and integrity checks.
+- **Progress APIs**: Provide focused responses for dashboard, workout, and exercise views.
+  - Return workout and template summaries plus 7-day, 30-day, and all-time muscle-volume distributions.
+  - Attribute exercise volume to its primary muscle group to avoid double counting.
+  - Return exercise totals, history, and progress series filtered by volume, max weight, or estimated 1RM.
+- **Local schema rollout**: Rebuild disposable development data against the redesigned models.
+  - Add versioned schema migrations and make `npm run setup` clear application collections, migrate, and seed all required data from scratch.
+  - Add query and uniqueness indexes for workout history, templates, and exercise records.
+  - Cover metric formulas, record fallback, mutation transactions, setup idempotency, and reconciliation with regression tests.
+  - Use versioned schema migrations and optional data backfills for future environments whose data must be preserved.
+
 ### Authentication and Authorization
 
 - **JWT authentication**: Add secure identity verification for API requests.
@@ -166,9 +189,6 @@
   - Record deletion timestamps.
   - Exclude deleted records by default.
   - Add restore and permanent-delete operations where appropriate.
-- **Workout templates**: Let users reuse common workout structures.
-  - Add a template model owned by a user.
-  - Clone templates into independent workout records.
 - **Data export**: Support user-controlled data portability.
   - Export workouts as JSON and CSV.
   - Allow date-range selection.
