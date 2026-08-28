@@ -11,6 +11,7 @@ import Button from "../components/ui/Button";
 import Text from "../components/ui/Text";
 import Card from "../components/ui/Card";
 import Metric from "../components/ui/Metric";
+import PageContainer from "../components/layout/PageContainer";
 
 /**
  * Workout Detail Page Component
@@ -35,7 +36,7 @@ const WorkoutDetailPage = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center">
+      <div className="flex flex-1 min-h-0 items-center justify-center">
         <Text variant="p" className="text-gray-600 text-lg">
           Loading workout...
         </Text>
@@ -45,7 +46,7 @@ const WorkoutDetailPage = () => {
 
   if (error || !workout) {
     return (
-      <div className="flex flex-col items-center justify-center gap-6">
+      <div className="flex flex-1 min-h-0 flex-col items-center justify-center gap-6">
         <Text variant="p" className="text-red-600 text-lg">
           {error || "Workout not found"}
         </Text>
@@ -57,7 +58,8 @@ const WorkoutDetailPage = () => {
   }
 
   return (
-    <div className="px-4 max-w-6xl mx-auto">
+    <div className="min-h-0 w-full flex-1 overflow-y-auto">
+      <PageContainer className="py-4 sm:py-6">
       <div className="flex justify-between items-center mb-8">
         <Button variant="secondary" as={Link} to="/workouts">
           ← Back
@@ -147,6 +149,7 @@ const WorkoutDetailPage = () => {
           )}
         </div>
       </Card>
+      </PageContainer>
     </div>
   );
 };

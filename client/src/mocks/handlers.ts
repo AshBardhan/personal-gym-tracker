@@ -6,7 +6,7 @@ const API_URL = "http://localhost:5000";
 
 // In-memory storage for workouts (will be reset on page refresh)
 let workoutsStore = [...mockWorkouts];
-let nextId = 4;
+let nextId = 11;
 
 export const handlers = [
   // Get API status

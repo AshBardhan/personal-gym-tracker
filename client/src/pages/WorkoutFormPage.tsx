@@ -11,6 +11,7 @@ import Button from "../components/ui/Button";
 import SelectBox from "../components/ui/SelectBox";
 import Text from "../components/ui/Text";
 import Card from "../components/ui/Card";
+import PageContainer from "../components/layout/PageContainer";
 
 /**
  * Workout Form Page Component
@@ -173,7 +174,8 @@ const WorkoutFormPage = () => {
   };
 
   return (
-    <div className="px-4 max-w-6xl mx-auto">
+    <div className="min-h-0 w-full flex-1 overflow-y-auto">
+      <PageContainer className="py-4 sm:py-6">
       <Text variant="h1" className="mb-8">
         {isEditMode ? "Edit Workout" : "New Workout"}
       </Text>
@@ -374,6 +376,7 @@ const WorkoutFormPage = () => {
           </form>
         </Card>
       )}
+      </PageContainer>
     </div>
   );
 };
