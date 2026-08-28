@@ -1,5 +1,4 @@
 import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
 import { LayoutGrid, List, Search, Trash2 } from "lucide-react";
 import { useWorkouts } from "../hooks/useWorkouts";
 import { useWorkoutMutation } from "../hooks/useWorkoutMutation";
@@ -96,7 +95,7 @@ const WorkoutListPage = () => {
               <ToggleSwitchButton
                 aria-label="Workout view mode"
                 value={viewMode}
-                onChange={setViewMode}
+                onChange={(mode) => setViewMode(mode as ViewMode)}
                 options={[
                   {
                     value: "grid",
@@ -114,7 +113,6 @@ const WorkoutListPage = () => {
               <Button
                 variant="primary"
                 size="large"
-                as={Link}
                 to="/workouts/new"
               >
                 New Workout
@@ -151,7 +149,6 @@ const WorkoutListPage = () => {
               </Text>
               <Button
                 variant="primary"
-                as={Link}
                 to="/workouts/new"
                 size="large"
               >

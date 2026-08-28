@@ -1,4 +1,4 @@
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useWorkout } from "../hooks/useWorkout";
 import { useWorkoutMutation } from "../hooks/useWorkoutMutation";
 import {
@@ -50,7 +50,7 @@ const WorkoutDetailPage = () => {
         <Text variant="p" className="text-red-600 text-lg">
           {error || "Workout not found"}
         </Text>
-        <Button variant="primary" as={Link} to="/workouts">
+        <Button variant="primary" to="/workouts">
           ← Back
         </Button>
       </div>
@@ -61,11 +61,11 @@ const WorkoutDetailPage = () => {
     <div className="min-h-0 w-full flex-1 overflow-y-auto">
       <PageContainer className="py-4 sm:py-6">
       <div className="flex justify-between items-center mb-8">
-        <Button variant="secondary" as={Link} to="/workouts">
+        <Button variant="secondary" to="/workouts">
           ← Back
         </Button>
         <div className="flex gap-2">
-          <Button variant="primary" as={Link} to={`/workouts/${id}/edit`}>
+          <Button variant="primary" to={`/workouts/${id}/edit`}>
             Edit Workout
           </Button>
           <Button variant="danger" onClick={handleDelete}>

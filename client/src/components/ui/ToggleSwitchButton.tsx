@@ -1,34 +1,34 @@
 import { ReactNode } from "react";
 import clsx from "clsx";
 
-export type ToggleOption<T extends string> = {
-  value: T;
+interface ToggleOption {
+  value: string;
   label?: string;
   icon?: ReactNode;
   ariaLabel?: string;
-};
+}
 
-type ToggleSwitchButtonProps<T extends string> = {
-  options: ToggleOption<T>[];
-  value: T;
-  onChange: (value: T) => void;
+interface ToggleSwitchButtonProps {
+  options: ToggleOption[];
+  value: string;
+  onChange: (value: string) => void;
   className?: string;
   size?: "small" | "medium";
   "aria-label"?: string;
-};
+}
 
 /**
  * Segmented toggle control for switching between discrete options
  * (e.g. Grid / List view).
  */
-const ToggleSwitchButton = <T extends string>({
+const ToggleSwitchButton = ({
   options,
   value,
   onChange,
   className = "",
   size = "medium",
   "aria-label": ariaLabel = "Toggle view",
-}: ToggleSwitchButtonProps<T>) => {
+}: ToggleSwitchButtonProps) => {
   return (
     <div
       role="group"

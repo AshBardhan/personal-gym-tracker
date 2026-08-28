@@ -1,21 +1,23 @@
-import { useState, InputHTMLAttributes } from "react";
+import {
+  ChangeEvent,
+  FocusEvent,
+  forwardRef,
+  InputHTMLAttributes,
+  useState,
+} from "react";
 import clsx from "clsx";
 
-type InputType = "text" | "number" | "date" | "password" | "email";
-type InputSize = "small" | "normal";
-
-type InputProps = Omit<InputHTMLAttributes<HTMLInputElement>, "type"> & {
+interface InputProps
+  extends Omit<InputHTMLAttributes<HTMLInputElement>, "type" | "size"> {
   label?: string;
   validate?: (value: string | number) => boolean;
   errorMessage?: string;
   showErrorOnBlur?: boolean;
-  type?: InputType;
-  inputSize?: InputSize;
-};
+  type?: "text" | "number" | "date" | "password" | "email";
+  inputSize?: "small" | "normal";
+}
 
-import React from "react";
-
-const Input = React.forwardRef<HTMLInputElement, InputProps>(
+const Input = forwardRef<HTMLInputElement, InputProps>(
   (
     {
       label,
@@ -32,26 +34,21 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     const [touched, setTouched] = useState(false);
     const [hasError, setHasError] = useState(false);
 
-    const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    const handleBlur = (e: FocusEvent<HTMLInputElement>) => {
       if (showErrorOnBlur) {
         setTouched(true);
         if (validate) {
           setHasError(!validate(e.target.value));
         }
       }
-      if (props.onBlur) {
-        props.onBlur(e);
-      }
+      props.onBlur?.(e);
     };
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      // Clear error when user starts typing
+    const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
       if (touched && validate) {
         setHasError(!validate(e.target.value));
       }
-      if (props.onChange) {
-        props.onChange(e);
-      }
+      props.onChange?.(e);
     };
 
     const showError = touched && hasError;
@@ -98,5 +95,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     );
   },
 );
+
+Input.displayName = "Input";
 
 export default Input;
