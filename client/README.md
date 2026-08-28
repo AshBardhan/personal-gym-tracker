@@ -45,6 +45,20 @@ React + TypeScript frontend for the Personal Gym Tracker application with modern
 
 See [Architecture Decision Records](docs/ADR.md) for technology rationale.
 
+## Page Routes
+
+Routes currently implemented in `src/App.tsx`. All workout pages use the demo user ID from config (no authentication yet).
+
+| Route | Component | Access | Description |
+| ----- | --------- | ------ | ----------- |
+| `/` | `WorkoutListPage` | Public (prototype) | Home — workout grid with volume/set metrics and delete |
+| `/workouts` | `WorkoutListPage` | Public (prototype) | Same list view as `/` |
+| `/workouts/new` | `WorkoutFormPage` | Public (prototype) | Create workout (title, date, exercises, sets) |
+| `/workouts/:id` | `WorkoutDetailPage` | Public (prototype) | View a single workout and its exercises |
+| `/workouts/:id/edit` | `WorkoutFormPage` | Public (prototype) | Edit an existing workout |
+
+Planned MVP and post-MVP page routes are tracked in [MVP_ROADMAP.md](../MVP_ROADMAP.md) and [docs/IMPROVEMENTS.md](docs/IMPROVEMENTS.md).
+
 ## Project Structure
 
 ```text
@@ -207,5 +221,7 @@ npm run lint
 
 - [Architecture Decision Records](docs/ADR.md) - Technology choices and rationale
 - [Improvements](docs/IMPROVEMENTS.md) - Planned enhancements and roadmap
+- [MVP Roadmap](../MVP_ROADMAP.md) - Parallel task and route checklist
+- [Exercise Catalog](../EXERCISES.md) - Categories, muscles, variants, and seed exercises
 - [Main README](../README.md) - Project overview and setup
 - [Server Documentation](../server/README.md) - Backend API documentation

@@ -1,198 +1,139 @@
 # Backend Improvements
 
+Priorities align with the near-term build order: **domain models and relationships first** (exercise catalog + workouts) so the client can integrate via API, then validation/ops hardening, then **auth for deploy**. See [MVP_ROADMAP.md](../../MVP_ROADMAP.md). Catalog reference: [EXERCISES.md](../../EXERCISES.md). Verify server-only work with curl and `mongosh` before UI integration.
+
 ## High Priority
 
-### Workout Domain and Progress History
+### Models and Relationships
 
-- **Stable workout data**: Base workout history on catalog-backed exercise identities and raw sets.
-  - Add a stable exercise catalog with primary and secondary muscle groups.
-  - Store ordered workout exercises with exercise metadata snapshots and raw repetitions and weight.
+- **Exercise catalog model**: Persist a shared exercise list for users and admins.
+  - Fields aligned with [EXERCISES.md](../../EXERCISES.md): name, category, primary muscle, secondary muscles, default variant, archived flag.
+  - Stable IDs; optional `normalizedName` uniqueness.
+  - Seed from the predefined list; admin CRUD; open list/read for the app (auth can lock this down later).
+- **Catalog-backed workouts**: Base workout history on exercise identities and raw sets.
+  - Relationships: User 1—n Workout; Workout embeds ordered exercises; each references `exerciseId` with metadata snapshots; sets embed `reps` × `weight`; optional per-log `variant` (+ custom text).
   - Distinguish the user-selected performance date from the database creation timestamp.
-- **Workout templates**: Support reusable, user-owned exercise sequences.
-  - Store ordered exercise references without completed sets or statistics.
-  - Support template CRUD, independent duplication, and workout-draft instantiation with empty sets.
-- **All-time exercise records**: Persist best single-set volume and estimated 1RM per user and exercise.
-  - Store source workout, workout-exercise, and set identifiers for record badges.
-  - Recalculate affected records transactionally after workout creation, update, or deletion.
-  - Add an idempotent reconciliation command for recovery and integrity checks.
-- **Progress APIs**: Provide focused responses for dashboard, workout, and exercise views.
-  - Return workout and template summaries plus 7-day, 30-day, and all-time muscle-volume distributions.
-  - Attribute exercise volume to its primary muscle group to avoid double counting.
-  - Return exercise totals, history, and progress series filtered by volume, max weight, or estimated 1RM.
 - **Local schema rollout**: Rebuild disposable development data against the redesigned models.
-  - Add versioned schema migrations and make `npm run setup` clear application collections, migrate, and seed all required data from scratch.
-  - Add query and uniqueness indexes for workout history, templates, and exercise records.
-  - Cover metric formulas, record fallback, mutation transactions, setup idempotency, and reconciliation with regression tests.
-  - Use versioned schema migrations and optional data backfills for future environments whose data must be preserved.
+  - Make `npm run setup` seed demo user (and later admin), exercises, and sample workouts as needed.
+  - Add query and uniqueness indexes for users, workouts (`userId` + date), and exercises.
+- **Workout API shape for client integration**: Expose CRUD that matches client MSW contracts.
+  - Prefer `GET /api/workouts` and `GET /api/workouts/:id` (migrate off `:userId` / `detail` when ready).
+  - Exercise routes: list/detail (+ admin write) for catalog sync with the client.
+
+### Input Validation and Sanitization
+
+- **Request schemas**: Validate payloads before they reach route logic.
+  - Define schemas for users, workouts, exercises, variants, and sets (auth schemas when auth lands).
+  - Enforce length, range, format, and required-field rules.
+  - Return consistent field-level validation errors.
+- **Parameter validation**: Reject malformed route and query parameters early.
+  - Validate MongoDB ObjectIds; verify referenced exercises/resources exist.
+- **Input sanitization**: Normalize and trim input; reject unexpected fields/operators; limit body size.
+
+### Error Handling
+
+- **Central error middleware**: Route operational and unexpected failures through one response layer.
+  - Standardize error codes and response shapes shared with the client.
+  - Hide internal details outside development; preserve stack traces in logs.
+- **Typed application errors**: Cover validation, not-found, and conflict (add auth categories when auth lands).
+- **Async error propagation**: Forward rejected handler promises to the central middleware.
+
+### Environment Configuration and Health
+
+- **Environment validation**: Verify MongoDB URI, port, and `NODE_ENV` before listen (auth secrets when auth lands).
+- **Configuration templates**: Keep `.env.example` complete; typed config module (no scattered `process.env`).
+- **Health endpoints**: `GET /api/health` with liveness and Mongo readiness for deploy probes.
+
+### Security Hardening (pre-auth baseline)
+
+- **Security headers**: Apply Helmet and a production-appropriate CSP.
+- **Rate limiting**: General API limits (stricter auth limits when login exists).
+- **CORS policy**: Restrict browser access to approved client origins.
+- **Request protection**: Prevent NoSQL operator injection; enforce body-size and input-length limits.
+
+## Medium Priority
 
 ### Authentication and Authorization
 
+Deferred until exercise/workout models and client pages integrate over the API with demo/sample identity.
+
 - **JWT authentication**: Add secure identity verification for API requests.
-  - Create registration, login, logout, and token-refresh endpoints.
+  - Create registration, login, logout, and token-refresh endpoints (`/api/auth/*`).
+  - Expose `GET /api/auth/me` for the current user and role.
   - Hash passwords with bcrypt.
   - Use short-lived access tokens and rotating refresh tokens.
 - **Authentication middleware**: Establish user identity before protected handlers run.
   - Verify tokens and attach the authenticated user to the request.
   - Reject missing, invalid, and expired credentials consistently.
 - **Resource authorization**: Ensure users can access only permitted data.
-  - Protect all workout routes.
-  - Enforce workout ownership on read, update, and delete operations.
-  - Add user and administrator roles where elevated access is required.
-- **Account recovery**: Support secure password reset workflows.
-  - Issue expiring reset tokens.
-  - Deliver reset links through email.
-  - Invalidate existing sessions after a password change.
+  - Protect workout routes; derive ownership from `req.user` (stop trusting body/URL `userId`).
+  - Lock down user list/create/delete and exercise writes to administrators where appropriate.
+  - Add `user` and `admin` roles on the User model.
 
-### Input Validation and Sanitization
+### Progress APIs and Records
 
-- **Request schemas**: Validate payloads before they reach route logic.
-  - Define schemas for users, workouts, exercises, and sets.
-  - Enforce length, range, format, and required-field rules.
-  - Return consistent field-level validation errors.
-- **Parameter validation**: Reject malformed route and query parameters early.
-  - Validate MongoDB ObjectIds.
-  - Verify referenced users and resources exist.
-- **Input sanitization**: Reduce injection and malformed-data risks.
-  - Normalize and trim user input.
-  - Reject unexpected fields and operators.
-  - Limit JSON and URL-encoded request sizes.
+- **Progress APIs**: Provide focused responses when client-side calculation is no longer enough.
+  - Summaries and 7-day / 30-day / all-time muscle-volume distributions.
+  - Attribute volume to primary muscle group to avoid double counting.
+  - Exercise totals, history, and series filtered by volume, max weight, or estimated 1RM.
+- **All-time exercise records**: Persist best single-set volume and estimated 1RM per user and exercise.
+  - Store source workout / exercise / set identifiers for badges.
+  - Recalculate transactionally after workout mutations; idempotent reconciliation command.
 
-### Error Handling
+### Workout Templates
 
-- **Central error middleware**: Route operational and unexpected failures through one response layer.
-  - Standardize error codes and response shapes.
-  - Hide internal details outside development.
-  - Preserve stack traces in server logs.
-- **Typed application errors**: Represent common failure categories explicitly.
-  - Cover validation, authentication, authorization, conflict, and not-found errors.
-  - Map each category to an appropriate HTTP status.
-- **Async error propagation**: Remove repeated route-level error plumbing.
-  - Forward rejected handler promises to the central middleware.
-  - Distinguish expected operational errors from programming failures.
+- **Templates**: Support reusable, user-owned exercise sequences.
+  - Store ordered exercise references without completed sets.
+  - Template CRUD, duplication, and workout-draft instantiation with empty sets.
 
-### Security Hardening
+### Account Recovery
 
-- **Security headers**: Apply Helmet and a production-appropriate content security policy.
-  - Prevent framing and MIME-type sniffing.
-  - Enforce HTTPS-related headers in production.
-- **Rate limiting**: Protect public and authentication endpoints from abuse.
-  - Apply general API limits per client.
-  - Use stricter limits for login and password-reset attempts.
-- **CORS policy**: Restrict browser access to approved origins.
-  - Configure allowed methods and headers.
-  - Enable credentials only when required by authentication.
-- **Request protection**: Harden state-changing and database operations.
-  - Add CSRF protection when using cookie-based sessions.
-  - Prevent NoSQL operator injection.
-  - Enforce body-size and input-length limits.
-
-### Environment Configuration
-
-- **Environment validation**: Verify required settings before the server starts.
-  - Validate the MongoDB URI, port, runtime environment, and authentication secrets.
-  - Fail with actionable messages when configuration is invalid.
-- **Configuration templates**: Document every required and optional variable.
-  - Add a safe `.env.example` file.
-  - Separate development, test, staging, and production settings.
-- **Typed configuration**: Expose parsed settings through one module.
-  - Convert numeric and boolean values once.
-  - Prevent direct environment access throughout application code.
-
-## Medium Priority
+- **Password reset**: Expiring reset tokens, email delivery, invalidate sessions after password change.
 
 ### Logging and Monitoring
 
-- **Structured logging**: Replace ad hoc console output with machine-readable logs.
-  - Add levels for errors, warnings, information, and debugging.
-  - Include timestamps, request identifiers, and relevant context.
-  - Redact secrets and personal data.
-- **Request logging**: Record API traffic for diagnosis and performance analysis.
-  - Capture method, path, status, duration, and request ID.
-  - Flag slow requests and database operations.
-- **Health endpoints**: Expose service and dependency status.
-  - Add liveness and readiness checks.
-  - Verify MongoDB connectivity in readiness responses.
-- **Error monitoring**: Send unexpected failures to a monitoring service.
-  - Include release and environment context.
-  - Configure alerts for elevated error rates.
+- **Structured logging**: Levels, timestamps, request IDs; redact secrets and personal data.
+- **Request logging**: Method, path, status, duration; flag slow requests.
+- **Error monitoring**: Send unexpected failures to a monitoring service with release context.
 
 ### API Quality
 
-- **API versioning**: Introduce a stable version prefix for public endpoints.
-  - Move current contracts under `/api/v1`.
-  - Define a deprecation policy for future versions.
-- **Pagination and sorting**: Bound list responses and support predictable ordering.
-  - Add cursor-based workout pagination.
-  - Sort by workout and creation dates.
-  - Return pagination metadata.
-- **Filtering and search**: Support targeted workout queries.
-  - Filter by date range, exercise, and muscle group.
-  - Add field selection where reduced payloads are useful.
-- **API documentation**: Publish an OpenAPI specification.
-  - Document authentication, parameters, payloads, responses, and errors.
-  - Provide an interactive documentation view.
-- **Response efficiency**: Reduce repeated work and transferred data.
-  - Compress suitable responses.
-  - Cache frequently requested data with explicit invalidation rules.
+- **API versioning**: Move contracts under `/api/v1` with a deprecation policy.
+- **Pagination and sorting**: Cursor-based workout pagination; sort by workout/creation date.
+- **Filtering and search**: Date range, exercise, muscle group; field selection where useful.
+- **API documentation**: OpenAPI specification and interactive docs.
+- **Response efficiency**: Compression; cache frequently requested data with explicit invalidation.
 
 ### Database Optimization
 
-- **Query indexes**: Index fields used by common workout queries.
-  - Add a compound index for user and workout date.
-  - Add exercise search indexes when search is introduced.
-  - Review index usage with query plans.
-- **Efficient reads**: Reduce document and Mongoose overhead for list operations.
-  - Use lean queries for read-only responses.
-  - Select only fields required by each endpoint.
-  - Pair queries with bounded pagination.
-- **Connection management**: Tune and observe the MongoDB connection pool.
-  - Configure timeouts and pool limits for each environment.
-  - Expose connection health through monitoring.
-- **Schema evolution**: Establish repeatable database-change procedures.
-  - Add versioned migration scripts with rollback guidance.
-  - Backfill new fields safely.
-  - Define an archival policy if historical data grows substantially.
+- **Query indexes**: Compound index for user and workout date; exercise search indexes when needed.
+- **Efficient reads**: Lean queries; select only required fields; pair with pagination.
+- **Connection management**: Tune pool limits and timeouts; expose connection health.
+- **Schema evolution**: Versioned migrations with rollback guidance; safe backfills; archival policy.
 
 ## Low Priority
 
 ### Testing
 
-- **Unit tests**: Cover isolated domain and validation behavior.
-  - Test model constraints and utility functions.
-  - Test controllers or services after responsibilities are separated.
-- **Integration tests**: Verify API contracts against a controlled database.
-  - Cover successful and failing CRUD operations.
-  - Cover authentication, authorization, and validation boundaries.
-  - Reset test data between runs.
-- **Quality gates**: Make test results part of the delivery workflow.
-  - Track meaningful coverage targets.
-  - Run tests and type checking in continuous integration.
-  - Add regression tests for resolved defects.
+- **Unit tests**: Model constraints, utilities, validation; controllers/services after separation.
+- **Integration tests**: CRUD, authz, and validation against a controlled database; reset between runs.
+- **Quality gates**: Coverage targets; CI for tests and type checking; regression tests for fixes.
+- **Smoke scripts**: Maintain curl cookbooks for exercises and workouts (add auth when implemented).
 
 ### Code Organization
 
-- **Controller layer**: Separate HTTP request handling from route registration.
-  - Keep routes focused on paths and middleware composition.
-  - Move response orchestration into controllers.
-- **Service layer**: Isolate reusable business and persistence operations.
-  - Add services for workouts, authentication, and email.
-  - Keep database details out of HTTP-specific code.
-- **Middleware modules**: Group cross-cutting request concerns.
-  - Separate authentication, validation, rate limiting, and error handling.
-- **Shared utilities**: Centralize common server behavior.
-  - Add helpers for async handlers, tokens, email, and constants.
-  - Avoid abstractions until behavior is reused or materially complex.
+- **Controller layer**: Keep routes focused on paths and middleware; move orchestration to controllers.
+- **Service layer**: Workouts, exercises, authentication, email; keep persistence out of HTTP-specific code.
+- **Middleware modules**: Auth, validation, rate limiting, and error handling as separate modules.
+- **Shared utilities**: Async handlers, tokens, constants — only when reused or materially complex.
 
 ### Data Management
 
-- **Soft deletion**: Preserve recoverability for deleted workouts.
-  - Record deletion timestamps.
-  - Exclude deleted records by default.
-  - Add restore and permanent-delete operations where appropriate.
-- **Data export**: Support user-controlled data portability.
-  - Export workouts as JSON and CSV.
-  - Allow date-range selection.
-- **Backup strategy**: Formalize backup and recovery procedures.
-  - Schedule encrypted off-site backups.
-  - Define retention periods.
-  - Test restoration regularly.
+- **Soft deletion**: Deletion timestamps; exclude by default; restore / permanent-delete where needed.
+- **Data export**: JSON/CSV export with date-range selection.
+- **Backup strategy**: Encrypted off-site backups, retention, and regular restore drills.
+
+### Advanced Features
+
+- **AI plan generation**: Endpoints that produce personalized templates from goals and progress.
+- **CSRF protection**: When using cookie-based sessions in browsers.

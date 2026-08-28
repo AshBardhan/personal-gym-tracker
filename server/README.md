@@ -117,17 +117,25 @@ npm start
 ### API Access
 
 - API Base URL: `http://localhost:5000`
-- API Endpoints: `http://localhost:5000/api`
+- API Routes: `http://localhost:5000/api`
 
-## API Endpoints
+## API Routes
+
+Routes currently implemented. There is **no authentication or authorization** — callers supply `userId` directly. Planned MVP and post-MVP routes are tracked in [MVP_ROADMAP.md](../MVP_ROADMAP.md) and [docs/IMPROVEMENTS.md](docs/IMPROVEMENTS.md).
+
+### Status
+
+| Method | Endpoint | Description |
+| ------ | -------- | ----------- |
+| `GET` | `/` | API status message (`Gym Tracker API is running`) |
 
 ### Users
 
 | Method | Endpoint | Description | Request Body |
 | ------ | -------- | ----------- | ------------ |
-| `GET` | `/api/users` | Get all users | None |
+| `GET` | `/api/users` | List all users | None |
 | `GET` | `/api/users/:id` | Get user by ID | None |
-| `POST` | `/api/users` | Create new user | `{ name, email }` |
+| `POST` | `/api/users` | Create user | `{ name, email }` |
 | `PUT` | `/api/users/:id` | Update user | `{ name?, email? }` |
 | `DELETE` | `/api/users/:id` | Delete user | None |
 
@@ -135,16 +143,20 @@ npm start
 
 | Method | Endpoint | Description | Request Body |
 | ------ | -------- | ----------- | ------------ |
-| `GET` | `/api/workouts/:userId` | Get all workouts for user | None |
+| `GET` | `/api/workouts/:userId` | List workouts for a user (newest date first) | None |
 | `GET` | `/api/workouts/detail/:id` | Get workout by ID | None |
-| `POST` | `/api/workouts` | Create new workout | See below |
-| `PUT` | `/api/workouts/:id` | Update workout | See below |
+| `POST` | `/api/workouts` | Create workout | `{ userId, title?, date?, exercises? }` |
+| `PUT` | `/api/workouts/:id` | Update workout | `{ title?, date?, exercises? }` |
 | `DELETE` | `/api/workouts/:id` | Delete workout | None |
+
+**Create/update `exercises` shape:** array of `{ name, category?, muscleGroup?, sets: [{ reps, weight }] }`.
 
 ## Documentation
 
 - [Architecture Decision Records](docs/ADR.md) - Technology choices and rationale
 - [Database Setup](docs/DATABASE_SETUP.md) - MongoDB configuration and schema
+- [Exercise Catalog](../EXERCISES.md) - Categories, muscles, variants, and seed exercises
 - [Improvements](docs/IMPROVEMENTS.md) - Planned enhancements and roadmap
+- [MVP Roadmap](../MVP_ROADMAP.md) - Parallel task and route checklist
 - [Main README](../README.md) - Project overview and setup
 - [Client Documentation](../client/README.md) - Frontend application documentation

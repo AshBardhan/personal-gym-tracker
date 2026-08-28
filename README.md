@@ -137,17 +137,20 @@ npm run release -m "release summary" --minor
 
 ## Documentation
 
+- [MVP Roadmap](MVP_ROADMAP.md) - Product overview, parallel task checklist, and routes checklist
+
 ### Frontend Documentation
 
-- [Client README](client/README.md) - Frontend overview, tech stack, and structure
+- [Client README](client/README.md) - Frontend overview, tech stack, page routes, and structure
 - [Frontend ADR](client/docs/ADR.md) - Architecture decisions and rationale
 - [Frontend Improvements](client/docs/IMPROVEMENTS.md) - Planned enhancements
 
 ### Backend Documentation
 
-- [Server README](server/README.md) - Backend overview, tech stack, and structure
+- [Server README](server/README.md) - Backend overview, tech stack, API routes, and structure
 - [Backend ADR](server/docs/ADR.md) - Architecture decisions and rationale
 - [Database Setup](server/docs/DATABASE_SETUP.md) - MongoDB setup and schema
+- [Exercise Catalog](EXERCISES.md) - Categories, muscles, variants, and seed exercises
 - [Backend Improvements](server/docs/IMPROVEMENTS.md) - Planned enhancements
 
 ## License

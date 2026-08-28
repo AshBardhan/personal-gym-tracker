@@ -9,6 +9,8 @@ The `gym-tracker` database contains two collections:
 - **users**: Stores user identity and creation metadata.
 - **workouts**: Stores user-owned workouts with embedded exercises and sets.
 
+A future **exercises** collection will hold the shared catalog. Categories, target muscles, variants, and the predefined seed list are documented in [EXERCISES.md](../../EXERCISES.md).
+
 MongoDB does not require SQL-style migrations. Mongoose creates collections when data is first written, while schema changes and data backfills should be managed as version-controlled migration scripts when existing documents need modification.
 
 ## Setup
