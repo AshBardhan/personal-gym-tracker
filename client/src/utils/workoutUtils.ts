@@ -78,6 +78,74 @@ export const getTotalVolume = (workout: Workout): number => {
   );
 };
 
+/**
+ * Get total number of reps in a workout
+ */
+export const getTotalReps = (workout: Workout): number => {
+  return workout.exercises.reduce(
+    (total, exercise) =>
+      total + exercise.sets.reduce((setTotal, set) => setTotal + set.reps, 0),
+    0,
+  );
+};
+
+export interface DistributionItem {
+  label: string;
+  percent: number;
+}
+
+const toDistribution = (totals: Record<string, number>): DistributionItem[] => {
+  const grandTotal = Object.values(totals).reduce((sum, value) => sum + value, 0);
+  if (grandTotal === 0) return [];
+
+  return Object.entries(totals)
+    .map(([label, value]) => ({
+      label,
+      percent: Math.round((value / grandTotal) * 100),
+    }))
+    .sort((a, b) => b.percent - a.percent);
+};
+
+/**
+ * Body distribution: exercises per category / total exercises in the workout
+ */
+export const getCategoryDistribution = (workout: Workout): DistributionItem[] => {
+  const totals: Record<string, number> = {};
+
+  for (const exercise of workout.exercises) {
+    const category = exercise.category?.trim() || "Other";
+    totals[category] = (totals[category] || 0) + 1;
+  }
+
+  return toDistribution(totals);
+};
+
+/**
+ * Muscle distribution: exercises per muscle group / sum of all muscle-group
+ * involvement counts (an exercise increments every group it lists)
+ */
+export const getMuscleGroupDistribution = (
+  workout: Workout,
+): DistributionItem[] => {
+  const totals: Record<string, number> = {};
+
+  for (const exercise of workout.exercises) {
+    const groups =
+      exercise.muscleGroup?.map((group) => group.trim()).filter(Boolean) ?? [];
+
+    if (groups.length === 0) {
+      totals.Other = (totals.Other || 0) + 1;
+      continue;
+    }
+
+    for (const group of groups) {
+      totals[group] = (totals[group] || 0) + 1;
+    }
+  }
+
+  return toDistribution(totals);
+};
+
 // ============================================================
 // EXERCISE UTILITIES
 // ============================================================

@@ -112,7 +112,7 @@ const WorkoutListPage = () => {
 
               <Button
                 variant="primary"
-                size="large"
+                size="medium"
                 to="/workouts/new"
               >
                 New Workout
