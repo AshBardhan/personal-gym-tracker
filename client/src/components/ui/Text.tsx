@@ -13,12 +13,12 @@ const Text = ({
   children,
 }: TextProps) => {
   const classes = clsx(
-    variant === "h1" && "text-3xl font-bold",
-    variant === "h2" && "text-2xl font-bold",
-    variant === "h3" && "text-xl font-semibold",
-    variant === "h4" && "text-lg font-semibold",
-    variant === "h5" && "text-base font-medium",
-    variant === "h6" && "text-sm font-medium",
+    variant === "h1" && "text-3xl font-bold dark:text-gray-100",
+    variant === "h2" && "text-2xl font-bold dark:text-gray-100",
+    variant === "h3" && "text-xl font-semibold dark:text-gray-100",
+    variant === "h4" && "text-lg font-semibold dark:text-gray-100",
+    variant === "h5" && "text-base font-medium dark:text-gray-100",
+    variant === "h6" && "text-sm font-medium dark:text-gray-100",
     (variant === "p" || variant === "div") && "text-base",
     className,
   );

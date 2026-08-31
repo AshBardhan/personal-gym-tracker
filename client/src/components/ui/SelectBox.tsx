@@ -151,7 +151,10 @@ const SelectBox = ({
   return (
     <div className="relative w-full" ref={wrapperRef}>
       {label && (
-        <label htmlFor={id} className="block mb-2 font-medium text-gray-700">
+        <label
+          htmlFor={id}
+          className="mb-2 block font-medium text-gray-700 dark:text-white"
+        >
           {label}
         </label>
       )}
@@ -175,21 +178,22 @@ const SelectBox = ({
         <ul
           className={clsx(
             "absolute top-full left-0 right-0 mt-1",
-            "bg-white border border-gray-300 rounded shadow-lg",
-            "max-h-80 overflow-y-auto z-[1000]",
-            "list-none p-0 mb-0",
+            "rounded border border-gray-300 bg-white shadow-lg dark:border-white dark:bg-black",
+            "z-[1000] max-h-80 overflow-y-auto",
+            "mb-0 list-none p-0",
             "[&::-webkit-scrollbar]:w-2",
-            "[&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-track]:rounded",
-            "[&::-webkit-scrollbar-thumb]:bg-gray-400 [&::-webkit-scrollbar-thumb]:rounded [&::-webkit-scrollbar-thumb:hover]:bg-gray-500",
+            "[&::-webkit-scrollbar-track]:rounded [&::-webkit-scrollbar-track]:bg-gray-100 dark:[&::-webkit-scrollbar-track]:bg-neutral-900",
+            "[&::-webkit-scrollbar-thumb]:rounded [&::-webkit-scrollbar-thumb]:bg-gray-400 hover:[&::-webkit-scrollbar-thumb]:bg-gray-500 dark:[&::-webkit-scrollbar-thumb]:bg-gray-500",
           )}
         >
           {filteredOptions.slice(0, maxVisibleOptions).map((option, index) => (
             <li
               key={option.value}
               className={clsx(
-                "px-4 py-3 cursor-pointer transition-[background-color] border-b border-gray-200 last:border-b-0",
-                index === selectedIndex && "bg-gray-100",
-                index !== selectedIndex && "hover:bg-gray-100",
+                "cursor-pointer border-b border-gray-200 px-4 py-3 last:border-b-0 transition-[background-color] dark:border-white dark:text-white",
+                index === selectedIndex && "bg-gray-100 dark:bg-neutral-800",
+                index !== selectedIndex &&
+                  "hover:bg-gray-100 dark:hover:bg-neutral-800",
               )}
               onClick={() => handleSelectOption(option)}
               onMouseEnter={() => setSelectedIndex(index)}
@@ -198,7 +202,7 @@ const SelectBox = ({
             </li>
           ))}
           {filteredOptions.length > maxVisibleOptions && (
-            <li className="text-gray-500 text-sm italic cursor-default text-center py-2 hover:bg-transparent">
+            <li className="cursor-default py-2 text-center text-sm italic text-gray-500 hover:bg-transparent dark:text-gray-300">
               +{filteredOptions.length - maxVisibleOptions} more results...
             </li>
           )}

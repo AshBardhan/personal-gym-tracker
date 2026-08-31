@@ -67,7 +67,7 @@ const WorkoutListPage = () => {
 
   return (
     <div className="flex min-h-0 w-full flex-1 flex-col overflow-hidden">
-      <div className="shrink-0 border-b border-gray-300/80 bg-gray-200">
+      <div className="app-page-header shrink-0 border-b border-gray-300/80 bg-gray-200 dark:border-transparent">
         <PageContainer className="flex flex-col gap-4 py-4 lg:flex-row lg:items-center lg:justify-between">
           <Text variant="h1" className="m-0 shrink-0">
             My Workouts
@@ -77,7 +77,7 @@ const WorkoutListPage = () => {
             <div className="relative w-full lg:max-w-xs">
               <Search
                 size={16}
-                className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-300"
               />
               <Input
                 type="text"
@@ -143,8 +143,8 @@ const WorkoutListPage = () => {
               )}
             </div>
           ) : workouts.length === 0 ? (
-            <div className="rounded-lg bg-white py-12 text-center shadow-md">
-              <Text variant="p" className="mb-6 text-lg text-gray-500">
+            <div className="app-card rounded-lg bg-white py-12 text-center shadow-md">
+              <Text variant="p" className="mb-6 text-lg text-gray-500 dark:text-gray-300">
                 No workouts found. Start tracking your fitness journey!
               </Text>
               <Button
@@ -156,8 +156,8 @@ const WorkoutListPage = () => {
               </Button>
             </div>
           ) : filteredWorkouts.length === 0 ? (
-            <div className="rounded-lg bg-white py-12 text-center shadow-md">
-              <Text variant="p" className="text-lg text-gray-500">
+            <div className="app-card rounded-lg bg-white py-12 text-center shadow-md">
+              <Text variant="p" className="text-lg text-gray-500 dark:text-gray-300">
                 No workouts match &ldquo;{searchQuery.trim()}&rdquo;
               </Text>
             </div>
@@ -247,7 +247,7 @@ const WorkoutGridCard = ({ workout, onDelete }: WorkoutCardProps) => (
       <Text variant="h3" className="mb-1">
         {workout.title || "Untitled Workout"}
       </Text>
-      <Text className="text-gray-500 text-xs">{formatDate(workout.date)}</Text>
+      <Text className="text-xs text-gray-500 dark:text-gray-300">{formatDate(workout.date)}</Text>
     </div>
     <div className="grid grid-cols-3 gap-4">
       <Metric
@@ -284,7 +284,7 @@ const WorkoutListCard = ({ workout, onDelete }: WorkoutCardProps) => (
       <Text variant="h3" className="mb-1">
         {workout.title || "Untitled Workout"}
       </Text>
-      <Text className="text-gray-500 text-xs">{formatDate(workout.date)}</Text>
+      <Text className="text-xs text-gray-500 dark:text-gray-300">{formatDate(workout.date)}</Text>
     </div>
     <div className="grid grid-cols-3 gap-4 sm:flex sm:gap-8 sm:shrink-0 sm:pr-8">
       <Metric

@@ -33,7 +33,7 @@ const Button = ({
     variant === "positive" &&
       "bg-green-600 hover:bg-green-700 text-white rounded gap-2",
     variant === "icon-only" &&
-      "bg-transparent text-gray-500 hover:text-gray-700 p-1 min-w-0 transition-all",
+      "min-w-0 bg-transparent p-1 text-gray-500 transition-all hover:text-gray-700 dark:text-gray-300 dark:hover:text-white",
     variant !== "icon-only" && size === "small" && "px-2 py-1 text-xs",
     variant !== "icon-only" && size === "medium" && "px-4 py-2 text-sm",
     variant !== "icon-only" && size === "large" && "px-6 py-3 text-lg",

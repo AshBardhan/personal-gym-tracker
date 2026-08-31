@@ -1,4 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import clsx from "clsx";
+import { ThemeProvider, useTheme } from "@/context/ThemeContext";
 import Navbar from "@/components/layout/Navbar";
 import WorkoutListPage from "@/pages/WorkoutListPage";
 import WorkoutFormPage from "@/pages/WorkoutFormPage";
@@ -7,10 +9,12 @@ import WorkoutOverviewPage from "@/pages/workout/WorkoutOverviewPage";
 import WorkoutEditorPage from "@/pages/workout/WorkoutEditorPage";
 import WorkoutAnalyticsPage from "@/pages/workout/WorkoutAnalyticsPage";
 
-const App = () => {
+const AppShell = () => {
+  const { theme } = useTheme();
+
   return (
     <Router>
-      <div className="app">
+      <div className={clsx("app", theme === "dark" && "dark")}>
         <Navbar />
         <main className="main-content">
           <Routes>
@@ -27,6 +31,14 @@ const App = () => {
         </main>
       </div>
     </Router>
+  );
+};
+
+const App = () => {
+  return (
+    <ThemeProvider>
+      <AppShell />
+    </ThemeProvider>
   );
 };
 

@@ -72,7 +72,7 @@ const WorkoutFormContent = ({ onSubmit, header }: WorkoutFormContentProps) => {
 
       <Card className="flex flex-col">
         {submitAttempted && !hasValidExercises() && (
-          <div className="bg-red-50 border border-red-600 text-red-700 p-4 rounded mb-4 flex items-center gap-3">
+          <div className="mb-4 flex items-center gap-3 rounded border border-red-600 bg-red-50 p-4 text-red-700 dark:bg-red-950 dark:text-red-300">
             <AlertTriangle className="text-red-600 flex-shrink-0" size={24} />
             <Text variant="p">
               Please add at least one valid exercise with sets to save the
@@ -120,7 +120,7 @@ const WorkoutFormContent = ({ onSubmit, header }: WorkoutFormContentProps) => {
             return (
               <div
                 key={exerciseIndex}
-                className="bg-gray-50 border border-gray-300 rounded-lg p-4 mb-6 relative"
+                className="app-tile relative mb-6 rounded-lg border border-gray-300 bg-gray-50 p-4 dark:border-transparent"
               >
                 <div className="absolute top-2 right-2 flex">
                   <Button
@@ -154,7 +154,7 @@ const WorkoutFormContent = ({ onSubmit, header }: WorkoutFormContentProps) => {
                     <div className="flex flex-col gap-2">
                       {exercise.sets.map((set, setIndex) => (
                         <div key={setIndex} className="flex items-center gap-3">
-                          <span className="font-semibold text-blue-500 min-w-8 h-8 flex items-center justify-center bg-blue-100 rounded-full">
+                          <span className="flex h-8 min-w-8 items-center justify-center rounded-full bg-blue-100 font-semibold text-blue-500 dark:bg-blue-950 dark:text-blue-300">
                             {setIndex + 1}
                           </span>
                           <div className="flex gap-4 flex-1">

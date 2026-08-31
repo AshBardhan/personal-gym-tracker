@@ -46,7 +46,7 @@ const Metric = ({
     >
       <div
         className={clsx(
-          "text-gray-500",
+          "text-gray-500 dark:text-gray-300",
           labelSizeClasses[size],
           reverse && "order-2",
         )}
@@ -55,7 +55,7 @@ const Metric = ({
       </div>
       <div
         className={clsx(
-          "font-semibold text-gray-900 leading-none",
+          "font-semibold leading-none text-gray-900 dark:text-gray-100",
           valueSizeClasses[size],
         )}
       >

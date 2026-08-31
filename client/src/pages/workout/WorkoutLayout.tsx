@@ -39,7 +39,7 @@ const WorkoutLayout = () => {
   if (loading && !workout) {
     return (
       <div className="flex flex-1 min-h-0 items-center justify-center">
-        <Text variant="p" className="text-gray-600 text-lg">
+        <Text variant="p" className="text-lg text-gray-600 dark:text-gray-300">
           Loading workout...
         </Text>
       </div>
@@ -73,7 +73,7 @@ const WorkoutLayout = () => {
 
   return (
     <div className="flex min-h-0 w-full flex-1 flex-col overflow-hidden">
-      <header className="shrink-0 border-b border-gray-300/80 bg-gray-200">
+      <header className="app-page-header shrink-0 border-b border-gray-300/80 bg-gray-200 dark:border-transparent">
         <PageContainer className="pt-4">
           <div className="flex items-center justify-between gap-4 pb-3">
             <Text variant="h1" className="m-0 truncate">
@@ -106,8 +106,8 @@ const WorkoutLayout = () => {
                   clsx(
                     "shrink-0 border-b-4 py-2 text-sm font-medium no-underline transition-colors",
                     isActive
-                      ? "border-blue-600 text-blue-700"
-                      : "border-transparent text-gray-600 hover:border-gray-400 hover:text-gray-900",
+                      ? "border-blue-600 text-blue-700 dark:border-blue-400 dark:text-blue-300"
+                      : "border-transparent text-gray-600 hover:border-gray-400 hover:text-gray-900 dark:text-gray-300 dark:hover:border-white dark:hover:text-white",
                   )
                 }
               >

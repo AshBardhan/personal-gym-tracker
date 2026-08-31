@@ -10,8 +10,9 @@ interface CardProps {
 
 const Card = ({ children, className, href }: CardProps) => {
   const classes = clsx(
-    "block p-4 sm:p-6 bg-white border border-gray-200 rounded-lg shadow-sm transition-colors",
-    href && "hover:bg-gray-100 hover:shadow-md cursor-pointer",
+    "app-card block rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-colors sm:p-6 dark:border-transparent dark:shadow-sm",
+    href &&
+      "cursor-pointer hover:bg-gray-100 hover:shadow-md dark:hover:bg-neutral-700",
     className,
   );
 

@@ -26,10 +26,10 @@ const WorkoutOverviewPage = () => {
 
       <Card>
         <div className="mt-0 flex flex-wrap items-center gap-8">
-          <Text className="text-sm text-gray-600">
+          <Text className="text-sm text-gray-600 dark:text-gray-300">
             <strong>Date:</strong> {formatDetailDate(workout.date)}
           </Text>
-          <Text className="text-sm text-gray-600">
+          <Text className="text-sm text-gray-600 dark:text-gray-300">
             <strong>Total Volume:</strong>
             &nbsp;
             {formatVolume(getTotalVolume(workout))}
@@ -46,7 +46,7 @@ const WorkoutOverviewPage = () => {
           {workout.exercises.length === 0 ? (
             <Text
               variant="p"
-              className="rounded bg-gray-50 py-8 text-center text-gray-500"
+              className="app-tile rounded bg-gray-50 py-8 text-center text-gray-500 dark:bg-neutral-950 dark:text-gray-300"
             >
               No exercises added to this workout
             </Text>
@@ -55,7 +55,7 @@ const WorkoutOverviewPage = () => {
               {workout.exercises.map((exercise, index) => (
                 <div
                   key={`${exercise.name}-${index}`}
-                  className="flex gap-3 rounded-md border bg-gray-50 p-3"
+                  className="app-tile flex gap-3 rounded-md border border-gray-200 bg-gray-50 p-3 dark:border-transparent"
                 >
                   <div className="flex h-8 min-w-8 shrink-0 items-center justify-center rounded-full bg-blue-500 font-bold text-white">
                     {index + 1}
@@ -72,7 +72,7 @@ const WorkoutOverviewPage = () => {
                         label="volume"
                         value={formatVolume(getExerciseVolume(exercise.sets))}
                         reverse={true}
-                        className="rounded border border-gray-300 bg-white p-2"
+                        className="app-tile rounded border border-gray-300 bg-white p-2 dark:border-transparent"
                       />
                     </Text>
                     <div className="flex flex-col gap-2">
@@ -85,7 +85,7 @@ const WorkoutOverviewPage = () => {
                             {set.weight} kg
                           </span>
                           <strong>x</strong>
-                          <span className="min-w-20 text-gray-600">
+                          <span className="min-w-20 text-gray-600 dark:text-gray-300">
                             {set.reps} reps
                           </span>
                         </div>

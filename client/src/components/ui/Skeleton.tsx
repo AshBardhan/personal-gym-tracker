@@ -33,7 +33,7 @@ const Skeleton = ({
   return (
     <div
       className={clsx(
-        "bg-gray-200",
+        "bg-gray-200 dark:bg-neutral-800",
         animate && "animate-pulse",
         variant === "rectangular" && "rounded-md",
         variant === "circular" && "rounded-full",

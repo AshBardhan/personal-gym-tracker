@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+html.dark {
+  color-scheme: dark;
+}
+
 html,
 body,
 #root {
@@ -23,13 +27,56 @@ body {
   font-size: 14px;
 }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  color: #2b2b2b;
+@layer base {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    color: #2b2b2b;
+  }
+}
+
+html.dark body {
+  background-color: #1e1e1e;
+  color: #fff;
+}
+
+html.dark .app-navbar {
+  background-color: #000;
+  border-bottom-color: transparent;
+  box-shadow: none;
+}
+
+html.dark .app-page-header {
+  background-color: #141414;
+  border-bottom-color: transparent;
+}
+
+html.dark .main-content {
+  background-color: #1e1e1e;
+}
+
+html.dark .app-card {
+  background-color: #2a2a2a;
+  border-color: transparent;
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.35);
+  color: #fff;
+}
+
+html.dark a.app-card:hover {
+  background-color: #333;
+  box-shadow:
+    0 4px 6px -1px rgb(0 0 0 / 0.45),
+    0 2px 4px -2px rgb(0 0 0 / 0.35);
+}
+
+html.dark .app-tile {
+  background-color: #242424;
+  border-color: transparent;
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+  color: #fff;
 }
 
 .app {

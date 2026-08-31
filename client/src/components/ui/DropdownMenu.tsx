@@ -55,7 +55,7 @@ const DropdownMenu = ({
         aria-haspopup="menu"
         aria-expanded={open}
         onClick={() => setOpen((prev) => !prev)}
-        className="inline-flex items-center justify-center rounded-md border-none bg-transparent p-1.5 text-gray-600 transition-colors hover:bg-gray-300/60 hover:text-gray-900 cursor-pointer"
+        className="inline-flex cursor-pointer items-center justify-center rounded-md border-none bg-transparent p-1.5 text-gray-600 transition-colors hover:bg-gray-300/60 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-neutral-800 dark:hover:text-white"
       >
         {trigger}
       </button>
@@ -64,7 +64,7 @@ const DropdownMenu = ({
         <div
           role="menu"
           className={clsx(
-            "absolute z-50 mt-1 min-w-[10rem] rounded-md border border-gray-200 bg-white py-1 shadow-lg",
+            "absolute z-50 mt-1 min-w-[10rem] rounded-md border border-gray-200 bg-white py-1 shadow-lg dark:border-white dark:bg-black",
             align === "right" ? "right-0" : "left-0",
           )}
         >
@@ -76,8 +76,8 @@ const DropdownMenu = ({
               className={clsx(
                 "block w-full cursor-pointer border-none bg-transparent px-4 py-2 text-left text-sm transition-colors",
                 item.variant === "danger"
-                  ? "text-red-600 hover:bg-red-50"
-                  : "text-gray-700 hover:bg-gray-100",
+                  ? "text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950"
+                  : "text-gray-700 hover:bg-gray-100 dark:text-white dark:hover:bg-neutral-800",
               )}
               onClick={() => {
                 setOpen(false);

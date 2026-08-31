@@ -28,7 +28,7 @@ const DistributionSection = ({
       {title}
     </Text>
     {items.length === 0 ? (
-      <Text variant="p" className="text-gray-500">
+      <Text variant="p" className="text-gray-500 dark:text-gray-300">
         {emptyMessage}
       </Text>
     ) : (

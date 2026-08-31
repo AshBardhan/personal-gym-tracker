@@ -61,7 +61,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             className={clsx(
               "cursor-pointer font-medium",
               showError && "text-red-600",
-              !showError && "text-gray-800",
+              !showError && "text-gray-800 dark:text-white",
               inputSize === "small" && "text-xs",
               inputSize === "normal" && "text-sm",
             )}
@@ -79,8 +79,9 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             inputSize === "small" && "px-2 py-2 text-sm",
             "focus:outline-none",
             showError &&
-              "border-red-600 bg-red-50 focus:border-red-700 focus:ring-2 focus:ring-red-200",
-            !showError && "border-gray-300 focus:border-blue-500",
+              "border-red-600 bg-red-50 focus:border-red-700 focus:ring-2 focus:ring-red-200 dark:bg-red-950 dark:text-white dark:focus:ring-red-800",
+            !showError &&
+              "border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-blue-500 dark:border-white dark:bg-black dark:text-white dark:placeholder:text-gray-400",
             className,
           )}
           onBlur={handleBlur}

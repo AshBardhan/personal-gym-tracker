@@ -34,7 +34,7 @@ const ToggleSwitchButton = ({
       role="group"
       aria-label={ariaLabel}
       className={clsx(
-        "inline-flex items-center rounded-lg border border-gray-300 bg-gray-100 p-0.5",
+        "inline-flex items-center rounded-lg border border-gray-300 bg-gray-100 p-0.5 dark:border-white dark:bg-black",
         className,
       )}
     >
@@ -54,8 +54,8 @@ const ToggleSwitchButton = ({
               size === "small" && "px-2 py-1.5 text-xs",
               size === "medium" && "px-3 py-2 text-sm",
               isActive
-                ? "bg-white text-gray-900 shadow-sm"
-                : "bg-transparent text-gray-500 hover:text-gray-700",
+                ? "bg-white text-gray-900 shadow-sm dark:bg-white dark:text-black"
+                : "bg-transparent text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white",
             )}
           >
             {option.icon}
