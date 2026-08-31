@@ -1,13 +1,13 @@
 import { FormEvent, ReactNode, useState } from "react";
 import { Trash2, X, AlertTriangle } from "lucide-react";
-import { PREDEFINED_EXERCISES } from "../../constants/exercises";
-import { useWorkoutForm } from "../../stores/workoutFormStore";
-import { getExerciseOptions } from "../../utils/workoutUtils";
-import Input from "../ui/Input";
-import Button from "../ui/Button";
-import SelectBox from "../ui/SelectBox";
-import Text from "../ui/Text";
-import Card from "../ui/Card";
+import { PREDEFINED_EXERCISES } from "@/constants/exercises";
+import { useWorkoutForm } from "@/stores/workoutFormStore";
+import { getExerciseOptions } from "@/utils/workoutUtils";
+import Input from "@/components/ui/Input";
+import Button from "@/components/ui/Button";
+import SelectBox from "@/components/ui/SelectBox";
+import Text from "@/components/ui/Text";
+import Card from "@/components/ui/Card";
 
 interface WorkoutFormContentProps {
   onSubmit: (e: FormEvent) => void;
@@ -153,8 +153,8 @@ const WorkoutFormContent = ({ onSubmit, header }: WorkoutFormContentProps) => {
 
                     <div className="flex flex-col gap-2">
                       {exercise.sets.map((set, setIndex) => (
-                        <div key={setIndex} className="flex gap-3">
-                          <span className="font-semibold text-blue-500 min-w-8 h-8 flex self-start items-center justify-center bg-blue-100 rounded-full">
+                        <div key={setIndex} className="flex items-center gap-3">
+                          <span className="font-semibold text-blue-500 min-w-8 h-8 flex items-center justify-center bg-blue-100 rounded-full">
                             {setIndex + 1}
                           </span>
                           <div className="flex gap-4 flex-1">
@@ -202,7 +202,6 @@ const WorkoutFormContent = ({ onSubmit, header }: WorkoutFormContentProps) => {
                           <Button
                             type="button"
                             variant="icon-only"
-                            className="self-center"
                             disabled={exercise.sets.length === 1}
                             onClick={() =>
                               removeSet(exerciseIndex, setIndex)

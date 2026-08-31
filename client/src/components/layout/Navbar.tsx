@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import PageContainer from "./PageContainer";
+import PageContainer from "@/components/layout/PageContainer";
 
 const Navbar = () => {
   return (

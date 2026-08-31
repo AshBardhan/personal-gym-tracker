@@ -1,5 +1,5 @@
 import axios from "axios";
-import { config } from "../config/env";
+import { config } from "@/config/env";
 
 /**
  * Configured axios instance for API calls

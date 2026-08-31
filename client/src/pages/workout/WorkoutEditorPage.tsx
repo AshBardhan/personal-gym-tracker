@@ -1,11 +1,11 @@
 import { FormEvent, useEffect } from "react";
 import { useNavigate, useOutletContext } from "react-router-dom";
-import { workoutService } from "../../services/workouts.service";
-import { useWorkoutForm } from "../../stores/workoutFormStore";
-import { config } from "../../config/env";
-import WorkoutFormContent from "../../components/workout/WorkoutFormContent";
-import WorkoutFormHeader from "../../components/workout/WorkoutFormHeader";
-import { WorkoutOutletContext } from "./WorkoutLayout";
+import { workoutService } from "@/services/workouts.service";
+import { useWorkoutForm } from "@/stores/workoutFormStore";
+import { config } from "@/config/env";
+import WorkoutFormContent from "@/components/workout/WorkoutFormContent";
+import WorkoutFormHeader from "@/components/workout/WorkoutFormHeader";
+import { WorkoutOutletContext } from "@/pages/workout/WorkoutLayout";
 
 /**
  * Workout editor tab — edit title, date, exercises, and sets.

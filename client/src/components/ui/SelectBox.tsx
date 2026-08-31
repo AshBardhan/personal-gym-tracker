@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import Input from "./Input";
+import Input from "@/components/ui/Input";
 import clsx from "clsx";
 
 export interface SelectOption {

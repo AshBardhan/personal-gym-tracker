@@ -1,11 +1,11 @@
 import { FormEvent, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { workoutService } from "../services/workouts.service";
-import { useWorkoutForm } from "../stores/workoutFormStore";
-import { config } from "../config/env";
-import PageContainer from "../components/layout/PageContainer";
-import WorkoutFormContent from "../components/workout/WorkoutFormContent";
-import WorkoutFormHeader from "../components/workout/WorkoutFormHeader";
+import { workoutService } from "@/services/workouts.service";
+import { useWorkoutForm } from "@/stores/workoutFormStore";
+import { config } from "@/config/env";
+import PageContainer from "@/components/layout/PageContainer";
+import WorkoutFormContent from "@/components/workout/WorkoutFormContent";
+import WorkoutFormHeader from "@/components/workout/WorkoutFormHeader";
 
 /**
  * Create-workout page at `/workouts/new`.

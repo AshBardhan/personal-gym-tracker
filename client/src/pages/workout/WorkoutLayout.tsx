@@ -1,13 +1,13 @@
 import { NavLink, Outlet, useNavigate, useParams } from "react-router-dom";
 import { MoreVertical } from "lucide-react";
 import clsx from "clsx";
-import { useWorkout } from "../../hooks/useWorkout";
-import { useWorkoutMutation } from "../../hooks/useWorkoutMutation";
-import { Workout } from "../../types/workout";
-import Button from "../../components/ui/Button";
-import Text from "../../components/ui/Text";
-import PageContainer from "../../components/layout/PageContainer";
-import DropdownMenu from "../../components/ui/DropdownMenu";
+import { useWorkout } from "@/hooks/useWorkout";
+import { useWorkoutMutation } from "@/hooks/useWorkoutMutation";
+import { Workout } from "@/types/workout";
+import Button from "@/components/ui/Button";
+import Text from "@/components/ui/Text";
+import PageContainer from "@/components/layout/PageContainer";
+import DropdownMenu from "@/components/ui/DropdownMenu";
 
 export interface WorkoutOutletContext {
   workout: Workout;
@@ -94,7 +94,7 @@ const WorkoutLayout = () => {
           </div>
 
           <nav
-            className="flex gap-1 overflow-x-auto"
+            className="flex gap-4 overflow-x-auto"
             aria-label="Workout sections"
           >
             {tabs.map((tab) => (
@@ -104,7 +104,7 @@ const WorkoutLayout = () => {
                 end={tab.end}
                 className={({ isActive }) =>
                   clsx(
-                    "shrink-0 border-b-2 px-3 py-2.5 text-sm font-medium no-underline transition-colors",
+                    "shrink-0 border-b-4 py-2 text-sm font-medium no-underline transition-colors",
                     isActive
                       ? "border-blue-600 text-blue-700"
                       : "border-transparent text-gray-600 hover:border-gray-400 hover:text-gray-900",

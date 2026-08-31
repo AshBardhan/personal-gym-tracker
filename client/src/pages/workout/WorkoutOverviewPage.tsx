@@ -4,11 +4,11 @@ import {
   getTotalVolume,
   formatDetailDate,
   formatVolume,
-} from "../../utils/workoutUtils";
-import Text from "../../components/ui/Text";
-import Card from "../../components/ui/Card";
-import Metric from "../../components/ui/Metric";
-import { WorkoutOutletContext } from "./WorkoutLayout";
+} from "@/utils/workoutUtils";
+import Text from "@/components/ui/Text";
+import Card from "@/components/ui/Card";
+import Metric from "@/components/ui/Metric";
+import { WorkoutOutletContext } from "@/pages/workout/WorkoutLayout";
 
 /**
  * Workout summary tab — date, volume, and exercise breakdown.

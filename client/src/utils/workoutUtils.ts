@@ -1,9 +1,9 @@
-import { Exercise, Workout, Set } from "../types/workout";
+import { Exercise, Workout, Set } from "@/types/workout";
 import {
   PREDEFINED_EXERCISES,
   PredefinedExercise,
-} from "../constants/exercises";
-import { SelectOption } from "../components/ui/SelectBox";
+} from "@/constants/exercises";
+import { SelectOption } from "@/components/ui/SelectBox";
 
 /**
  * Workout Utilities

@@ -1,11 +1,11 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Navbar from "./components/layout/Navbar";
-import WorkoutListPage from "./pages/WorkoutListPage";
-import WorkoutFormPage from "./pages/WorkoutFormPage";
-import WorkoutLayout from "./pages/workout/WorkoutLayout";
-import WorkoutOverviewPage from "./pages/workout/WorkoutOverviewPage";
-import WorkoutEditorPage from "./pages/workout/WorkoutEditorPage";
-import WorkoutAnalyticsPage from "./pages/workout/WorkoutAnalyticsPage";
+import Navbar from "@/components/layout/Navbar";
+import WorkoutListPage from "@/pages/WorkoutListPage";
+import WorkoutFormPage from "@/pages/WorkoutFormPage";
+import WorkoutLayout from "@/pages/workout/WorkoutLayout";
+import WorkoutOverviewPage from "@/pages/workout/WorkoutOverviewPage";
+import WorkoutEditorPage from "@/pages/workout/WorkoutEditorPage";
+import WorkoutAnalyticsPage from "@/pages/workout/WorkoutAnalyticsPage";
 
 const App = () => {
   return (

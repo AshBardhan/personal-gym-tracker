@@ -1,6 +1,6 @@
 import { http, HttpResponse } from "msw";
-import { mockWorkouts, mockUser, MOCK_USER_ID } from "./data";
-import { Workout } from "../types/workout";
+import { mockWorkouts, mockUser, MOCK_USER_ID } from "@/mocks/data";
+import { Workout } from "@/types/workout";
 
 const API_URL = "http://localhost:5000";
 

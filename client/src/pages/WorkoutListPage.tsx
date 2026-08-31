@@ -1,23 +1,23 @@
 import { useMemo, useState } from "react";
 import { LayoutGrid, List, Search, Trash2 } from "lucide-react";
-import { useWorkouts } from "../hooks/useWorkouts";
-import { useWorkoutMutation } from "../hooks/useWorkoutMutation";
+import { useWorkouts } from "@/hooks/useWorkouts";
+import { useWorkoutMutation } from "@/hooks/useWorkoutMutation";
 import {
   getTotalSets,
   getTotalVolume,
   formatDate,
   formatVolume,
-} from "../utils/workoutUtils";
-import { config } from "../config/env";
-import { Workout } from "../types/workout";
-import Button from "../components/ui/Button";
-import Text from "../components/ui/Text";
-import Card from "../components/ui/Card";
-import Metric from "../components/ui/Metric";
-import Input from "../components/ui/Input";
-import Skeleton from "../components/ui/Skeleton";
-import ToggleSwitchButton from "../components/ui/ToggleSwitchButton";
-import PageContainer from "../components/layout/PageContainer";
+} from "@/utils/workoutUtils";
+import { config } from "@/config/env";
+import { Workout } from "@/types/workout";
+import Button from "@/components/ui/Button";
+import Text from "@/components/ui/Text";
+import Card from "@/components/ui/Card";
+import Metric from "@/components/ui/Metric";
+import Input from "@/components/ui/Input";
+import Skeleton from "@/components/ui/Skeleton";
+import ToggleSwitchButton from "@/components/ui/ToggleSwitchButton";
+import PageContainer from "@/components/layout/PageContainer";
 
 type ViewMode = "grid" | "list";
 
