@@ -95,7 +95,10 @@ export interface DistributionItem {
 }
 
 const toDistribution = (totals: Record<string, number>): DistributionItem[] => {
-  const grandTotal = Object.values(totals).reduce((sum, value) => sum + value, 0);
+  const grandTotal = Object.values(totals).reduce(
+    (sum, value) => sum + value,
+    0,
+  );
   if (grandTotal === 0) return [];
 
   return Object.entries(totals)
@@ -109,7 +112,9 @@ const toDistribution = (totals: Record<string, number>): DistributionItem[] => {
 /**
  * Body distribution: exercises per category / total exercises in the workout
  */
-export const getCategoryDistribution = (workout: Workout): DistributionItem[] => {
+export const getCategoryDistribution = (
+  workout: Workout,
+): DistributionItem[] => {
   const totals: Record<string, number> = {};
 
   for (const exercise of workout.exercises) {

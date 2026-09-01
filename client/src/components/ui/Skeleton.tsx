@@ -17,12 +17,16 @@ const Skeleton = ({
 }: SkeletonProps) => {
   const getSkeletonHeight = () => {
     const defaultHeight = height || "20px";
-    return typeof defaultHeight === "number" ? `${defaultHeight}px` : defaultHeight;
+    return typeof defaultHeight === "number"
+      ? `${defaultHeight}px`
+      : defaultHeight;
   };
 
   const getSkeletonWidth = () => {
     const defaultWidth = width || (variant === "circular" ? "20px" : "100%");
-    return typeof defaultWidth === "number" ? `${defaultWidth}px` : defaultWidth;
+    return typeof defaultWidth === "number"
+      ? `${defaultWidth}px`
+      : defaultWidth;
   };
 
   const styles = {

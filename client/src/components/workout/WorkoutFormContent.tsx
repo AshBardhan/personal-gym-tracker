@@ -203,9 +203,7 @@ const WorkoutFormContent = ({ onSubmit, header }: WorkoutFormContentProps) => {
                             type="button"
                             variant="icon-only"
                             disabled={exercise.sets.length === 1}
-                            onClick={() =>
-                              removeSet(exerciseIndex, setIndex)
-                            }
+                            onClick={() => removeSet(exerciseIndex, setIndex)}
                             title="Remove set"
                           >
                             <X size={16} />

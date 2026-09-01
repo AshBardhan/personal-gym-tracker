@@ -110,11 +110,7 @@ const WorkoutListPage = () => {
                 ]}
               />
 
-              <Button
-                variant="primary"
-                size="medium"
-                to="/workouts/new"
-              >
+              <Button variant="primary" size="medium" to="/workouts/new">
                 New Workout
               </Button>
             </div>
@@ -144,20 +140,22 @@ const WorkoutListPage = () => {
             </div>
           ) : workouts.length === 0 ? (
             <div className="app-card rounded-lg bg-white py-12 text-center shadow-md">
-              <Text variant="p" className="mb-6 text-lg text-gray-500 dark:text-gray-300">
+              <Text
+                variant="p"
+                className="mb-6 text-lg text-gray-500 dark:text-gray-300"
+              >
                 No workouts found. Start tracking your fitness journey!
               </Text>
-              <Button
-                variant="primary"
-                to="/workouts/new"
-                size="large"
-              >
+              <Button variant="primary" to="/workouts/new" size="large">
                 Create Your First Workout
               </Button>
             </div>
           ) : filteredWorkouts.length === 0 ? (
             <div className="app-card rounded-lg bg-white py-12 text-center shadow-md">
-              <Text variant="p" className="text-lg text-gray-500 dark:text-gray-300">
+              <Text
+                variant="p"
+                className="text-lg text-gray-500 dark:text-gray-300"
+              >
                 No workouts match &ldquo;{searchQuery.trim()}&rdquo;
               </Text>
             </div>
@@ -203,7 +201,10 @@ const MetricSkeleton = ({ size = "md" }: { size?: "sm" | "md" }) => (
       height={size === "sm" ? 16 : 18}
       width={size === "sm" ? 36 : 40}
     />
-    <Skeleton height={size === "sm" ? 12 : 14} width={size === "sm" ? 56 : 64} />
+    <Skeleton
+      height={size === "sm" ? 12 : 14}
+      width={size === "sm" ? 56 : 64}
+    />
   </div>
 );
 
@@ -247,7 +248,9 @@ const WorkoutGridCard = ({ workout, onDelete }: WorkoutCardProps) => (
       <Text variant="h3" className="mb-1">
         {workout.title || "Untitled Workout"}
       </Text>
-      <Text className="text-xs text-gray-500 dark:text-gray-300">{formatDate(workout.date)}</Text>
+      <Text className="text-xs text-gray-500 dark:text-gray-300">
+        {formatDate(workout.date)}
+      </Text>
     </div>
     <div className="grid grid-cols-3 gap-4">
       <Metric
@@ -284,7 +287,9 @@ const WorkoutListCard = ({ workout, onDelete }: WorkoutCardProps) => (
       <Text variant="h3" className="mb-1">
         {workout.title || "Untitled Workout"}
       </Text>
-      <Text className="text-xs text-gray-500 dark:text-gray-300">{formatDate(workout.date)}</Text>
+      <Text className="text-xs text-gray-500 dark:text-gray-300">
+        {formatDate(workout.date)}
+      </Text>
     </div>
     <div className="grid grid-cols-3 gap-4 sm:flex sm:gap-8 sm:shrink-0 sm:pr-8">
       <Metric

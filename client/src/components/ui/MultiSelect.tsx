@@ -33,10 +33,7 @@ const MultiSelect = ({
     if (!open) return;
 
     const handlePointerDown = (event: MouseEvent) => {
-      if (
-        rootRef.current &&
-        !rootRef.current.contains(event.target as Node)
-      ) {
+      if (rootRef.current && !rootRef.current.contains(event.target as Node)) {
         setOpen(false);
       }
     };
@@ -58,8 +55,8 @@ const MultiSelect = ({
     selectedCount === 0
       ? placeholder
       : selectedCount === 1
-        ? options.find((option) => option.value === value[0])?.label ??
-          placeholder
+        ? (options.find((option) => option.value === value[0])?.label ??
+          placeholder)
         : `${selectedCount} muscles`;
 
   const toggleOption = (optionValue: string) => {

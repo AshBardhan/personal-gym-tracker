@@ -7,11 +7,7 @@ interface TextProps {
   children: ReactNode;
 }
 
-const Text = ({
-  variant = "div",
-  className = "",
-  children,
-}: TextProps) => {
+const Text = ({ variant = "div", className = "", children }: TextProps) => {
   const classes = clsx(
     variant === "h1" && "text-3xl font-bold dark:text-gray-100",
     variant === "h2" && "text-2xl font-bold dark:text-gray-100",
