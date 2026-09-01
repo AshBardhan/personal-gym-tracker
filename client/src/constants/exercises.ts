@@ -4,6 +4,10 @@ export interface PredefinedExercise {
   muscleGroup: string[];
 }
 
+export interface CatalogExercise extends PredefinedExercise {
+  id: string;
+}
+
 export const EXERCISE_CATEGORIES = {
   CHEST: "Chest",
   BACK: "Back",
@@ -408,3 +412,13 @@ export const PREDEFINED_EXERCISES: PredefinedExercise[] = [
     muscleGroup: ["Legs", "Cardio"],
   },
 ];
+
+export const TARGET_MUSCLES = Array.from(
+  new Set(PREDEFINED_EXERCISES.flatMap((exercise) => exercise.muscleGroup)),
+).sort((a, b) => a.localeCompare(b));
+
+export const createExerciseCatalog = (): CatalogExercise[] =>
+  PREDEFINED_EXERCISES.map((exercise, index) => ({
+    ...exercise,
+    id: `${exercise.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${index}`,
+  }));
