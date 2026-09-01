@@ -35,14 +35,49 @@ const WorkoutListPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
 
-  const filteredWorkouts = useMemo(() => {
-    const query = searchQuery.trim().toLowerCase();
-    if (!query) return workouts;
+  const searchQueryTrimmed = searchQuery.trim();
+  const isSearching = searchQueryTrimmed.length > 0;
 
-    return workouts.filter((workout) =>
-      (workout.title || "Untitled Workout").toLowerCase().includes(query),
+  const filteredWorkouts = useMemo(() => {
+    const query = searchQueryTrimmed.toLowerCase();
+    const matched = !query
+      ? workouts
+      : workouts.filter((workout) =>
+          (workout.title || "Untitled Workout").toLowerCase().includes(query),
+        );
+
+    return [...matched].sort(
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
     );
-  }, [workouts, searchQuery]);
+  }, [workouts, searchQueryTrimmed]);
+
+  const workoutGroups = useMemo(() => {
+    const groups: { key: string; label: string; items: Workout[] }[] = [];
+    const indexByKey = new Map<string, number>();
+
+    for (const workout of filteredWorkouts) {
+      const date = new Date(workout.date);
+      const key = `${date.getFullYear()}-${String(date.getMonth()).padStart(2, "0")}`;
+      let index = indexByKey.get(key);
+
+      if (index === undefined) {
+        index = groups.length;
+        indexByKey.set(key, index);
+        groups.push({
+          key,
+          label: date.toLocaleDateString("en-US", {
+            month: "long",
+            year: "numeric",
+          }),
+          items: [],
+        });
+      }
+
+      groups[index].items.push(workout);
+    }
+
+    return groups;
+  }, [filteredWorkouts]);
 
   const handleDelete = async (e: React.MouseEvent, id: string) => {
     e.preventDefault();
@@ -160,35 +195,70 @@ const WorkoutListPage = () => {
               </Text>
             </div>
           ) : (
-            <div
-              className={
-                viewMode === "grid"
-                  ? "grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3"
-                  : "flex flex-col gap-4"
-              }
-            >
-              {filteredWorkouts.map((workout) =>
-                viewMode === "grid" ? (
-                  <WorkoutGridCard
-                    key={workout._id}
-                    workout={workout}
-                    onDelete={handleDelete}
-                  />
-                ) : (
-                  <WorkoutListCard
-                    key={workout._id}
-                    workout={workout}
-                    onDelete={handleDelete}
-                  />
-                ),
-              )}
-            </div>
+            isSearching ? (
+              <WorkoutCardList
+                workouts={filteredWorkouts}
+                viewMode={viewMode}
+                onDelete={handleDelete}
+              />
+            ) : (
+              <div className="flex flex-col gap-8">
+                {workoutGroups.map((group) => (
+                  <section key={group.key}>
+                    <Text variant="h3" className="mb-4">
+                      {group.label}
+                    </Text>
+                    <WorkoutCardList
+                      workouts={group.items}
+                      viewMode={viewMode}
+                      onDelete={handleDelete}
+                    />
+                  </section>
+                ))}
+              </div>
+            )
           )}
         </PageContainer>
       </div>
     </div>
   );
 };
+
+type WorkoutCardListProps = {
+  workouts: Workout[];
+  viewMode: ViewMode;
+  onDelete: (e: React.MouseEvent, id: string) => void;
+};
+
+const WorkoutCardList = ({
+  workouts,
+  viewMode,
+  onDelete,
+}: WorkoutCardListProps) => (
+  <div
+    className={
+      viewMode === "grid"
+        ? "grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3"
+        : "flex flex-col gap-4"
+    }
+  >
+    {workouts.map((workout) =>
+      viewMode === "grid" ? (
+        <WorkoutGridCard
+          key={workout._id}
+          workout={workout}
+          onDelete={onDelete}
+        />
+      ) : (
+        <WorkoutListCard
+          key={workout._id}
+          workout={workout}
+          onDelete={onDelete}
+        />
+      ),
+    )}
+  </div>
+);
 
 type WorkoutCardProps = {
   workout: Workout;
@@ -245,7 +315,7 @@ const WorkoutListSkeleton = () => (
 const WorkoutGridCard = ({ workout, onDelete }: WorkoutCardProps) => (
   <Card className="relative" href={`/workouts/${workout._id}`}>
     <div className="mb-4 pr-8">
-      <Text variant="h3">{workout.title || "Untitled Workout"}</Text>
+      <Text variant="h4">{workout.title || "Untitled Workout"}</Text>
       <Text className="text-xs text-gray-500 dark:text-gray-300">
         {formatDate(workout.date)}
       </Text>
@@ -282,7 +352,7 @@ const WorkoutListCard = ({ workout, onDelete }: WorkoutCardProps) => (
     href={`/workouts/${workout._id}`}
   >
     <div className="pr-8 sm:min-w-0 sm:flex-1">
-      <Text variant="h3">{workout.title || "Untitled Workout"}</Text>
+      <Text variant="h4">{workout.title || "Untitled Workout"}</Text>
       <Text className="text-xs text-gray-500 dark:text-gray-300">
         {formatDate(workout.date)}
       </Text>

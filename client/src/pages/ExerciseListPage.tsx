@@ -27,14 +27,20 @@ const ExerciseListPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedMuscles, setSelectedMuscles] = useState<string[]>([]);
 
-  const filteredExercises = useMemo(() => {
-    const query = searchQuery.trim().toLowerCase();
+  const searchQueryTrimmed = searchQuery.trim();
+  const isSearching = searchQueryTrimmed.length > 0;
 
-    return exercises.filter((exercise) => {
+  const filteredExercises = useMemo(() => {
+    const query = searchQueryTrimmed.toLowerCase();
+
+    const matched = exercises.filter((exercise) => {
       const matchesSearch =
         !query ||
         exercise.name.toLowerCase().includes(query) ||
-        exercise.category.toLowerCase().includes(query);
+        exercise.category.toLowerCase().includes(query) ||
+        exercise.muscleGroup.some((muscle) =>
+          muscle.toLowerCase().includes(query),
+        );
 
       const matchesMuscles =
         selectedMuscles.length === 0 ||
@@ -42,7 +48,24 @@ const ExerciseListPage = () => {
 
       return matchesSearch && matchesMuscles;
     });
-  }, [exercises, searchQuery, selectedMuscles]);
+
+    return [...matched].sort((a, b) => a.name.localeCompare(b.name));
+  }, [exercises, searchQueryTrimmed, selectedMuscles]);
+
+  const exerciseGroups = useMemo(() => {
+    const groups = new Map<string, CatalogExercise[]>();
+
+    for (const exercise of filteredExercises) {
+      const category = exercise.category || "Other";
+      const items = groups.get(category) ?? [];
+      items.push(exercise);
+      groups.set(category, items);
+    }
+
+    return Array.from(groups.entries())
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([label, items]) => ({ label, items }));
+  }, [filteredExercises]);
 
   const handleClone = (id: string) => {
     const source = exercises.find((exercise) => exercise.id === id);
@@ -159,18 +182,36 @@ const ExerciseListPage = () => {
                 No exercises match the current filters
               </Text>
             </div>
-          ) : (
-            <div className="flex flex-col gap-4">
-              {filteredExercises.map((exercise) => (
-                <ExerciseCard
-                  key={exercise.id}
-                  exercise={exercise}
-                  onClone={handleClone}
-                  onDelete={handleDelete}
-                />
-              ))}
-            </div>
-          )}
+          ) : isSearching ? (
+              <div className="flex flex-col gap-4">
+                {filteredExercises.map((exercise) => (
+                  <ExerciseCard
+                    key={exercise.id}
+                    exercise={exercise}
+                    onClone={handleClone}
+                    onDelete={handleDelete}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="flex flex-col gap-8">
+                {exerciseGroups.map((group) => (
+                  <section key={group.label} className="flex flex-col gap-4">
+                    <Text variant="h3" className="m-0">
+                      {group.label}
+                    </Text>
+                    {group.items.map((exercise) => (
+                      <ExerciseCard
+                        key={exercise.id}
+                        exercise={exercise}
+                        onClone={handleClone}
+                        onDelete={handleDelete}
+                      />
+                    ))}
+                  </section>
+                ))}
+              </div>
+            )}
         </PageContainer>
       </div>
     </div>
@@ -213,7 +254,7 @@ const ExerciseCard = ({ exercise, onClone, onDelete }: ExerciseCardProps) => {
       </div>
 
       <div className="pr-8 flex flex-col gap-0.5">
-        <Text variant="h3">{exercise.name}</Text>
+        <Text variant="h4">{exercise.name}</Text>
         {muscleGroups.length > 0 && (
           <div className="flex flex-wrap items-center gap-1">
             {muscleGroups.map((muscle, index) => (
@@ -222,7 +263,7 @@ const ExerciseCard = ({ exercise, onClone, onDelete }: ExerciseCardProps) => {
                   variant="p"
                   key={muscle}
                   className={clsx(
-                    "text-sm",
+                    "text-xs",
                     index === 0
                       ? "font-semibold text-gray-700 dark:text-gray-100"
                       : "text-gray-500 dark:text-gray-300",
