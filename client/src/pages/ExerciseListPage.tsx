@@ -186,7 +186,7 @@ const ExerciseCard = ({ exercise, onClone, onDelete }: ExerciseCardProps) => {
   const muscleGroups = exercise.muscleGroup;
 
   return (
-    <Card className="relative">
+    <Card className="relative" href={`/exercises/${exercise.id}`}>
       <div
         className="absolute top-2 right-2 z-10"
         onClick={(event) => {

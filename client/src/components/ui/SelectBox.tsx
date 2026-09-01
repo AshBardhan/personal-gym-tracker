@@ -43,7 +43,6 @@ const SelectBox = ({
   const [filteredOptions, setFilteredOptions] =
     useState<SelectOption[]>(options);
   const [selectedIndex, setSelectedIndex] = useState(-1);
-  const [touched, setTouched] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -76,7 +75,6 @@ const SelectBox = ({
         !wrapperRef.current.contains(event.target as Node)
       ) {
         setIsOpen(false);
-        setTouched(true);
         if (onBlur) onBlur();
       }
     };
@@ -100,16 +98,11 @@ const SelectBox = ({
     setSearchQuery(option.label);
     onChange(option.value);
     setIsOpen(false);
-    setTouched(true);
     inputRef.current?.blur();
   };
 
   const handleInputFocus = () => {
     setIsOpen(true);
-  };
-
-  const handleInputBlur = () => {
-    setTouched(true);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -171,7 +164,6 @@ const SelectBox = ({
           value={searchQuery}
           onChange={handleInputChange}
           onFocus={handleInputFocus}
-          onBlur={handleInputBlur}
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
           className={showError ? "input--error" : ""}

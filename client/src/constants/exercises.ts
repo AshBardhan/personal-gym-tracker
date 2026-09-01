@@ -422,3 +422,8 @@ export const createExerciseCatalog = (): CatalogExercise[] =>
     ...exercise,
     id: `${exercise.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${index}`,
   }));
+
+export const getCatalogExerciseById = (
+  id: string,
+): CatalogExercise | undefined =>
+  createExerciseCatalog().find((exercise) => exercise.id === id);

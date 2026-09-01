@@ -10,6 +10,10 @@ import WorkoutEditorPage from "@/pages/workout/WorkoutEditorPage";
 import WorkoutAnalyticsPage from "@/pages/workout/WorkoutAnalyticsPage";
 import ExerciseListPage from "@/pages/ExerciseListPage";
 import ExerciseFormPage from "@/pages/ExerciseFormPage";
+import ExerciseLayout from "@/pages/exercise/ExerciseLayout";
+import ExerciseOverviewPage from "@/pages/exercise/ExerciseOverviewPage";
+import ExerciseEditorPage from "@/pages/exercise/ExerciseEditorPage";
+import ExerciseHistoryPage from "@/pages/exercise/ExerciseHistoryPage";
 
 const AppShell = () => {
   const { theme } = useTheme();
@@ -30,6 +34,12 @@ const AppShell = () => {
               <Route index element={<WorkoutOverviewPage />} />
               <Route path="edit" element={<WorkoutEditorPage />} />
               <Route path="analytics" element={<WorkoutAnalyticsPage />} />
+            </Route>
+
+            <Route path="/exercises/:id" element={<ExerciseLayout />}>
+              <Route index element={<ExerciseOverviewPage />} />
+              <Route path="edit" element={<ExerciseEditorPage />} />
+              <Route path="history" element={<ExerciseHistoryPage />} />
             </Route>
           </Routes>
         </main>

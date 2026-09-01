@@ -55,7 +55,9 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
       props.onChange?.(e);
     };
 
-    const isInvalid = validate ? !validate(props.value as string | number) : hasError;
+    const isInvalid = validate
+      ? !validate(props.value as string | number)
+      : hasError;
     const showError = (touched && hasError) || (forceShowError && isInvalid);
 
     return (
