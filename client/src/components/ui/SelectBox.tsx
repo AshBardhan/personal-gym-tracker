@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import Input from "@/components/ui/Input";
+import Label from "@/components/ui/Label";
 import clsx from "clsx";
 
 export interface SelectOption {
@@ -20,6 +21,7 @@ interface SelectBoxProps {
   id?: string;
   maxVisibleOptions?: number;
   allowCustomValue?: boolean;
+  required?: boolean;
 }
 
 const SelectBox = ({
@@ -34,6 +36,7 @@ const SelectBox = ({
   id,
   maxVisibleOptions = 10,
   allowCustomValue = true,
+  required = false,
 }: SelectBoxProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState(value);
@@ -146,17 +149,19 @@ const SelectBox = ({
     }
   };
 
-  const showError = touched && hasError;
+  const showError = hasError;
 
   return (
     <div className="relative w-full" ref={wrapperRef}>
       {label && (
-        <label
+        <Label
           htmlFor={id}
-          className="mb-2 block font-medium text-gray-700 dark:text-white"
+          required={required}
+          hasError={showError}
+          className="mb-2"
         >
           {label}
-        </label>
+        </Label>
       )}
       <div className="relative">
         <Input

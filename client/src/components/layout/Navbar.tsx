@@ -17,6 +17,8 @@ const Navbar = () => {
   const { theme, setTheme } = useTheme();
   const { pathname } = useLocation();
   const workoutsActive = pathname === "/" || pathname.startsWith("/workouts");
+  const exercisesActive =
+    pathname.startsWith("/exercises") || pathname.startsWith("/exercise");
 
   return (
     <nav className="app-navbar sticky top-0 z-50 shrink-0 border-b border-transparent bg-gray-400 py-4 shadow dark:shadow-none">
@@ -35,7 +37,10 @@ const Navbar = () => {
             >
               Workouts
             </NavLink>
-            <NavLink to="/exercises" className={navLinkClass}>
+            <NavLink
+              to="/exercises"
+              className={() => navLinkClass({ isActive: exercisesActive })}
+            >
               Exercises
             </NavLink>
           </div>

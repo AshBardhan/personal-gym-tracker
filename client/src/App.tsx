@@ -9,6 +9,7 @@ import WorkoutOverviewPage from "@/pages/workout/WorkoutOverviewPage";
 import WorkoutEditorPage from "@/pages/workout/WorkoutEditorPage";
 import WorkoutAnalyticsPage from "@/pages/workout/WorkoutAnalyticsPage";
 import ExerciseListPage from "@/pages/ExerciseListPage";
+import ExerciseFormPage from "@/pages/ExerciseFormPage";
 
 const AppShell = () => {
   const { theme } = useTheme();
@@ -23,6 +24,7 @@ const AppShell = () => {
             <Route path="/workouts" element={<WorkoutListPage />} />
             <Route path="/workouts/new" element={<WorkoutFormPage />} />
             <Route path="/exercises" element={<ExerciseListPage />} />
+            <Route path="/exercise/new" element={<ExerciseFormPage />} />
 
             <Route path="/workouts/:id" element={<WorkoutLayout />}>
               <Route index element={<WorkoutOverviewPage />} />

@@ -104,7 +104,12 @@ const ExerciseListPage = () => {
                   />
                 </div>
 
-                <Button variant="primary" size="medium" className="shrink-0">
+                <Button
+                  variant="primary"
+                  size="medium"
+                  className="shrink-0"
+                  to="/exercise/new"
+                >
                   New Exercise
                 </Button>
               </div>
@@ -140,7 +145,7 @@ const ExerciseListPage = () => {
               >
                 No exercises found. Add your first exercise to get started.
               </Text>
-              <Button variant="primary" size="large">
+              <Button variant="primary" size="large" to="/exercise/new">
                 New Exercise
               </Button>
             </div>

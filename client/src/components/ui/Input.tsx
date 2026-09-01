@@ -6,6 +6,7 @@ import {
   useState,
 } from "react";
 import clsx from "clsx";
+import Label from "@/components/ui/Label";
 
 interface InputProps
   extends Omit<InputHTMLAttributes<HTMLInputElement>, "type" | "size"> {
@@ -13,6 +14,7 @@ interface InputProps
   validate?: (value: string | number) => boolean;
   errorMessage?: string;
   showErrorOnBlur?: boolean;
+  forceShowError?: boolean;
   type?: "text" | "number" | "date" | "password" | "email";
   inputSize?: "small" | "normal";
 }
@@ -24,9 +26,11 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
       validate,
       errorMessage = "This field is required",
       showErrorOnBlur = true,
+      forceShowError = false,
       className = "",
       type = "text",
       inputSize = "normal",
+      required,
       ...props
     },
     ref,
@@ -51,26 +55,25 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
       props.onChange?.(e);
     };
 
-    const showError = touched && hasError;
+    const isInvalid = validate ? !validate(props.value as string | number) : hasError;
+    const showError = (touched && hasError) || (forceShowError && isInvalid);
 
     return (
       <div className="flex-1 space-y-1">
         {label && (
-          <label
+          <Label
             htmlFor={props.id}
-            className={clsx(
-              "cursor-pointer font-medium",
-              showError && "text-red-600",
-              !showError && "text-gray-800 dark:text-white",
-              inputSize === "small" && "text-xs",
-              inputSize === "normal" && "text-sm",
-            )}
+            required={required}
+            hasError={showError}
+            size={inputSize}
           >
             {label}
-          </label>
+          </Label>
         )}
         <input
           {...props}
+          required={required}
+          aria-required={required}
           type={type}
           ref={ref}
           className={clsx(

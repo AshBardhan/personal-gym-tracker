@@ -84,7 +84,7 @@ const WorkoutFormContent = ({ onSubmit, header }: WorkoutFormContentProps) => {
         <div className="flex flex-col gap-4 mb-4 sm:flex-row">
           <div className="flex-1">
             <Input
-              label="Workout Title (Optional)"
+              label="Workout Title"
               type="text"
               id="title"
               name="title"
