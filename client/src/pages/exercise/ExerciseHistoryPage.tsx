@@ -62,8 +62,7 @@ const ExerciseHistoryPage = () => {
                 </div>
                 <div>
                   <Metric
-                    size="sm"
-                    label="volume"
+                    label="Volume"
                     value={formatVolume(getExerciseVolume(sets))}
                     reverse={true}
                     className="text-right"
@@ -85,7 +84,7 @@ const ExerciseHistoryPage = () => {
                     className="flex items-center justify-between gap-3"
                   >
                     <div className="flex items-center gap-2">
-                      <span className="min-w-5 font-semibold text-blue-500 dark:text-blue-300 bg-gray-100 dark:bg-gray-800 rounded-full px-2 py-1">
+                      <span className="min-w-5 font-semibold text-blue-500 dark:text-blue-300 bg-gray-200 dark:bg-gray-800 rounded-md px-2 py-1">
                         {setIndex + 1}
                       </span>
                       <span className="font-medium text-green-600 dark:text-green-300">

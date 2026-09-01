@@ -13,6 +13,7 @@ import Input from "@/components/ui/Input";
 import MultiSelect from "@/components/ui/MultiSelect";
 import Text from "@/components/ui/Text";
 import PageContainer from "@/components/layout/PageContainer";
+import clsx from "clsx";
 
 const muscleOptions = TARGET_MUSCLES.map((muscle) => ({
   value: muscle,
@@ -84,12 +85,12 @@ const ExerciseListPage = () => {
                 />
                 <Input
                   type="text"
-                  placeholder="Search exercises..."
+                  placeholder="Search exercises"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   inputSize="small"
                   className="pl-9"
-                  aria-label="Search exercises by name"
+                  aria-label="Search exercises by name, category, or muscle group"
                 />
               </div>
 
@@ -211,7 +212,7 @@ const ExerciseCard = ({ exercise, onClone, onDelete }: ExerciseCardProps) => {
         />
       </div>
 
-      <div className="pr-8 flex flex-col gap-1">
+      <div className="pr-8 flex flex-col gap-0.5">
         <Text variant="h3">{exercise.name}</Text>
         {muscleGroups.length > 0 && (
           <div className="flex flex-wrap items-center gap-1">
@@ -220,7 +221,12 @@ const ExerciseCard = ({ exercise, onClone, onDelete }: ExerciseCardProps) => {
                 <Text
                   variant="p"
                   key={muscle}
-                  className="text-sm text-gray-500 dark:text-gray-300"
+                  className={clsx(
+                    "text-sm",
+                    index === 0
+                      ? "font-semibold text-gray-700 dark:text-gray-100"
+                      : "text-gray-500 dark:text-gray-300",
+                  )}
                 >
                   {muscle}
                 </Text>

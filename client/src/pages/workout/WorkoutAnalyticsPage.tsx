@@ -5,6 +5,7 @@ import {
   getCategoryDistribution,
   getMuscleGroupDistribution,
   getTotalReps,
+  getTotalSets,
   getTotalVolume,
 } from "@/utils/workoutUtils";
 import Text from "@/components/ui/Text";
@@ -32,7 +33,7 @@ const DistributionSection = ({
         {emptyMessage}
       </Text>
     ) : (
-      <div className="flex flex-col gap-4">
+      <div className="grid grid-cols-2 gap-4">
         {items.map(({ label, percent }) => (
           <Metric
             key={label}
@@ -55,6 +56,7 @@ const WorkoutAnalyticsPage = () => {
   const muscleDistribution = getMuscleGroupDistribution(workout);
   const totalVolume = getTotalVolume(workout);
   const totalReps = getTotalReps(workout);
+  const totalSets = getTotalSets(workout);
 
   return (
     <div>
@@ -65,7 +67,7 @@ const WorkoutAnalyticsPage = () => {
       </div>
 
       <Card className="min-h-[16rem]">
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3 md:gap-10">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
           <DistributionSection
             title="Body Distribution"
             emptyMessage="No category data for this workout."
@@ -82,13 +84,14 @@ const WorkoutAnalyticsPage = () => {
             <Text variant="h3" className="mb-4">
               Stats
             </Text>
-            <div className="flex flex-col gap-4">
+            <div className="grid grid-cols-2 gap-4">
               <Metric
-                label="Total Volume"
+                label="Volume"
                 value={formatVolume(totalVolume)}
                 reverse={true}
               />
-              <Metric label="Total Reps" value={totalReps} reverse={true} />
+              <Metric label="Sets" value={totalSets} reverse={true} />
+              <Metric label="Reps" value={totalReps} reverse={true} />
             </div>
           </section>
         </div>

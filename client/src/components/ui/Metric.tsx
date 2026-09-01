@@ -11,14 +11,14 @@ interface MetricProps {
 
 const labelSizeClasses = {
   sm: "text-xs",
-  md: "text-sm",
-  lg: "text-base",
+  md: "text-xs",
+  lg: "text-sm",
 };
 
 const valueSizeClasses = {
   sm: "text-base",
-  md: "text-lg",
-  lg: "text-xl",
+  md: "text-xl",
+  lg: "text-2xl",
 };
 
 const Metric = ({
@@ -40,7 +40,9 @@ const Metric = ({
     <div
       className={clsx(
         "flex",
-        direction === "row" ? "flex-row items-baseline gap-1" : "flex-col",
+        direction === "row"
+          ? "flex-row items-baseline gap-1"
+          : "flex-col gap-0.5",
         className,
       )}
     >

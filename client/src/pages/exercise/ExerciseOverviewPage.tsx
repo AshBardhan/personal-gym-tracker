@@ -36,21 +36,19 @@ const ExerciseOverviewPage = () => {
           <Text variant="h3" className="mb-4">
             Details
           </Text>
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
-            <Metric label="Category" value={exercise.category} reverse={true} />
+          <div className="grid grid-cols-2 gap-6 sm:grid-cols-3">
+            <Metric label="Category" value={exercise.category} />
             <Metric
-              label="Primary"
+              label="Primary Muscle Target"
               value={primaryMuscle || "None"}
-              reverse={true}
             />
             <Metric
-              label="Secondary"
+              label="Secondary Muscle Targets"
               value={
                 secondaryMuscles.length > 0
                   ? secondaryMuscles.join(" · ")
                   : "None"
               }
-              reverse={true}
             />
           </div>
         </section>
@@ -65,23 +63,44 @@ const ExerciseOverviewPage = () => {
             </Text>
           ) : (
             <div className="flex flex-col gap-8">
-              <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
-                <Metric label="Days" value={stats.days} reverse={true} />
+              <div className="grid grid-cols-2 gap-6 sm:grid-cols-3">
                 <Metric
-                  label="Total Sets"
+                  label={`Day${stats.days > 1 ? "s" : ""}`}
+                  value={stats.days}
+                  reverse={true}
+                />
+                <Metric
+                  label={`Total ${stats.totalSets > 1 ? "Sets" : "Set"}`}
                   value={stats.totalSets}
                   reverse={true}
                 />
+                <Metric
+                  label={`Total ${stats.totalReps > 1 ? "Reps" : "Rep"}`}
+                  value={stats.totalReps}
+                  reverse={true}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-6 sm:grid-cols-3">
                 <Metric
                   label="Total Volume"
                   value={formatVolume(stats.totalVolume)}
                   reverse={true}
                 />
-              </div>
-              <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
                 <Metric
-                  label="Best Volume"
-                  value={formatVolume(stats.bestVolume)}
+                  label="Max Volume"
+                  value={formatVolume(stats.maxVolume)}
+                  reverse={true}
+                />
+                <Metric
+                  label="Average Volume"
+                  value={formatVolume(stats.totalVolume / stats.days)}
+                  reverse={true}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-6 sm:grid-cols-3">
+                <Metric
+                  label="Max Weight (PR)"
+                  value={formatWeight(stats.maxWeight)}
                   reverse={true}
                 />
                 <Metric

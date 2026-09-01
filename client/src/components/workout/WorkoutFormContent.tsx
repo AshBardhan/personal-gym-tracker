@@ -108,7 +108,7 @@ const WorkoutFormContent = ({ onSubmit, header }: WorkoutFormContentProps) => {
         </div>
 
         <div>
-          <Text variant="h4" className="mb-4">
+          <Text variant="h3" className="mb-4">
             Exercises {exercises.length > 0 ? `(${exercises.length})` : ""}
           </Text>
 

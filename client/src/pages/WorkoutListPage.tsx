@@ -81,7 +81,7 @@ const WorkoutListPage = () => {
               />
               <Input
                 type="text"
-                placeholder="Search workouts..."
+                placeholder="Search workouts"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 inputSize="small"
@@ -163,7 +163,7 @@ const WorkoutListPage = () => {
             <div
               className={
                 viewMode === "grid"
-                  ? "grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3"
+                  ? "grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3"
                   : "flex flex-col gap-4"
               }
             >
@@ -245,22 +245,20 @@ const WorkoutListSkeleton = () => (
 const WorkoutGridCard = ({ workout, onDelete }: WorkoutCardProps) => (
   <Card className="relative" href={`/workouts/${workout._id}`}>
     <div className="mb-4 pr-8">
-      <Text variant="h3" className="mb-1">
-        {workout.title || "Untitled Workout"}
-      </Text>
+      <Text variant="h3">{workout.title || "Untitled Workout"}</Text>
       <Text className="text-xs text-gray-500 dark:text-gray-300">
         {formatDate(workout.date)}
       </Text>
     </div>
     <div className="grid grid-cols-3 gap-4">
       <Metric
-        label="exercises"
+        label="Exercises"
         value={workout.exercises.length}
         reverse={true}
       />
-      <Metric label="sets" value={getTotalSets(workout)} reverse={true} />
+      <Metric label="Sets" value={getTotalSets(workout)} reverse={true} />
       <Metric
-        label="volume"
+        label="Volume"
         value={formatVolume(getTotalVolume(workout))}
         reverse={true}
       />
@@ -284,31 +282,22 @@ const WorkoutListCard = ({ workout, onDelete }: WorkoutCardProps) => (
     href={`/workouts/${workout._id}`}
   >
     <div className="pr-8 sm:min-w-0 sm:flex-1">
-      <Text variant="h3" className="mb-1">
-        {workout.title || "Untitled Workout"}
-      </Text>
+      <Text variant="h3">{workout.title || "Untitled Workout"}</Text>
       <Text className="text-xs text-gray-500 dark:text-gray-300">
         {formatDate(workout.date)}
       </Text>
     </div>
-    <div className="grid grid-cols-3 gap-4 sm:flex sm:gap-8 sm:shrink-0 sm:pr-8">
+    <div className="grid grid-cols-3 gap-4 sm:flex sm:gap-10 sm:shrink-0 sm:pr-8">
       <Metric
-        label="exercises"
+        label="Exercises"
         value={workout.exercises.length}
         reverse={true}
-        size="sm"
       />
+      <Metric label="Sets" value={getTotalSets(workout)} reverse={true} />
       <Metric
-        label="sets"
-        value={getTotalSets(workout)}
-        reverse={true}
-        size="sm"
-      />
-      <Metric
-        label="volume"
+        label="Volume"
         value={formatVolume(getTotalVolume(workout))}
         reverse={true}
-        size="sm"
       />
     </div>
     <div className="absolute top-2 right-2">

@@ -66,14 +66,27 @@ export const getExerciseStats = (performances: ExercisePerformance[]) => {
     (total, item) => total + item.sets.length,
     0,
   );
+  const totalReps = performances.reduce(
+    (total, item) => total + item.sets.reduce((sum, set) => sum + set.reps, 0),
+    0,
+  );
   const totalVolume = performances.reduce(
     (total, item) => total + item.volume,
     0,
   );
-  const bestVolume = performances.reduce(
+  const maxVolume = performances.reduce(
     (best, item) => Math.max(best, item.volume),
     0,
   );
+  const maxWeight = performances.reduce(
+    (best, item) =>
+      Math.max(
+        best,
+        item.sets.reduce((setBest, set) => Math.max(setBest, set.weight), 0),
+      ),
+    0,
+  );
+
   const bestOneRepMax = performances.reduce((best, item) => {
     const sessionBest = item.sets.reduce(
       (setBest, set) =>
@@ -86,8 +99,10 @@ export const getExerciseStats = (performances: ExercisePerformance[]) => {
   return {
     days: uniqueDays.size,
     totalSets,
+    totalReps,
     totalVolume,
-    bestVolume,
+    maxVolume,
+    maxWeight,
     bestOneRepMax,
   };
 };

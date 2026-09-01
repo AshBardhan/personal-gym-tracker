@@ -60,7 +60,7 @@ const WorkoutLayout = () => {
   }
 
   const tabs = [
-    { to: `/workouts/${id}`, label: "Summary", end: true },
+    { to: `/workouts/${id}`, label: "Overview", end: true },
     { to: `/workouts/${id}/edit`, label: "Editor", end: false },
     { to: `/workouts/${id}/analytics`, label: "Analytics", end: false },
   ];

@@ -4,14 +4,16 @@ import {
   getTotalVolume,
   formatDetailDate,
   formatVolume,
+  formatWeight,
 } from "@/utils/workoutUtils";
 import Text from "@/components/ui/Text";
 import Card from "@/components/ui/Card";
 import Metric from "@/components/ui/Metric";
 import { WorkoutOutletContext } from "@/pages/workout/WorkoutLayout";
+import { estimateOneRepMax } from "@/utils/exerciseUtils";
 
 /**
- * Workout summary tab — date, volume, and exercise breakdown.
+ * Workout overview tab — date, volume, and exercise breakdown.
  */
 const WorkoutOverviewPage = () => {
   const { workout } = useOutletContext<WorkoutOutletContext>();
@@ -20,23 +22,25 @@ const WorkoutOverviewPage = () => {
     <div>
       <div className="mb-6 flex items-center justify-between gap-4">
         <Text variant="h2" className="m-0">
-          Workout Summary
+          Workout Overview
         </Text>
       </div>
 
       <Card>
-        <div className="mt-0 flex flex-wrap items-center gap-8">
-          <Text className="text-sm text-gray-600 dark:text-gray-300">
-            <strong>Date:</strong> {formatDetailDate(workout.date)}
-          </Text>
-          <Text className="text-sm text-gray-600 dark:text-gray-300">
-            <strong>Total Volume:</strong>
-            &nbsp;
-            {formatVolume(getTotalVolume(workout))}
-          </Text>
+        <Text variant="h3" className="mb-2">
+          Summary
+        </Text>
+        <div className="mt-0 flex items-center justify-between mb-6">
+          <Metric label="Date" size="sm" value={formatDetailDate(workout.date)} />
+          <Metric
+            label="Volume"
+            className="text-right"
+            reverse={true}
+            value={formatVolume(getTotalVolume(workout))}
+          />
         </div>
 
-        <div className="mt-4">
+        <div>
           <Text variant="h3" className="mb-4">
             Exercises{" "}
             {workout.exercises.length > 0
@@ -55,38 +59,52 @@ const WorkoutOverviewPage = () => {
               {workout.exercises.map((exercise, index) => (
                 <div
                   key={`${exercise.name}-${index}`}
-                  className="app-tile flex gap-3 rounded-md border border-gray-200 bg-gray-50 p-3 dark:border-transparent"
+                  className="app-tile rounded-md border border-gray-200 bg-gray-50 p-4 dark:border-transparent"
                 >
-                  <div className="flex h-8 min-w-8 shrink-0 items-center justify-center rounded-full bg-blue-500 font-bold text-white">
-                    {index + 1}
+                  <div className="flex items-center justify-between gap-2 mb-2">
+                    <Text variant="h3">{exercise.name}</Text>
+
+                    <Metric
+                      size="sm"
+                      label="Volume"
+                      value={formatVolume(getExerciseVolume(exercise.sets))}
+                      reverse={true}
+                      className="text-right"
+                    />
                   </div>
-                  <div className="flex-1">
-                    <Text
-                      variant="h4"
-                      className="m-0 mb-2 flex flex-wrap items-center gap-2"
-                    >
-                      {exercise.name}
-                      <Metric
-                        direction="row"
-                        size="sm"
-                        label="volume"
-                        value={formatVolume(getExerciseVolume(exercise.sets))}
-                        reverse={true}
-                        className="app-tile rounded border border-gray-300 bg-white p-2 dark:border-transparent"
-                      />
-                    </Text>
+                  <div>
+                    <div className="flex items-center justify-between gap-3 mb-2">
+                      <Text className="text-gray-800 dark:text-gray-200 font-medium">
+                        Sets
+                      </Text>
+                      <Text className="text-gray-800 dark:text-gray-200 font-medium">
+                        1 RM
+                      </Text>
+                    </div>
                     <div className="flex flex-col gap-2">
                       {exercise.sets.map((set, setIndex) => (
-                        <div key={setIndex} className="flex items-center gap-2">
-                          <span className="min-w-5 font-semibold text-blue-500">
-                            {setIndex + 1}
-                          </span>
-                          <span className="font-medium text-green-600">
-                            {set.weight} kg
-                          </span>
-                          <strong>x</strong>
-                          <span className="min-w-20 text-gray-600 dark:text-gray-300">
-                            {set.reps} reps
+                        <div
+                          key={setIndex}
+                          className="flex items-center justify-between gap-3"
+                        >
+                          <div className="flex items-center gap-2">
+                            <span className="min-w-5 font-semibold text-blue-500 dark:text-blue-300 bg-gray-200 dark:bg-gray-800 rounded-md px-2 py-1">
+                              {setIndex + 1}
+                            </span>
+                            <span className="font-medium text-green-600 dark:text-green-300">
+                              {formatWeight(set.weight)}
+                            </span>
+                            <strong>x</strong>
+                            <span className="text-gray-600 dark:text-gray-300">
+                              {set.reps} reps
+                            </span>
+                          </div>
+                          <span className="shrink-0 font-medium text-gray-600 dark:text-gray-100">
+                            {formatWeight(
+                              Math.round(
+                                estimateOneRepMax(set.weight, set.reps),
+                              ),
+                            )}
                           </span>
                         </div>
                       ))}
