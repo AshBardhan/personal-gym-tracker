@@ -1,15 +1,18 @@
 import { http, HttpResponse } from "msw";
-import { mockWorkouts, mockUser, MOCK_USER_ID } from "@/mocks/data";
-import { Workout } from "@/types/workout";
+import {
+  MOCK_USER_ID,
+  mockExercises,
+  mockUser,
+  mockWorkouts,
+} from "@/mocks/data";
+import { Workout } from "@/types/entities";
 
 const API_URL = "http://localhost:5000";
 
-// In-memory storage for workouts (will be reset on page refresh)
 let workoutsStore = [...mockWorkouts];
-let nextId = 11;
+let nextWorkoutId = 11;
 
 export const handlers = [
-  // Get API status
   http.get(`${API_URL}/`, () => {
     return HttpResponse.json({
       message: "Personal Gym Tracker API (MSW Mock)",
@@ -18,12 +21,10 @@ export const handlers = [
     });
   }),
 
-  // Get all users
   http.get(`${API_URL}/api/users`, () => {
     return HttpResponse.json([mockUser]);
   }),
 
-  // Get user by ID
   http.get(`${API_URL}/api/users/:id`, ({ params }) => {
     const { id } = params;
     if (id === MOCK_USER_ID) {
@@ -32,11 +33,22 @@ export const handlers = [
     return new HttpResponse(null, { status: 404 });
   }),
 
-  // Get all workouts for a user
+  http.get(`${API_URL}/api/exercises`, () => {
+    return HttpResponse.json(mockExercises);
+  }),
+
+  http.get(`${API_URL}/api/exercises/:id`, ({ params }) => {
+    const { id } = params;
+    const exercise = mockExercises.find((item) => item._id === id);
+    if (!exercise) {
+      return new HttpResponse(null, { status: 404 });
+    }
+    return HttpResponse.json(exercise);
+  }),
+
   http.get(`${API_URL}/api/workouts/:userId`, ({ params }) => {
     const { userId } = params;
     if (userId === MOCK_USER_ID) {
-      // Sort by date descending
       const sorted = [...workoutsStore].sort(
         (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
       );
@@ -45,59 +57,63 @@ export const handlers = [
     return HttpResponse.json([]);
   }),
 
-  // Get workout by ID
   http.get(`${API_URL}/api/workouts/detail/:id`, ({ params }) => {
     const { id } = params;
-    const workout = workoutsStore.find((w) => w._id === id);
+    const workout = workoutsStore.find((item) => item._id === id);
     if (workout) {
       return HttpResponse.json(workout);
     }
     return new HttpResponse(null, { status: 404 });
   }),
 
-  // Create workout
   http.post(`${API_URL}/api/workouts`, async ({ request }) => {
-    const body = (await request.json()) as Omit<Workout, "_id" | "createdAt">;
+    const body = (await request.json()) as Omit<
+      Workout,
+      "_id" | "createdAt" | "updatedAt"
+    >;
+    const now = new Date().toISOString();
 
     const newWorkout: Workout = {
-      _id: String(nextId++),
+      _id: String(nextWorkoutId++),
       userId: body.userId,
       title: body.title,
       date: body.date,
+      memo: body.memo,
       exercises: body.exercises,
-      createdAt: new Date().toISOString(),
+      createdAt: now,
+      updatedAt: now,
     };
 
     workoutsStore.push(newWorkout);
     return HttpResponse.json(newWorkout, { status: 201 });
   }),
 
-  // Update workout
   http.put(`${API_URL}/api/workouts/:id`, async ({ params, request }) => {
     const { id } = params;
     const body = (await request.json()) as Partial<Workout>;
+    const index = workoutsStore.findIndex((item) => item._id === id);
 
-    const index = workoutsStore.findIndex((w) => w._id === id);
-    if (index !== -1) {
-      workoutsStore[index] = {
-        ...workoutsStore[index],
-        ...body,
-        _id: workoutsStore[index]._id, // Preserve ID
-        createdAt: workoutsStore[index].createdAt, // Preserve creation date
-      };
-      return HttpResponse.json(workoutsStore[index]);
+    if (index === -1) {
+      return new HttpResponse(null, { status: 404 });
     }
-    return new HttpResponse(null, { status: 404 });
+
+    workoutsStore[index] = {
+      ...workoutsStore[index],
+      ...body,
+      _id: workoutsStore[index]._id,
+      createdAt: workoutsStore[index].createdAt,
+      updatedAt: new Date().toISOString(),
+    };
+    return HttpResponse.json(workoutsStore[index]);
   }),
 
-  // Delete workout
   http.delete(`${API_URL}/api/workouts/:id`, ({ params }) => {
     const { id } = params;
-    const index = workoutsStore.findIndex((w) => w._id === id);
-    if (index !== -1) {
-      const deleted = workoutsStore.splice(index, 1)[0];
-      return HttpResponse.json(deleted);
+    const index = workoutsStore.findIndex((item) => item._id === id);
+    if (index === -1) {
+      return new HttpResponse(null, { status: 404 });
     }
-    return new HttpResponse(null, { status: 404 });
+    const deleted = workoutsStore.splice(index, 1)[0];
+    return HttpResponse.json(deleted);
   }),
 ];
