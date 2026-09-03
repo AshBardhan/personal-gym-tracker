@@ -1,9 +1,25 @@
-import { Exercise, Workout, Set } from "@/types/workout";
+import { Exercise } from "@/types/workout";
+import {
+  Equipment,
+  ExerciseCategory,
+  ExerciseMetric,
+  MuscleGroup,
+  SetType,
+} from "@/types/entities";
 import {
   PREDEFINED_EXERCISES,
   PredefinedExercise,
 } from "@/constants/exercises";
 import { SelectOption } from "@/components/ui/SelectBox";
+
+type LoadSet = {
+  reps?: number;
+  weight?: number;
+};
+
+type VolumeWorkout = {
+  exercises: { sets: LoadSet[] }[];
+};
 
 /**
  * Workout Utilities
@@ -45,23 +61,24 @@ export const getValidExercises = (exercises: Exercise[]): Exercise[] => {
 // ============================================================
 
 /**
- * Calculate volume for a single set (reps × weight)
+ * Calculate volume for a single set (reps × weight).
+ * Timed / reps-only sets contribute 0, not NaN.
  */
-export const getSetVolume = (set: Set): number => {
-  return set.reps * set.weight;
+export const getSetVolume = (set: LoadSet): number => {
+  return (set.reps ?? 0) * (set.weight ?? 0);
 };
 
 /**
  * Calculate total volume for an exercise (sum of all sets)
  */
-export const getExerciseVolume = (sets: Set[]): number => {
+export const getExerciseVolume = (sets: LoadSet[]): number => {
   return sets.reduce((total, set) => total + getSetVolume(set), 0);
 };
 
 /**
  * Get total number of sets in a workout
  */
-export const getTotalSets = (workout: Workout): number => {
+export const getTotalSets = (workout: VolumeWorkout): number => {
   return workout.exercises.reduce(
     (total, exercise) => total + exercise.sets.length,
     0,
@@ -71,7 +88,7 @@ export const getTotalSets = (workout: Workout): number => {
 /**
  * Calculate total volume for entire workout
  */
-export const getTotalVolume = (workout: Workout): number => {
+export const getTotalVolume = (workout: VolumeWorkout): number => {
   return workout.exercises.reduce(
     (total, exercise) => total + getExerciseVolume(exercise.sets),
     0,
@@ -81,10 +98,11 @@ export const getTotalVolume = (workout: Workout): number => {
 /**
  * Get total number of reps in a workout
  */
-export const getTotalReps = (workout: Workout): number => {
+export const getTotalReps = (workout: VolumeWorkout): number => {
   return workout.exercises.reduce(
     (total, exercise) =>
-      total + exercise.sets.reduce((setTotal, set) => setTotal + set.reps, 0),
+      total +
+      exercise.sets.reduce((setTotal, set) => setTotal + (set.reps ?? 0), 0),
     0,
   );
 };
@@ -110,15 +128,15 @@ const toDistribution = (totals: Record<string, number>): DistributionItem[] => {
 };
 
 /**
- * Body distribution: exercises per category / total exercises in the workout
+ * Category distribution: logged lines per category
  */
-export const getCategoryDistribution = (
-  workout: Workout,
-): DistributionItem[] => {
+export const getCategoryDistribution = (workout: {
+  exercises: { category?: string }[];
+}): DistributionItem[] => {
   const totals: Record<string, number> = {};
 
   for (const exercise of workout.exercises) {
-    const category = exercise.category?.trim() || "Other";
+    const category = formatCategory(exercise.category?.trim() || "other");
     totals[category] = (totals[category] || 0) + 1;
   }
 
@@ -126,17 +144,26 @@ export const getCategoryDistribution = (
 };
 
 /**
- * Muscle distribution: exercises per muscle group / sum of all muscle-group
- * involvement counts (an exercise increments every group it lists)
+ * Muscle distribution: each logged line counts toward primary + secondary
  */
-export const getMuscleGroupDistribution = (
-  workout: Workout,
-): DistributionItem[] => {
+export const getMuscleGroupDistribution = (workout: {
+  exercises: {
+    muscleGroup?: string[];
+    primaryMuscleGroup?: string;
+    secondaryMuscleGroups?: string[];
+  }[];
+}): DistributionItem[] => {
   const totals: Record<string, number> = {};
 
   for (const exercise of workout.exercises) {
-    const groups =
-      exercise.muscleGroup?.map((group) => group.trim()).filter(Boolean) ?? [];
+    const groups = (
+      exercise.muscleGroup ?? [
+        exercise.primaryMuscleGroup,
+        ...(exercise.secondaryMuscleGroups ?? []),
+      ]
+    )
+      .map((group) => group?.trim())
+      .filter((group): group is string => Boolean(group));
 
     if (groups.length === 0) {
       totals.Other = (totals.Other || 0) + 1;
@@ -144,8 +171,27 @@ export const getMuscleGroupDistribution = (
     }
 
     for (const group of groups) {
-      totals[group] = (totals[group] || 0) + 1;
+      const label = formatMuscleGroup(group);
+      totals[label] = (totals[label] || 0) + 1;
     }
+  }
+
+  return toDistribution(totals);
+};
+
+/**
+ * Equipment distribution: logged lines per equipment
+ */
+export const getEquipmentDistribution = (workout: {
+  exercises: { equipment?: Equipment }[];
+}): DistributionItem[] => {
+  const totals: Record<string, number> = {};
+
+  for (const exercise of workout.exercises) {
+    const label = exercise.equipment
+      ? formatEquipment(exercise.equipment)
+      : "Other";
+    totals[label] = (totals[label] || 0) + 1;
   }
 
   return toDistribution(totals);
@@ -235,5 +281,135 @@ export const formatWeight = (weight: number): string => {
  * Format volume (rounded) with unit
  */
 export const formatVolume = (volume: number): string => {
-  return `${Math.round(volume)} kg`;
+  const amount = Number.isFinite(volume) ? Math.round(volume) : 0;
+  return `${amount} kg`;
+};
+
+export const EXERCISE_CATEGORY_ORDER: ExerciseCategory[] = [
+  "chest",
+  "shoulders",
+  "arms",
+  "back",
+  "legs",
+  "core",
+  "cardio",
+  "full_body",
+];
+
+/** Muscles listed under each category in the exercise filter dropdown. */
+export const MUSCLES_BY_CATEGORY: Record<ExerciseCategory, MuscleGroup[]> = {
+  chest: ["chest", "upper_chest", "lower_chest"],
+  shoulders: ["front_delts", "side_delts", "rear_delts"],
+  arms: ["biceps", "triceps", "forearms"],
+  back: ["lats", "traps", "upper_back", "lower_back"],
+  legs: ["glutes", "quads", "hamstrings", "calves"],
+  core: ["abs", "obliques", "hip_flexors"],
+  cardio: [],
+  full_body: [],
+};
+
+const CATEGORY_LABELS: Record<ExerciseCategory, string> = {
+  chest: "Chest",
+  shoulders: "Shoulders",
+  arms: "Arms",
+  back: "Back",
+  legs: "Legs",
+  core: "Core",
+  cardio: "Cardio",
+  full_body: "Full Body",
+};
+
+const MUSCLE_GROUP_LABELS: Record<MuscleGroup, string> = {
+  chest: "Chest",
+  upper_chest: "Upper Chest",
+  lower_chest: "Lower Chest",
+  front_delts: "Front Delts",
+  side_delts: "Side Delts",
+  rear_delts: "Rear Delts",
+  triceps: "Triceps",
+  biceps: "Biceps",
+  forearms: "Forearms",
+  lats: "Lats",
+  traps: "Traps",
+  upper_back: "Upper Back",
+  lower_back: "Lower Back",
+  glutes: "Glutes",
+  quads: "Quads",
+  hamstrings: "Hamstrings",
+  calves: "Calves",
+  abs: "Abs",
+  obliques: "Obliques",
+  hip_flexors: "Hip Flexors",
+};
+
+const EQUIPMENT_LABELS: Record<Equipment, string> = {
+  barbell: "Barbell",
+  dumbbell: "Dumbbell",
+  machine: "Machine",
+  cable: "Cable",
+  smith_machine: "Smith Machine",
+  ez_bar: "EZ Bar",
+  kettlebell: "Kettlebell",
+  resistance_band: "Resistance Band",
+  body_weight: "Bodyweight",
+  other: "Other",
+};
+
+const formatSlugFallback = (slug: string): string =>
+  slug
+    .split("_")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+
+export const formatCategory = (category: string): string =>
+  CATEGORY_LABELS[category as ExerciseCategory] ?? formatSlugFallback(category);
+
+export const formatMuscleGroup = (muscle: string): string =>
+  MUSCLE_GROUP_LABELS[muscle as MuscleGroup] ?? formatSlugFallback(muscle);
+
+export const formatEquipment = (equipment: Equipment): string =>
+  EQUIPMENT_LABELS[equipment];
+
+/** Weighted load + 1RM only when the variant tracks external load. */
+export const hasWeightedStats = (exercise: {
+  equipment: Equipment;
+  metrics: ExerciseMetric[];
+}): boolean =>
+  exercise.equipment !== "body_weight" && exercise.metrics.includes("weight");
+
+export const hasWorkoutWeightedVolume = (workout: {
+  exercises: { equipment: Equipment; metrics: ExerciseMetric[] }[];
+}): boolean => workout.exercises.some(hasWeightedStats);
+
+export const formatExerciseMetrics = (metrics: ExerciseMetric[]): string => {
+  const labels: Record<ExerciseMetric, string> = {
+    weight: "Weight",
+    reps: "Reps",
+    duration: "Duration",
+  };
+  return metrics.map((metric) => labels[metric]).join(" × ");
+};
+
+export const formatSetDuration = (durationSec: number): string =>
+  `${durationSec}s`;
+
+const SET_TYPE_BADGE: Record<Exclude<SetType, "regular">, string> = {
+  warmup: "W",
+  drop: "D",
+  failure: "F",
+};
+
+/** Warmup/drop/failure keep a letter; working sets are numbered 1, 2, 3… */
+export const getSetSequenceLabel = (
+  sets: { type: SetType }[],
+  index: number,
+): string => {
+  const type = sets[index]?.type ?? "regular";
+  if (type !== "regular") {
+    return SET_TYPE_BADGE[type];
+  }
+
+  return String(
+    sets.slice(0, index + 1).filter((set) => set.type === "regular").length,
+  );
 };

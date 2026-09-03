@@ -1,5 +1,6 @@
 import apiClient from "@/services/apiClient";
-import { Workout } from "@/types/workout";
+import { Workout } from "@/types/entities";
+import { Workout as LegacyWorkout } from "@/types/workout";
 import { AxiosResponse } from "axios";
 
 /**
@@ -30,8 +31,10 @@ export const workoutService = {
   /**
    * Create a new workout
    */
-  create: async (workoutData: Partial<Workout>): Promise<Workout> => {
-    const response: AxiosResponse<Workout> = await apiClient.post(
+  create: async (
+    workoutData: Partial<LegacyWorkout>,
+  ): Promise<LegacyWorkout> => {
+    const response: AxiosResponse<LegacyWorkout> = await apiClient.post(
       "/workouts",
       workoutData,
     );
@@ -43,9 +46,9 @@ export const workoutService = {
    */
   update: async (
     id: string,
-    workoutData: Partial<Workout>,
-  ): Promise<Workout> => {
-    const response: AxiosResponse<Workout> = await apiClient.put(
+    workoutData: Partial<LegacyWorkout>,
+  ): Promise<LegacyWorkout> => {
+    const response: AxiosResponse<LegacyWorkout> = await apiClient.put(
       `/workouts/${id}`,
       workoutData,
     );

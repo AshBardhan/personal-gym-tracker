@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { Workout } from "@/types/workout";
+import { Workout } from "@/types/entities";
 import { workoutService } from "@/services/workouts.service";
 
 /**

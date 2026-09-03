@@ -1,46 +1,46 @@
-import { CatalogExercise } from "@/constants/exercises";
 import type { ExerciseFormValues } from "@/components/exercise/ExerciseFormContent";
-import type { Set, Workout } from "@/types/workout";
-import { getExerciseVolume } from "@/utils/workoutUtils";
+import type {
+  Exercise,
+  ExerciseSet,
+  Workout,
+  WorkoutExercise,
+} from "@/types/entities";
+import {
+  formatCategory,
+  formatMuscleGroup,
+  getExerciseVolume,
+} from "@/utils/workoutUtils";
 
 export type ExercisePerformance = {
   workout: Workout;
-  sets: Set[];
-  volume: number;
+  lines: WorkoutExercise[];
 };
 
-export const catalogExerciseToFormValues = (
-  exercise: CatalogExercise,
-): ExerciseFormValues => {
-  const [primaryMuscle = "", ...secondaryMuscles] = exercise.muscleGroup;
-  return {
-    name: exercise.name,
-    category: exercise.category,
-    primaryMuscle,
-    secondaryMuscles,
-  };
-};
+export const exerciseToFormValues = (
+  exercise: Exercise,
+): ExerciseFormValues => ({
+  name: exercise.name,
+  category: formatCategory(exercise.category),
+  primaryMuscle: formatMuscleGroup(exercise.primaryMuscleGroup),
+  secondaryMuscles: (exercise.secondaryMuscleGroups ?? []).map(
+    formatMuscleGroup,
+  ),
+});
 
 export const getWorkoutsForExercise = (
   workouts: Workout[],
-  exerciseName: string,
+  exerciseId: string,
 ): ExercisePerformance[] => {
-  const name = exerciseName.trim().toLowerCase();
-  if (!name) return [];
+  if (!exerciseId) return [];
 
   return workouts
     .map((workout) => {
-      const matches = workout.exercises.filter(
-        (exercise) => exercise.name.trim().toLowerCase() === name,
+      const lines = workout.exercises.filter(
+        (item) => item.exerciseId === exerciseId,
       );
-      if (matches.length === 0) return null;
+      if (lines.length === 0) return null;
 
-      const sets = matches.flatMap((exercise) => exercise.sets);
-      return {
-        workout,
-        sets,
-        volume: getExerciseVolume(sets),
-      };
+      return { workout, lines };
     })
     .filter((item): item is ExercisePerformance => item !== null)
     .sort(
@@ -55,6 +55,9 @@ export const estimateOneRepMax = (weight: number, reps: number): number => {
   return weight * (1 + reps / 30);
 };
 
+const performanceSets = (item: ExercisePerformance): ExerciseSet[] =>
+  item.lines.flatMap((line) => line.sets);
+
 export const getExerciseStats = (performances: ExercisePerformance[]) => {
   const uniqueDays = new Set(
     performances.map((item) =>
@@ -63,45 +66,65 @@ export const getExerciseStats = (performances: ExercisePerformance[]) => {
   );
 
   const totalSets = performances.reduce(
-    (total, item) => total + item.sets.length,
+    (total, item) => total + performanceSets(item).length,
     0,
   );
   const totalReps = performances.reduce(
-    (total, item) => total + item.sets.reduce((sum, set) => sum + set.reps, 0),
+    (total, item) =>
+      total +
+      performanceSets(item).reduce((sum, set) => sum + (set.reps ?? 0), 0),
     0,
   );
   const totalVolume = performances.reduce(
-    (total, item) => total + item.volume,
+    (total, item) =>
+      total +
+      item.lines.reduce(
+        (lineTotal, line) => lineTotal + getExerciseVolume(line.sets),
+        0,
+      ),
     0,
   );
   const maxVolume = performances.reduce(
-    (best, item) => Math.max(best, item.volume),
+    (best, item) =>
+      Math.max(
+        best,
+        item.lines.reduce(
+          (lineBest, line) => Math.max(lineBest, getExerciseVolume(line.sets)),
+          0,
+        ),
+      ),
     0,
   );
   const maxWeight = performances.reduce(
     (best, item) =>
       Math.max(
         best,
-        item.sets.reduce((setBest, set) => Math.max(setBest, set.weight), 0),
+        performanceSets(item).reduce(
+          (setBest, set) => Math.max(setBest, set.weight ?? 0),
+          0,
+        ),
       ),
     0,
   );
 
   const bestOneRepMax = performances.reduce((best, item) => {
-    const sessionBest = item.sets.reduce(
+    const sessionBest = performanceSets(item).reduce(
       (setBest, set) =>
-        Math.max(setBest, estimateOneRepMax(set.weight, set.reps)),
+        Math.max(setBest, estimateOneRepMax(set.weight ?? 0, set.reps ?? 0)),
       0,
     );
     return Math.max(best, sessionBest);
   }, 0);
 
+  const days = uniqueDays.size;
+
   return {
-    days: uniqueDays.size,
+    days,
     totalSets,
     totalReps,
     totalVolume,
     maxVolume,
+    averageVolume: days > 0 ? totalVolume / days : 0,
     maxWeight,
     bestOneRepMax,
   };
