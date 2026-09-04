@@ -7,9 +7,10 @@ import {
   getTotalVolume,
   formatDate,
   formatVolume,
+  hasWorkoutWeightedVolume,
 } from "@/utils/workoutUtils";
 import { config } from "@/config/env";
-import { Workout } from "@/types/workout";
+import { Workout } from "@/types/entities";
 import Button from "@/components/ui/Button";
 import Text from "@/components/ui/Text";
 import Card from "@/components/ui/Card";
@@ -194,29 +195,27 @@ const WorkoutListPage = () => {
                 No workouts match &ldquo;{searchQuery.trim()}&rdquo;
               </Text>
             </div>
+          ) : isSearching ? (
+            <WorkoutCardList
+              workouts={filteredWorkouts}
+              viewMode={viewMode}
+              onDelete={handleDelete}
+            />
           ) : (
-            isSearching ? (
-              <WorkoutCardList
-                workouts={filteredWorkouts}
-                viewMode={viewMode}
-                onDelete={handleDelete}
-              />
-            ) : (
-              <div className="flex flex-col gap-8">
-                {workoutGroups.map((group) => (
-                  <section key={group.key}>
-                    <Text variant="h3" className="mb-4">
-                      {group.label}
-                    </Text>
-                    <WorkoutCardList
-                      workouts={group.items}
-                      viewMode={viewMode}
-                      onDelete={handleDelete}
-                    />
-                  </section>
-                ))}
-              </div>
-            )
+            <div className="flex flex-col gap-8">
+              {workoutGroups.map((group) => (
+                <section key={group.key}>
+                  <Text variant="h3" className="mb-4">
+                    {group.label} ({group.items.length})
+                  </Text>
+                  <WorkoutCardList
+                    workouts={group.items}
+                    viewMode={viewMode}
+                    onDelete={handleDelete}
+                  />
+                </section>
+              ))}
+            </div>
           )}
         </PageContainer>
       </div>
@@ -312,75 +311,97 @@ const WorkoutListSkeleton = () => (
   </Card>
 );
 
-const WorkoutGridCard = ({ workout, onDelete }: WorkoutCardProps) => (
-  <Card className="relative" href={`/workouts/${workout._id}`}>
-    <div className="mb-4 pr-8">
-      <Text variant="h4">{workout.title || "Untitled Workout"}</Text>
-      <Text className="text-xs text-gray-500 dark:text-gray-300">
-        {formatDate(workout.date)}
-      </Text>
-    </div>
-    <div className="grid grid-cols-3 gap-4">
-      <Metric
-        label="Exercises"
-        value={workout.exercises.length}
-        reverse={true}
-      />
-      <Metric label="Sets" value={getTotalSets(workout)} reverse={true} />
-      <Metric
-        label="Volume"
-        value={formatVolume(getTotalVolume(workout))}
-        reverse={true}
-      />
-    </div>
-    <div className="absolute top-2 right-2">
-      <Button
-        title="Delete Workout"
-        onClick={(e: React.MouseEvent) => onDelete(e, workout._id)}
-        variant="icon-only"
-        className="!text-red-600 hover:!text-red-700"
-      >
-        <Trash2 size={20} />
-      </Button>
-    </div>
-  </Card>
-);
+const WorkoutGridCard = ({ workout, onDelete }: WorkoutCardProps) => {
+  const showVolume = hasWorkoutWeightedVolume(workout);
 
-const WorkoutListCard = ({ workout, onDelete }: WorkoutCardProps) => (
-  <Card
-    className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
-    href={`/workouts/${workout._id}`}
-  >
-    <div className="pr-8 sm:min-w-0 sm:flex-1">
-      <Text variant="h4">{workout.title || "Untitled Workout"}</Text>
-      <Text className="text-xs text-gray-500 dark:text-gray-300">
-        {formatDate(workout.date)}
-      </Text>
-    </div>
-    <div className="grid grid-cols-3 gap-4 sm:flex sm:gap-10 sm:shrink-0 sm:pr-8">
-      <Metric
-        label="Exercises"
-        value={workout.exercises.length}
-        reverse={true}
-      />
-      <Metric label="Sets" value={getTotalSets(workout)} reverse={true} />
-      <Metric
-        label="Volume"
-        value={formatVolume(getTotalVolume(workout))}
-        reverse={true}
-      />
-    </div>
-    <div className="absolute top-2 right-2">
-      <Button
-        title="Delete Workout"
-        onClick={(e: React.MouseEvent) => onDelete(e, workout._id)}
-        variant="icon-only"
-        className="!text-red-600 hover:!text-red-700"
+  return (
+    <Card className="relative" href={`/workouts/${workout._id}`}>
+      <div className="mb-4 pr-8">
+        <Text variant="h4">{workout.title || "Untitled Workout"}</Text>
+        <Text className="text-xs text-gray-500 dark:text-gray-300">
+          {formatDate(workout.date)}
+        </Text>
+      </div>
+      <div
+        className={
+          showVolume ? "grid grid-cols-3 gap-4" : "grid grid-cols-2 gap-4"
+        }
       >
-        <Trash2 size={20} />
-      </Button>
-    </div>
-  </Card>
-);
+        <Metric
+          label="Exercises"
+          value={workout.exercises.length}
+          reverse={true}
+        />
+        <Metric label="Sets" value={getTotalSets(workout)} reverse={true} />
+        {showVolume ? (
+          <Metric
+            label="Volume"
+            value={formatVolume(getTotalVolume(workout))}
+            reverse={true}
+          />
+        ) : null}
+      </div>
+      <div className="absolute top-2 right-2">
+        <Button
+          title="Delete Workout"
+          onClick={(e: React.MouseEvent) => onDelete(e, workout._id)}
+          variant="icon-only"
+          className="!text-red-600 hover:!text-red-700"
+        >
+          <Trash2 size={20} />
+        </Button>
+      </div>
+    </Card>
+  );
+};
+
+const WorkoutListCard = ({ workout, onDelete }: WorkoutCardProps) => {
+  const showVolume = hasWorkoutWeightedVolume(workout);
+
+  return (
+    <Card
+      className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
+      href={`/workouts/${workout._id}`}
+    >
+      <div className="pr-8 sm:min-w-0 sm:flex-1">
+        <Text variant="h4">{workout.title || "Untitled Workout"}</Text>
+        <Text className="text-xs text-gray-500 dark:text-gray-300">
+          {formatDate(workout.date)}
+        </Text>
+      </div>
+      <div
+        className={
+          showVolume
+            ? "grid grid-cols-3 gap-4 sm:flex sm:gap-10 sm:shrink-0 sm:pr-8"
+            : "grid grid-cols-2 gap-4 sm:flex sm:gap-10 sm:shrink-0 sm:pr-8"
+        }
+      >
+        <Metric
+          label="Exercises"
+          value={workout.exercises.length}
+          reverse={true}
+        />
+        <Metric label="Sets" value={getTotalSets(workout)} reverse={true} />
+        {showVolume ? (
+          <Metric
+            label="Volume"
+            value={formatVolume(getTotalVolume(workout))}
+            reverse={true}
+          />
+        ) : null}
+      </div>
+      <div className="absolute top-2 right-2">
+        <Button
+          title="Delete Workout"
+          onClick={(e: React.MouseEvent) => onDelete(e, workout._id)}
+          variant="icon-only"
+          className="!text-red-600 hover:!text-red-700"
+        >
+          <Trash2 size={20} />
+        </Button>
+      </div>
+    </Card>
+  );
+};
 
 export default WorkoutListPage;

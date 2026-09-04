@@ -5,12 +5,62 @@ import {
   formatDetailDate,
   formatVolume,
   formatWeight,
+  formatEquipment,
+  formatSetDuration,
+  getSetSequenceLabel,
+  hasWeightedStats,
+  hasWorkoutWeightedVolume,
+  getTotalSets,
+  getTotalReps,
 } from "@/utils/workoutUtils";
 import Text from "@/components/ui/Text";
 import Card from "@/components/ui/Card";
 import Metric from "@/components/ui/Metric";
 import { WorkoutOutletContext } from "@/pages/workout/WorkoutLayout";
 import { estimateOneRepMax } from "@/utils/exerciseUtils";
+import { ExerciseSet, WorkoutExercise } from "@/types/entities";
+
+const SetMetrics = ({
+  exercise,
+  set,
+}: {
+  exercise: WorkoutExercise;
+  set: ExerciseSet;
+}) => {
+  if (exercise.metrics.includes("duration") && set.duration != null) {
+    return (
+      <span className="text-gray-600 dark:text-gray-300">
+        {formatSetDuration(set.duration)}
+      </span>
+    );
+  }
+
+  const showWeight =
+    exercise.metrics.includes("weight") && set.weight != null && set.weight > 0;
+  const showReps = exercise.metrics.includes("reps") && set.reps != null;
+
+  if (showWeight && showReps) {
+    return (
+      <>
+        <span className="font-medium text-green-600 dark:text-green-300">
+          {formatWeight(set.weight!)}
+        </span>
+        <strong>x</strong>
+        <span className="text-gray-600 dark:text-gray-300">
+          {set.reps} reps
+        </span>
+      </>
+    );
+  }
+
+  if (showReps) {
+    return (
+      <span className="text-gray-600 dark:text-gray-300">{set.reps} reps</span>
+    );
+  }
+
+  return null;
+};
 
 /**
  * Workout overview tab — date, volume, and exercise breakdown.
@@ -30,14 +80,21 @@ const WorkoutOverviewPage = () => {
         <Text variant="h3" className="mb-2">
           Summary
         </Text>
-        <div className="mt-0 flex items-center justify-between mb-6">
-          <Metric label="Date" size="sm" value={formatDetailDate(workout.date)} />
-          <Metric
-            label="Volume"
-            className="text-right"
-            reverse={true}
-            value={formatVolume(getTotalVolume(workout))}
-          />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          <Metric label="Date" value={formatDetailDate(workout.date)} />
+        <div className="flex items-center justify-between gap-6">
+          <Metric label="Sets" value={getTotalSets(workout)} reverse={true} />
+          <Metric label="Reps" value={getTotalReps(workout)} reverse={true} />
+          {hasWorkoutWeightedVolume(workout) && (
+            <Metric
+              label="Volume"
+              className="text-right"
+              reverse={true}
+              value={formatVolume(getTotalVolume(workout))}
+            />
+          )}
+        </div>
+
         </div>
 
         <div>
@@ -56,62 +113,74 @@ const WorkoutOverviewPage = () => {
             </Text>
           ) : (
             <div className="flex flex-col gap-4">
-              {workout.exercises.map((exercise, index) => (
-                <div
-                  key={`${exercise.name}-${index}`}
-                  className="app-tile rounded-md border border-gray-200 bg-gray-50 p-4 dark:border-transparent"
-                >
-                  <div className="flex items-center justify-between gap-2 mb-2">
-                    <Text variant="h3">{exercise.name}</Text>
+              {workout.exercises.map((exercise, index) => {
+                const showLoadStats = hasWeightedStats(exercise);
 
-                    <Metric
-                      size="sm"
-                      label="Volume"
-                      value={formatVolume(getExerciseVolume(exercise.sets))}
-                      reverse={true}
-                      className="text-right"
-                    />
-                  </div>
-                  <div>
-                    <div className="flex items-center justify-between gap-3 mb-2">
-                      <Text className="text-gray-800 dark:text-gray-200 font-medium">
-                        Sets
-                      </Text>
-                      <Text className="text-gray-800 dark:text-gray-200 font-medium">
-                        1 RM
-                      </Text>
+                return (
+                  <div
+                    key={`${exercise.exerciseId}-${exercise.variantId}-${index}`}
+                    className="app-tile rounded-md border border-gray-200 bg-gray-100 p-4 dark:border-transparent"
+                  >
+                    <div className="flex items-start justify-between gap-2 mb-2">
+                      <div className="min-w-0">
+                        <Text variant="h3">{exercise.name}</Text>
+                        <Text className="text-xs text-gray-500 dark:text-gray-300">
+                          {formatEquipment(exercise.equipment)}
+                        </Text>
+                      </div>
+
+                      {showLoadStats && (
+                        <Metric
+                          size="sm"
+                          label="Volume"
+                          value={formatVolume(getExerciseVolume(exercise.sets))}
+                          reverse={true}
+                          className="text-right"
+                        />
+                      )}
                     </div>
-                    <div className="flex flex-col gap-2">
-                      {exercise.sets.map((set, setIndex) => (
-                        <div
-                          key={setIndex}
-                          className="flex items-center justify-between gap-3"
-                        >
-                          <div className="flex items-center gap-2">
-                            <span className="min-w-5 font-semibold text-blue-500 dark:text-blue-300 bg-gray-200 dark:bg-gray-800 rounded-md px-2 py-1">
-                              {setIndex + 1}
-                            </span>
-                            <span className="font-medium text-green-600 dark:text-green-300">
-                              {formatWeight(set.weight)}
-                            </span>
-                            <strong>x</strong>
-                            <span className="text-gray-600 dark:text-gray-300">
-                              {set.reps} reps
-                            </span>
-                          </div>
-                          <span className="shrink-0 font-medium text-gray-600 dark:text-gray-100">
-                            {formatWeight(
-                              Math.round(
-                                estimateOneRepMax(set.weight, set.reps),
-                              ),
+                    <div>
+                      <div className="flex items-center justify-between gap-3 mb-2">
+                        <Text className="text-gray-800 dark:text-gray-200 font-medium">
+                          Sets
+                        </Text>
+                        {showLoadStats && (
+                          <Text className="text-gray-800 dark:text-gray-200 font-medium">
+                            1 RM
+                          </Text>
+                        )}
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        {exercise.sets.map((set, setIndex) => (
+                          <div
+                            key={set._id ?? setIndex}
+                            className="flex items-center justify-between gap-3"
+                          >
+                            <div className="flex items-center gap-2">
+                              <span className="min-w-6 h-6 flex items-center justify-center font-semibold text-xs text-blue-500 dark:text-blue-300 bg-gray-200 dark:bg-gray-800 rounded-md px-1 py-0.5">
+                                {getSetSequenceLabel(exercise.sets, setIndex)}
+                              </span>
+                              <SetMetrics exercise={exercise} set={set} />
+                            </div>
+                            {showLoadStats && (
+                              <span className="shrink-0 font-medium text-gray-600 dark:text-gray-100">
+                                {formatWeight(
+                                  Math.round(
+                                    estimateOneRepMax(
+                                      set.weight ?? 0,
+                                      set.reps ?? 0,
+                                    ),
+                                  ),
+                                )}
+                              </span>
                             )}
-                          </span>
-                        </div>
-                      ))}
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>

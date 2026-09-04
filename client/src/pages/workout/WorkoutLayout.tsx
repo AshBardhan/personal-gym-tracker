@@ -3,7 +3,7 @@ import { MoreVertical } from "lucide-react";
 import clsx from "clsx";
 import { useWorkout } from "@/hooks/useWorkout";
 import { useWorkoutMutation } from "@/hooks/useWorkoutMutation";
-import { Workout } from "@/types/workout";
+import { Workout } from "@/types/entities";
 import Button from "@/components/ui/Button";
 import Text from "@/components/ui/Text";
 import PageContainer from "@/components/layout/PageContainer";
