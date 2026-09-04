@@ -3,7 +3,14 @@ import { useOutletContext } from "react-router-dom";
 import Text from "@/components/ui/Text";
 import Card from "@/components/ui/Card";
 import Metric from "@/components/ui/Metric";
-import { formatVolume, formatWeight } from "@/utils/workoutUtils";
+import {
+  formatCategory,
+  formatExerciseMetrics,
+  formatMuscleGroup,
+  formatVolume,
+  formatWeight,
+  hasWeightedStats,
+} from "@/utils/workoutUtils";
 import {
   getExerciseStats,
   getWorkoutsForExercise,
@@ -11,17 +18,21 @@ import {
 import { ExerciseOutletContext } from "@/pages/exercise/ExerciseLayout";
 
 /**
- * Exercise overview tab — details and lifetime stats.
+ * Exercise overview tab — details, variants, and lifetime stats.
  */
 const ExerciseOverviewPage = () => {
   const { exercise, workouts, workoutsLoading } =
     useOutletContext<ExerciseOutletContext>();
-  const [primaryMuscle, ...secondaryMuscles] = exercise.muscleGroup;
+
+  const secondaryMuscles = exercise.secondaryMuscleGroups ?? [];
+  const showLoadStats = exercise.variants.some((variant) =>
+    hasWeightedStats(variant),
+  );
 
   const stats = useMemo(() => {
-    const performances = getWorkoutsForExercise(workouts, exercise.name);
+    const performances = getWorkoutsForExercise(workouts, exercise._id);
     return getExerciseStats(performances);
-  }, [workouts, exercise.name]);
+  }, [workouts, exercise._id]);
 
   return (
     <div>
@@ -37,20 +48,44 @@ const ExerciseOverviewPage = () => {
             Details
           </Text>
           <div className="grid grid-cols-2 gap-6 sm:grid-cols-3">
-            <Metric label="Category" value={exercise.category} />
+            <Metric
+              label="Category"
+              value={formatCategory(exercise.category)}
+            />
             <Metric
               label="Primary Muscle Target"
-              value={primaryMuscle || "None"}
+              value={formatMuscleGroup(exercise.primaryMuscleGroup)}
             />
             <Metric
               label="Secondary Muscle Targets"
               value={
                 secondaryMuscles.length > 0
-                  ? secondaryMuscles.join(" · ")
+                  ? secondaryMuscles.map(formatMuscleGroup).join(" · ")
                   : "None"
               }
             />
           </div>
+        </section>
+
+        <section>
+          <Text variant="h3" className="mb-4">
+            Variants
+          </Text>
+          {exercise.variants.length === 0 ? (
+            <Text variant="p" className="text-gray-500 dark:text-gray-300">
+              No variants for this exercise.
+            </Text>
+          ) : (
+            <div className="grid grid-cols-2 gap-6 sm:grid-cols-3">
+              {exercise.variants.map((variant) => (
+                <Metric
+                  key={variant._id}
+                  label={variant.name}
+                  value={formatExerciseMetrics(variant.metrics)}
+                />
+              ))}
+            </div>
+          )}
         </section>
 
         <section>
@@ -80,35 +115,39 @@ const ExerciseOverviewPage = () => {
                   reverse={true}
                 />
               </div>
-              <div className="grid grid-cols-2 gap-6 sm:grid-cols-3">
-                <Metric
-                  label="Total Volume"
-                  value={formatVolume(stats.totalVolume)}
-                  reverse={true}
-                />
-                <Metric
-                  label="Max Volume"
-                  value={formatVolume(stats.maxVolume)}
-                  reverse={true}
-                />
-                <Metric
-                  label="Average Volume"
-                  value={formatVolume(stats.totalVolume / stats.days)}
-                  reverse={true}
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-6 sm:grid-cols-3">
-                <Metric
-                  label="Max Weight (PR)"
-                  value={formatWeight(stats.maxWeight)}
-                  reverse={true}
-                />
-                <Metric
-                  label="Best 1RM"
-                  value={formatWeight(Math.round(stats.bestOneRepMax))}
-                  reverse={true}
-                />
-              </div>
+              {showLoadStats ? (
+                <>
+                  <div className="grid grid-cols-2 gap-6 sm:grid-cols-3">
+                    <Metric
+                      label="Total Volume"
+                      value={formatVolume(stats.totalVolume)}
+                      reverse={true}
+                    />
+                    <Metric
+                      label="Max Volume"
+                      value={formatVolume(stats.maxVolume)}
+                      reverse={true}
+                    />
+                    <Metric
+                      label="Average Volume"
+                      value={formatVolume(stats.averageVolume)}
+                      reverse={true}
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-6 sm:grid-cols-3">
+                    <Metric
+                      label="Max Weight (PR)"
+                      value={formatWeight(stats.maxWeight)}
+                      reverse={true}
+                    />
+                    <Metric
+                      label="Best 1RM"
+                      value={formatWeight(Math.round(stats.bestOneRepMax))}
+                      reverse={true}
+                    />
+                  </div>
+                </>
+              ) : null}
             </div>
           )}
         </section>

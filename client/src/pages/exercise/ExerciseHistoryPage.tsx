@@ -4,9 +4,13 @@ import Text from "@/components/ui/Text";
 import Card from "@/components/ui/Card";
 import {
   formatDate,
+  formatEquipment,
+  formatSetDuration,
   formatVolume,
-  getExerciseVolume,
   formatWeight,
+  getExerciseVolume,
+  getSetSequenceLabel,
+  hasWeightedStats,
 } from "@/utils/workoutUtils";
 import {
   estimateOneRepMax,
@@ -14,6 +18,49 @@ import {
 } from "@/utils/exerciseUtils";
 import { ExerciseOutletContext } from "@/pages/exercise/ExerciseLayout";
 import Metric from "@/components/ui/Metric";
+import { ExerciseSet, WorkoutExercise } from "@/types/entities";
+
+const SetMetrics = ({
+  exercise,
+  set,
+}: {
+  exercise: WorkoutExercise;
+  set: ExerciseSet;
+}) => {
+  if (exercise.metrics.includes("duration") && set.duration != null) {
+    return (
+      <span className="text-gray-600 dark:text-gray-300">
+        {formatSetDuration(set.duration)}
+      </span>
+    );
+  }
+
+  const showWeight =
+    exercise.metrics.includes("weight") && set.weight != null && set.weight > 0;
+  const showReps = exercise.metrics.includes("reps") && set.reps != null;
+
+  if (showWeight && showReps) {
+    return (
+      <div className="flex items-center gap-2">
+        <span className="font-medium text-green-600 dark:text-green-300">
+          {formatWeight(set.weight!)}
+        </span>
+        <strong>x</strong>
+        <span className="text-gray-600 dark:text-gray-300">
+          {set.reps} reps
+        </span>
+      </div>
+    );
+  }
+
+  if (showReps) {
+    return (
+      <span className="text-gray-600 dark:text-gray-300">{set.reps} reps</span>
+    );
+  }
+
+  return null;
+};
 
 /**
  * Exercise history tab — workouts that include this movement.
@@ -23,8 +70,8 @@ const ExerciseHistoryPage = () => {
     useOutletContext<ExerciseOutletContext>();
 
   const performances = useMemo(
-    () => getWorkoutsForExercise(workouts, exercise.name),
-    [workouts, exercise.name],
+    () => getWorkoutsForExercise(workouts, exercise._id),
+    [workouts, exercise._id],
   );
 
   return (
@@ -49,62 +96,92 @@ const ExerciseHistoryPage = () => {
         </Card>
       ) : (
         <div className="flex flex-col gap-4">
-          {performances.map(({ workout, sets }) => (
-            <Card key={workout._id} href={`/workouts/${workout._id}`}>
-              <div className="flex items-center justify-between gap-3 mb-4">
-                <div className="flex flex-col">
-                  <Text variant="h3">
-                    {workout.title || "Untitled Workout"}
-                  </Text>
-                  <Text className="text-xs text-gray-500 dark:text-gray-300">
-                    {formatDate(workout.date)}
-                  </Text>
-                </div>
-                <div>
-                  <Metric
-                    label="Volume"
-                    value={formatVolume(getExerciseVolume(sets))}
-                    reverse={true}
-                    className="text-right"
-                  />
-                </div>
-              </div>
-              <div className="flex items-center justify-between gap-3 mb-2">
-                <Text className="text-gray-800 dark:text-gray-200 font-medium">
-                  Sets
-                </Text>
-                <Text className="text-gray-800 dark:text-gray-200 font-medium">
-                  1 RM
-                </Text>
-              </div>
-              <div className="flex flex-col gap-2">
-                {sets.map((set, setIndex) => (
-                  <div
-                    key={setIndex}
-                    className="flex items-center justify-between gap-3"
-                  >
-                    <div className="flex items-center gap-2">
-                      <span className="min-w-5 font-semibold text-blue-500 dark:text-blue-300 bg-gray-200 dark:bg-gray-800 rounded-md px-2 py-1">
-                        {setIndex + 1}
-                      </span>
-                      <span className="font-medium text-green-600 dark:text-green-300">
-                        {set.weight} kg
-                      </span>
-                      <strong>x</strong>
-                      <span className="text-gray-600 dark:text-gray-300">
-                        {set.reps} reps
-                      </span>
-                    </div>
-                    <span className="shrink-0 font-medium text-gray-600 dark:text-gray-100">
-                      {formatWeight(
-                        Math.round(estimateOneRepMax(set.weight, set.reps)),
-                      )}
-                    </span>
+          {performances.map(({ workout, lines }) => {
+            const showSessionVolume = lines.some(hasWeightedStats);
+            const sessionVolume = lines.reduce(
+              (total, line) => total + getExerciseVolume(line.sets),
+              0,
+            );
+
+            return (
+              <Card key={workout._id} href={`/workouts/${workout._id}`}>
+                <div className="flex items-center justify-between gap-3 mb-4">
+                  <div className="flex flex-col">
+                    <Text variant="h3">
+                      {workout.title || "Untitled Workout"}
+                    </Text>
+                    <Text className="text-xs text-gray-500 dark:text-gray-300">
+                      {formatDate(workout.date)}
+                    </Text>
                   </div>
-                ))}
-              </div>
-            </Card>
-          ))}
+                  {showSessionVolume && (
+                    <Metric
+                      label="Volume"
+                      value={formatVolume(sessionVolume)}
+                      reverse={true}
+                      className="text-right"
+                    />
+                  )}
+                </div>
+
+                <div className="flex flex-col gap-6">
+                  {lines.map((line, lineIndex) => {
+                    const showLoadStats = hasWeightedStats(line);
+
+                    return (
+                      <div className="app-tile rounded-md border border-gray-200 bg-gray-100 p-4 dark:border-transparent" key={line._id ?? `${line.variantId}-${lineIndex}`}>
+                        <div className="mb-2">
+                          <Text className="text-gray-800 dark:text-gray-200 font-medium">
+                            {line.name}
+                          </Text>
+                          <Text className="text-xs text-gray-500 dark:text-gray-300">
+                            {formatEquipment(line.equipment)}
+                          </Text>
+                        </div>
+                        <div className="flex items-center justify-between gap-3 mb-2">
+                          <Text className="text-gray-800 dark:text-gray-200 font-medium">
+                            Sets ({line.sets.length})
+                          </Text>
+                          {showLoadStats && (
+                            <Text className="text-gray-800 dark:text-gray-200 font-medium">
+                              1 RM
+                            </Text>
+                          )}
+                        </div>
+                        <div className="flex flex-col gap-2">
+                          {line.sets.map((set, setIndex) => (
+                            <div
+                              key={set._id ?? setIndex}
+                              className="flex items-center justify-between gap-3"
+                            >
+                              <div className="flex items-center gap-2">
+                                <span className="min-w-6 h-6 flex items-center justify-center font-semibold text-xs text-blue-500 dark:text-blue-300 bg-gray-200 dark:bg-gray-800 rounded-md px-1 py-0.5">
+                                  {getSetSequenceLabel(line.sets, setIndex)}
+                                </span>
+                                <SetMetrics exercise={line} set={set} />
+                              </div>
+                              {showLoadStats && (
+                                <span className="shrink-0 font-medium text-gray-600 dark:text-gray-100">
+                                  {formatWeight(
+                                    Math.round(
+                                      estimateOneRepMax(
+                                        set.weight ?? 0,
+                                        set.reps ?? 0,
+                                      ),
+                                    ),
+                                  )}
+                                </span>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </Card>
+            );
+          })}
         </div>
       )}
     </div>

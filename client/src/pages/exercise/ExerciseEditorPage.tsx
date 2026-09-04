@@ -5,7 +5,7 @@ import ExerciseFormContent, {
   ExerciseFormValues,
   isExerciseFormValid,
 } from "@/components/exercise/ExerciseFormContent";
-import { catalogExerciseToFormValues } from "@/utils/exerciseUtils";
+import { exerciseToFormValues } from "@/utils/exerciseUtils";
 import { ExerciseOutletContext } from "@/pages/exercise/ExerciseLayout";
 
 /**
@@ -16,12 +16,12 @@ const ExerciseEditorPage = () => {
   const navigate = useNavigate();
   const { exercise, exerciseId } = useOutletContext<ExerciseOutletContext>();
   const [values, setValues] = useState<ExerciseFormValues>(() =>
-    catalogExerciseToFormValues(exercise),
+    exerciseToFormValues(exercise),
   );
   const [submitAttempted, setSubmitAttempted] = useState(false);
 
   useEffect(() => {
-    setValues(catalogExerciseToFormValues(exercise));
+    setValues(exerciseToFormValues(exercise));
   }, [exercise]);
 
   const handleCancel = () => {

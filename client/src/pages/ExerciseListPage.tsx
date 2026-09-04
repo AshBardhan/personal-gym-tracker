@@ -1,50 +1,75 @@
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import { Dot, MoreVertical, Search } from "lucide-react";
-import {
-  CatalogExercise,
-  TARGET_MUSCLES,
-  createExerciseCatalog,
-} from "@/constants/exercises";
+import { Exercise, MuscleGroup } from "@/types/entities";
+import { useExercises } from "@/hooks/useExercises";
 import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import DropdownMenu from "@/components/ui/DropdownMenu";
 import Input from "@/components/ui/Input";
-import MultiSelect from "@/components/ui/MultiSelect";
+import MultiSelect, { MultiSelectOption } from "@/components/ui/MultiSelect";
 import Text from "@/components/ui/Text";
 import PageContainer from "@/components/layout/PageContainer";
 import clsx from "clsx";
+import {
+  EXERCISE_CATEGORY_ORDER,
+  MUSCLES_BY_CATEGORY,
+  formatCategory,
+  formatMuscleGroup,
+} from "@/utils/workoutUtils";
 
-const muscleOptions = TARGET_MUSCLES.map((muscle) => ({
-  value: muscle,
-  label: muscle,
-}));
+const getExerciseMuscles = (exercise: Exercise): MuscleGroup[] => [
+  exercise.primaryMuscleGroup,
+  ...(exercise.secondaryMuscleGroups ?? []),
+];
 
 const ExerciseListPage = () => {
-  const [exercises, setExercises] = useState<CatalogExercise[]>(() =>
-    createExerciseCatalog(),
-  );
+  const { exercises, setExercises, loading, error } = useExercises();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedMuscles, setSelectedMuscles] = useState<string[]>([]);
 
   const searchQueryTrimmed = searchQuery.trim();
   const isSearching = searchQueryTrimmed.length > 0;
 
+  const muscleOptions = useMemo((): MultiSelectOption[] => {
+    const present = new Set(
+      exercises.flatMap((exercise) => getExerciseMuscles(exercise)),
+    );
+
+    return EXERCISE_CATEGORY_ORDER.flatMap((category) =>
+      MUSCLES_BY_CATEGORY[category]
+        .filter((muscle) => present.has(muscle))
+        .map((muscle) => ({
+          value: muscle,
+          label: formatMuscleGroup(muscle),
+          group: formatCategory(category),
+        })),
+    );
+  }, [exercises]);
+
   const filteredExercises = useMemo(() => {
     const query = searchQueryTrimmed.toLowerCase();
 
     const matched = exercises.filter((exercise) => {
+      const muscles = getExerciseMuscles(exercise);
+      const categoryLabel = formatCategory(exercise.category);
+
       const matchesSearch =
         !query ||
         exercise.name.toLowerCase().includes(query) ||
         exercise.category.toLowerCase().includes(query) ||
-        exercise.muscleGroup.some((muscle) =>
-          muscle.toLowerCase().includes(query),
+        categoryLabel.toLowerCase().includes(query) ||
+        muscles.some(
+          (muscle) =>
+            muscle.toLowerCase().includes(query) ||
+            formatMuscleGroup(muscle).toLowerCase().includes(query),
         );
 
       const matchesMuscles =
         selectedMuscles.length === 0 ||
-        selectedMuscles.some((muscle) => exercise.muscleGroup.includes(muscle));
+        selectedMuscles.some((muscle) =>
+          muscles.includes(muscle as MuscleGroup),
+        );
 
       return matchesSearch && matchesMuscles;
     });
@@ -53,29 +78,35 @@ const ExerciseListPage = () => {
   }, [exercises, searchQueryTrimmed, selectedMuscles]);
 
   const exerciseGroups = useMemo(() => {
-    const groups = new Map<string, CatalogExercise[]>();
+    const groups = new Map<string, Exercise[]>();
 
     for (const exercise of filteredExercises) {
-      const category = exercise.category || "Other";
-      const items = groups.get(category) ?? [];
+      const items = groups.get(exercise.category) ?? [];
       items.push(exercise);
-      groups.set(category, items);
+      groups.set(exercise.category, items);
     }
 
-    return Array.from(groups.entries())
-      .sort(([a], [b]) => a.localeCompare(b))
-      .map(([label, items]) => ({ label, items }));
+    return EXERCISE_CATEGORY_ORDER.filter((category) =>
+      groups.has(category),
+    ).map((category) => ({
+      label: formatCategory(category),
+      items: groups.get(category) ?? [],
+    }));
   }, [filteredExercises]);
 
   const handleClone = (id: string) => {
-    const source = exercises.find((exercise) => exercise.id === id);
+    const source = exercises.find((exercise) => exercise._id === id);
     if (!source) return;
 
-    const clone: CatalogExercise = {
+    const clone: Exercise = {
       ...source,
-      id: `${source.id}-copy-${crypto.randomUUID()}`,
+      _id: `${source._id}-copy-${crypto.randomUUID()}`,
       name: `${source.name} (copy)`,
-      muscleGroup: [...source.muscleGroup],
+      isCustom: true,
+      secondaryMuscleGroups: source.secondaryMuscleGroups
+        ? [...source.secondaryMuscleGroups]
+        : undefined,
+      variants: source.variants.map((variant) => ({ ...variant })),
     };
 
     setExercises((prev) => [clone, ...prev]);
@@ -83,13 +114,23 @@ const ExerciseListPage = () => {
 
   const handleDelete = (id: string) => {
     if (window.confirm("Are you sure you want to delete this exercise?")) {
-      setExercises((prev) => prev.filter((exercise) => exercise.id !== id));
+      setExercises((prev) => prev.filter((exercise) => exercise._id !== id));
     }
   };
 
   const handleRemoveMuscle = (muscle: string) => {
     setSelectedMuscles((prev) => prev.filter((item) => item !== muscle));
   };
+
+  if (error) {
+    return (
+      <div className="flex flex-1 min-h-0 items-center justify-center">
+        <Text variant="p" className="text-red-600 text-lg">
+          {error}
+        </Text>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-0 w-full flex-1 flex-col overflow-hidden">
@@ -114,6 +155,7 @@ const ExerciseListPage = () => {
                   inputSize="small"
                   className="pl-9"
                   aria-label="Search exercises by name, category, or muscle group"
+                  disabled={loading}
                 />
               </div>
 
@@ -144,7 +186,7 @@ const ExerciseListPage = () => {
             <div className="flex flex-wrap items-center gap-2">
               {selectedMuscles.map((muscle) => (
                 <Badge key={muscle} onRemove={() => handleRemoveMuscle(muscle)}>
-                  {muscle}
+                  {formatMuscleGroup(muscle)}
                 </Badge>
               ))}
               <button
@@ -161,7 +203,11 @@ const ExerciseListPage = () => {
 
       <div className="min-h-0 flex-1 overflow-y-auto">
         <PageContainer className="py-4 sm:py-6">
-          {exercises.length === 0 ? (
+          {loading ? (
+            <Text variant="p" className="text-gray-500 dark:text-gray-300">
+              Loading exercises...
+            </Text>
+          ) : exercises.length === 0 ? (
             <div className="app-card rounded-lg bg-white py-12 text-center shadow-md">
               <Text
                 variant="p"
@@ -183,35 +229,35 @@ const ExerciseListPage = () => {
               </Text>
             </div>
           ) : isSearching ? (
-              <div className="flex flex-col gap-4">
-                {filteredExercises.map((exercise) => (
-                  <ExerciseCard
-                    key={exercise.id}
-                    exercise={exercise}
-                    onClone={handleClone}
-                    onDelete={handleDelete}
-                  />
-                ))}
-              </div>
-            ) : (
-              <div className="flex flex-col gap-8">
-                {exerciseGroups.map((group) => (
-                  <section key={group.label} className="flex flex-col gap-4">
-                    <Text variant="h3" className="m-0">
-                      {group.label}
-                    </Text>
-                    {group.items.map((exercise) => (
-                      <ExerciseCard
-                        key={exercise.id}
-                        exercise={exercise}
-                        onClone={handleClone}
-                        onDelete={handleDelete}
-                      />
-                    ))}
-                  </section>
-                ))}
-              </div>
-            )}
+            <div className="flex flex-col gap-4">
+              {filteredExercises.map((exercise) => (
+                <ExerciseCard
+                  key={exercise._id}
+                  exercise={exercise}
+                  onClone={handleClone}
+                  onDelete={handleDelete}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="flex flex-col gap-8">
+              {exerciseGroups.map((group) => (
+                <section key={group.label} className="flex flex-col gap-4">
+                  <Text variant="h3" className="m-0">
+                    {group.label} ({group.items.length})
+                  </Text>
+                  {group.items.map((exercise) => (
+                    <ExerciseCard
+                      key={exercise._id}
+                      exercise={exercise}
+                      onClone={handleClone}
+                      onDelete={handleDelete}
+                    />
+                  ))}
+                </section>
+              ))}
+            </div>
+          )}
         </PageContainer>
       </div>
     </div>
@@ -219,16 +265,16 @@ const ExerciseListPage = () => {
 };
 
 type ExerciseCardProps = {
-  exercise: CatalogExercise;
+  exercise: Exercise;
   onClone: (id: string) => void;
   onDelete: (id: string) => void;
 };
 
 const ExerciseCard = ({ exercise, onClone, onDelete }: ExerciseCardProps) => {
-  const muscleGroups = exercise.muscleGroup;
+  const muscleGroups = getExerciseMuscles(exercise);
 
   return (
-    <Card className="relative" href={`/exercises/${exercise.id}`}>
+    <Card className="relative" href={`/exercises/${exercise._id}`}>
       <div
         className="absolute top-2 right-2 z-10"
         onClick={(event) => {
@@ -242,12 +288,12 @@ const ExerciseCard = ({ exercise, onClone, onDelete }: ExerciseCardProps) => {
           items={[
             {
               label: "Clone",
-              onClick: () => onClone(exercise.id),
+              onClick: () => onClone(exercise._id),
             },
             {
               label: "Delete",
               variant: "danger",
-              onClick: () => onDelete(exercise.id),
+              onClick: () => onDelete(exercise._id),
             },
           ]}
         />
@@ -258,10 +304,9 @@ const ExerciseCard = ({ exercise, onClone, onDelete }: ExerciseCardProps) => {
         {muscleGroups.length > 0 && (
           <div className="flex flex-wrap items-center gap-1">
             {muscleGroups.map((muscle, index) => (
-              <>
+              <Fragment key={muscle}>
                 <Text
                   variant="p"
-                  key={muscle}
                   className={clsx(
                     "text-xs",
                     index === 0
@@ -269,10 +314,10 @@ const ExerciseCard = ({ exercise, onClone, onDelete }: ExerciseCardProps) => {
                       : "text-gray-500 dark:text-gray-300",
                   )}
                 >
-                  {muscle}
+                  {formatMuscleGroup(muscle)}
                 </Text>
                 {index < muscleGroups.length - 1 && <Dot size={16} />}
-              </>
+              </Fragment>
             ))}
           </div>
         )}

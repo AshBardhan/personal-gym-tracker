@@ -1,17 +1,17 @@
 import { NavLink, Outlet, useNavigate, useParams } from "react-router-dom";
 import { MoreVertical } from "lucide-react";
 import clsx from "clsx";
-import { CatalogExercise, getCatalogExerciseById } from "@/constants/exercises";
+import { useExercise } from "@/hooks/useExercise";
 import { useWorkouts } from "@/hooks/useWorkouts";
 import { config } from "@/config/env";
-import { Workout } from "@/types/workout";
+import { Exercise, Workout } from "@/types/entities";
 import Button from "@/components/ui/Button";
 import Text from "@/components/ui/Text";
 import PageContainer from "@/components/layout/PageContainer";
 import DropdownMenu from "@/components/ui/DropdownMenu";
 
 export interface ExerciseOutletContext {
-  exercise: CatalogExercise;
+  exercise: Exercise;
   exerciseId: string;
   workouts: Workout[];
   workoutsLoading: boolean;
@@ -24,7 +24,7 @@ export interface ExerciseOutletContext {
 const ExerciseLayout = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const exercise = id ? getCatalogExerciseById(id) : undefined;
+  const { exercise, loading, error } = useExercise(id);
   const { workouts, loading: workoutsLoading } = useWorkouts(
     config.user.DEMO_USER_ID,
   );
@@ -36,11 +36,21 @@ const ExerciseLayout = () => {
     navigate("/exercises");
   };
 
-  if (!exercise || !id) {
+  if (loading && !exercise) {
+    return (
+      <div className="flex flex-1 min-h-0 items-center justify-center">
+        <Text variant="p" className="text-lg text-gray-600 dark:text-gray-300">
+          Loading exercise...
+        </Text>
+      </div>
+    );
+  }
+
+  if (error || !exercise || !id) {
     return (
       <div className="flex flex-1 min-h-0 flex-col items-center justify-center gap-6">
         <Text variant="p" className="text-red-600 text-lg">
-          Exercise not found
+          {error || "Exercise not found"}
         </Text>
         <Button variant="primary" to="/exercises">
           ← Back to exercises
