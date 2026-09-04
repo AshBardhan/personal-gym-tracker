@@ -2,6 +2,7 @@ import type { ExerciseFormValues } from "@/components/exercise/ExerciseFormConte
 import type {
   Exercise,
   ExerciseSet,
+  SetType,
   Workout,
   WorkoutExercise,
 } from "@/types/entities";
@@ -128,4 +129,38 @@ export const getExerciseStats = (performances: ExercisePerformance[]) => {
     maxWeight,
     bestOneRepMax,
   };
+};
+
+export const SET_TYPE_LABELS: Record<SetType, string> = {
+  warmup: "W",
+  drop: "D",
+  failure: "F",
+  regular: "R",
+};
+
+export const getSetTypeLabel = (
+  sets: { type: SetType }[],
+  index: number,
+): string => {
+  const type = sets[index]?.type ?? "regular";
+  if (type !== "regular") {
+    return SET_TYPE_LABELS[type];
+  }
+
+  return String(
+    sets.slice(0, index + 1).filter((set) => set.type === "regular").length,
+  );
+};
+
+export const getSetTypeThemeClass = (type: SetType = "regular"): string => {
+  switch (type) {
+    case "warmup":
+      return "text-green-700 dark:text-green-300 bg-green-200 dark:bg-green-800";
+    case "drop":
+      return "text-yellow-700 dark:text-yellow-300 bg-yellow-200 dark:bg-yellow-800";
+    case "failure":
+      return "text-red-700 dark:text-red-300 bg-red-200 dark:bg-red-800";
+    default:
+      return "text-blue-700 dark:text-blue-300 bg-blue-200 dark:bg-blue-800";
+  }
 };

@@ -29,18 +29,7 @@ const WorkoutEditorPage = () => {
     loadWorkoutData({
       title: workout.title || "",
       date: new Date(workout.date).toISOString().split("T")[0],
-      exercises: workout.exercises.map((exercise) => ({
-        name: exercise.name,
-        category: exercise.category,
-        muscleGroup: [
-          exercise.primaryMuscleGroup,
-          ...(exercise.secondaryMuscleGroups ?? []),
-        ],
-        sets: exercise.sets.map((set) => ({
-          reps: set.reps ?? 0,
-          weight: set.weight ?? 0,
-        })),
-      })),
+      exercises: workout.exercises,
     });
   }, [workout, loadWorkoutData]);
 
@@ -60,7 +49,7 @@ const WorkoutEditorPage = () => {
     try {
       await workoutService.update(workoutId, {
         userId,
-        title: formData.title || undefined,
+        title: formData.title,
         date: formData.date,
         exercises: getValidExercises(),
       });

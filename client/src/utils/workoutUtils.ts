@@ -1,15 +1,13 @@
-import { Exercise } from "@/types/workout";
 import {
   Equipment,
+  Exercise,
   ExerciseCategory,
   ExerciseMetric,
+  ExerciseSet,
+  ExerciseVariant,
   MuscleGroup,
-  SetType,
+  WorkoutExercise,
 } from "@/types/entities";
-import {
-  PREDEFINED_EXERCISES,
-  PredefinedExercise,
-} from "@/constants/exercises";
 import { SelectOption } from "@/components/ui/SelectBox";
 
 type LoadSet = {
@@ -30,31 +28,99 @@ type VolumeWorkout = {
 // VALIDATION UTILITIES
 // ============================================================
 
-/**
- * Check if an exercise is valid (has name and at least one set with data)
- */
-export const isValidExercise = (exercise: Exercise): boolean => {
-  return Boolean(
-    exercise.name.trim() &&
-      exercise.sets.length > 0 &&
-      exercise.sets.some((set) => set.reps > 0 || set.weight > 0),
+export const createEmptySet = (): ExerciseSet => ({ type: "regular" });
+
+export const createEmptyWorkoutExercise = (): WorkoutExercise => ({
+  exerciseId: "",
+  variantId: "",
+  name: "",
+  category: "full_body",
+  primaryMuscleGroup: "abs",
+  equipment: "other",
+  metrics: ["weight", "reps"],
+  sets: [createEmptySet()],
+});
+
+export const pruneSetToMetrics = (
+  set: ExerciseSet,
+  metrics: ExerciseMetric[],
+): ExerciseSet => {
+  const next: ExerciseSet = { type: set.type };
+  if (set._id) next._id = set._id;
+  if (metrics.includes("reps")) next.reps = set.reps;
+  if (metrics.includes("weight")) next.weight = set.weight;
+  if (metrics.includes("duration")) next.duration = set.duration;
+  return next;
+};
+
+export const snapshotWorkoutExercise = (
+  catalog: Exercise,
+  variant: ExerciseVariant,
+  previous?: WorkoutExercise,
+): WorkoutExercise => ({
+  _id: previous?._id,
+  exerciseId: catalog._id,
+  variantId: variant._id,
+  name: catalog.name,
+  category: catalog.category,
+  primaryMuscleGroup: catalog.primaryMuscleGroup,
+  secondaryMuscleGroups: catalog.secondaryMuscleGroups
+    ? [...catalog.secondaryMuscleGroups]
+    : undefined,
+  equipment: variant.equipment,
+  metrics: variant.metrics,
+  sets: (previous?.sets.length ? previous.sets : [createEmptySet()]).map(
+    (set) => pruneSetToMetrics(set, variant.metrics),
+  ),
+});
+
+export const isValidSetForMetrics = (
+  set: ExerciseSet,
+  metrics: ExerciseMetric[],
+): boolean => {
+  if (metrics.includes("duration")) {
+    return (set.duration ?? 0) > 0;
+  }
+  if (metrics.includes("reps")) {
+    return (set.reps ?? 0) > 0;
+  }
+  return (set.weight ?? 0) > 0;
+};
+
+export const serializeWorkoutSet = (
+  set: ExerciseSet,
+  metrics: ExerciseMetric[],
+): ExerciseSet => {
+  const next: ExerciseSet = { type: set.type };
+  if (set._id) next._id = set._id;
+  if (metrics.includes("reps") && (set.reps ?? 0) > 0) next.reps = set.reps;
+  if (metrics.includes("weight") && (set.weight ?? 0) > 0) {
+    next.weight = set.weight;
+  }
+  if (metrics.includes("duration") && (set.duration ?? 0) > 0) {
+    next.duration = set.duration;
+  }
+  return next;
+};
+
+/** Catalog pick + at least one set with values for this variant's metrics. */
+export const isValidWorkoutExercise = (exercise: WorkoutExercise): boolean =>
+  Boolean(
+    exercise.exerciseId &&
+      exercise.variantId &&
+      exercise.name.trim() &&
+      exercise.sets.some((set) => isValidSetForMetrics(set, exercise.metrics)),
   );
-};
 
-/**
- * Check if there is at least one valid exercise in the array
- */
-export const hasValidExercises = (exercises: Exercise[]): boolean => {
-  const validExercises = exercises.filter(isValidExercise);
-  return validExercises.length > 0;
-};
-
-/**
- * Filter and return only valid exercises
- */
-export const getValidExercises = (exercises: Exercise[]): Exercise[] => {
-  return exercises.filter(isValidExercise);
-};
+export const getValidWorkoutExercises = (
+  exercises: WorkoutExercise[],
+): WorkoutExercise[] =>
+  exercises.filter(isValidWorkoutExercise).map((exercise) => ({
+    ...exercise,
+    sets: exercise.sets
+      .filter((set) => isValidSetForMetrics(set, exercise.metrics))
+      .map((set) => serializeWorkoutSet(set, exercise.metrics)),
+  }));
 
 // ============================================================
 // CALCULATION UTILITIES
@@ -197,51 +263,29 @@ export const getEquipmentDistribution = (workout: {
   return toDistribution(totals);
 };
 
-// ============================================================
-// EXERCISE UTILITIES
-// ============================================================
+export const getCatalogExerciseOptions = (
+  exercises: Exercise[],
+): SelectOption[] =>
+  [...exercises]
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .map((exercise) => ({
+      value: exercise._id,
+      label: exercise.name,
+      searchTerms: [
+        formatCategory(exercise.category),
+        formatMuscleGroup(exercise.primaryMuscleGroup),
+        ...(exercise.secondaryMuscleGroups ?? []).map(formatMuscleGroup),
+      ],
+    }));
 
-/**
- * Get exercises filtered by category
- */
-export const getExercisesByCategory = (
-  category: string,
-): PredefinedExercise[] => {
-  return PREDEFINED_EXERCISES.filter((ex) => ex.category === category);
-};
-
-/**
- * Search exercises by name, category, or muscle group
- */
-export const searchExercises = (query: string): PredefinedExercise[] => {
-  const lowerQuery = query.toLowerCase();
-  return PREDEFINED_EXERCISES.filter(
-    (ex) =>
-      ex.name.toLowerCase().includes(lowerQuery) ||
-      ex.category.toLowerCase().includes(lowerQuery) ||
-      ex.muscleGroup.some((muscle) =>
-        muscle.toLowerCase().includes(lowerQuery),
-      ),
-  );
-};
-
-/**
- * Get all exercise names sorted alphabetically
- */
-export const getAllExerciseNames = (): string[] => {
-  return PREDEFINED_EXERCISES.map((ex) => ex.name).sort();
-};
-
-/**
- * Convert exercises to SelectBox options format
- */
-export const getExerciseOptions = (): SelectOption[] => {
-  return PREDEFINED_EXERCISES.map((exercise) => ({
-    value: exercise.name,
-    label: exercise.name,
-    searchTerms: [exercise.category, ...exercise.muscleGroup],
+export const getVariantOptions = (
+  variants: ExerciseVariant[],
+): SelectOption[] =>
+  variants.map((variant) => ({
+    value: variant._id,
+    label: variant.name,
+    searchTerms: [formatEquipment(variant.equipment)],
   }));
-};
 
 // ============================================================
 // FORMATTING UTILITIES
@@ -392,24 +436,3 @@ export const formatExerciseMetrics = (metrics: ExerciseMetric[]): string => {
 
 export const formatSetDuration = (durationSec: number): string =>
   `${durationSec}s`;
-
-const SET_TYPE_BADGE: Record<Exclude<SetType, "regular">, string> = {
-  warmup: "W",
-  drop: "D",
-  failure: "F",
-};
-
-/** Warmup/drop/failure keep a letter; working sets are numbered 1, 2, 3… */
-export const getSetSequenceLabel = (
-  sets: { type: SetType }[],
-  index: number,
-): string => {
-  const type = sets[index]?.type ?? "regular";
-  if (type !== "regular") {
-    return SET_TYPE_BADGE[type];
-  }
-
-  return String(
-    sets.slice(0, index + 1).filter((set) => set.type === "regular").length,
-  );
-};

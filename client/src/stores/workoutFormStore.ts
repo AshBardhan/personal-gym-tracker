@@ -1,48 +1,47 @@
 import { create } from "zustand";
-import { Exercise } from "@/types/workout";
+import { ExerciseSet, WorkoutExercise } from "@/types/entities";
+import {
+  createEmptySet,
+  createEmptyWorkoutExercise,
+  getValidWorkoutExercises,
+  isValidWorkoutExercise,
+} from "@/utils/workoutUtils";
 
 interface WorkoutFormState {
-  // Form data
   formData: {
     title: string;
     date: string;
   };
-  exercises: Exercise[];
+  exercises: WorkoutExercise[];
   submitAttempted: boolean;
   loading: boolean;
 
-  // Actions
   setFormData: (data: { title: string; date: string }) => void;
   updateFormField: (field: "title" | "date", value: string) => void;
-  setExercises: (exercises: Exercise[]) => void;
+  setExercises: (exercises: WorkoutExercise[]) => void;
   setLoading: (loading: boolean) => void;
   setSubmitAttempted: (attempted: boolean) => void;
 
-  // Exercise actions
   addExercise: () => void;
   removeExercise: (index: number) => void;
-  updateExercise: (index: number, updates: Partial<Exercise>) => void;
+  updateExercise: (index: number, updates: Partial<WorkoutExercise>) => void;
 
-  // Set actions
   addSet: (exerciseIndex: number) => void;
   removeSet: (exerciseIndex: number, setIndex: number) => void;
   updateSet: (
     exerciseIndex: number,
     setIndex: number,
-    field: "reps" | "weight",
-    value: number,
+    updates: Partial<ExerciseSet>,
   ) => void;
 
-  // Validation
-  getValidExercises: () => Exercise[];
+  getValidExercises: () => WorkoutExercise[];
   hasValidExercises: () => boolean;
 
-  // Reset
   resetForm: () => void;
   loadWorkoutData: (data: {
     title: string;
     date: string;
-    exercises: Exercise[];
+    exercises: WorkoutExercise[];
   }) => void;
 }
 
@@ -51,18 +50,14 @@ const initialFormData = {
   date: new Date().toISOString().split("T")[0],
 };
 
-const initialExercises: Exercise[] = [
-  { name: "", sets: [{ reps: 0, weight: 0 }] },
-];
+const initialExercises: WorkoutExercise[] = [createEmptyWorkoutExercise()];
 
 export const useWorkoutForm = create<WorkoutFormState>((set, get) => ({
-  // Initial state
   formData: initialFormData,
   exercises: initialExercises,
   submitAttempted: false,
   loading: false,
 
-  // Form data actions
   setFormData: (data) => set({ formData: data }),
 
   updateFormField: (field, value) =>
@@ -76,13 +71,9 @@ export const useWorkoutForm = create<WorkoutFormState>((set, get) => ({
 
   setSubmitAttempted: (attempted) => set({ submitAttempted: attempted }),
 
-  // Exercise actions
   addExercise: () =>
     set((state) => ({
-      exercises: [
-        ...state.exercises,
-        { name: "", sets: [{ reps: 0, weight: 0 }] },
-      ],
+      exercises: [...state.exercises, createEmptyWorkoutExercise()],
     })),
 
   removeExercise: (index) =>
@@ -97,12 +88,11 @@ export const useWorkoutForm = create<WorkoutFormState>((set, get) => ({
       ),
     })),
 
-  // Set actions
   addSet: (exerciseIndex) =>
     set((state) => ({
       exercises: state.exercises.map((ex, idx) =>
         idx === exerciseIndex
-          ? { ...ex, sets: [...ex.sets, { reps: 0, weight: 0 }] }
+          ? { ...ex, sets: [...ex.sets, createEmptySet()] }
           : ex,
       ),
     })),
@@ -116,38 +106,28 @@ export const useWorkoutForm = create<WorkoutFormState>((set, get) => ({
       ),
     })),
 
-  updateSet: (exerciseIndex, setIndex, field, value) =>
+  updateSet: (exerciseIndex, setIndex, updates) =>
     set((state) => ({
       exercises: state.exercises.map((ex, exIdx) =>
         exIdx === exerciseIndex
           ? {
               ...ex,
               sets: ex.sets.map((s, sIdx) =>
-                sIdx === setIndex ? { ...s, [field]: value } : s,
+                sIdx === setIndex ? { ...s, ...updates } : s,
               ),
             }
           : ex,
       ),
     })),
 
-  // Validation
-  getValidExercises: () => {
-    const { exercises } = get();
-    return exercises.filter(
-      (ex) => ex.name.trim() && ex.sets.some((s) => s.reps > 0),
-    );
-  },
+  getValidExercises: () => getValidWorkoutExercises(get().exercises),
 
-  hasValidExercises: () => {
-    const validExercises = get().getValidExercises();
-    return validExercises.length > 0;
-  },
+  hasValidExercises: () => get().exercises.some(isValidWorkoutExercise),
 
-  // Reset
   resetForm: () =>
     set({
       formData: initialFormData,
-      exercises: initialExercises,
+      exercises: [createEmptyWorkoutExercise()],
       submitAttempted: false,
       loading: false,
     }),
@@ -155,7 +135,17 @@ export const useWorkoutForm = create<WorkoutFormState>((set, get) => ({
   loadWorkoutData: (data) =>
     set({
       formData: { title: data.title, date: data.date },
-      exercises: data.exercises,
+      exercises:
+        data.exercises.length > 0
+          ? data.exercises.map((exercise) => ({
+              ...exercise,
+              secondaryMuscleGroups: exercise.secondaryMuscleGroups
+                ? [...exercise.secondaryMuscleGroups]
+                : undefined,
+              metrics: [...exercise.metrics],
+              sets: exercise.sets.map((set) => ({ ...set })),
+            }))
+          : [createEmptyWorkoutExercise()],
       loading: false,
     }),
 }));

@@ -1,5 +1,5 @@
 import apiClient from "@/services/apiClient";
-import { User } from "@/types/workout";
+import { User } from "@/types/entities";
 import { AxiosResponse } from "axios";
 
 /**

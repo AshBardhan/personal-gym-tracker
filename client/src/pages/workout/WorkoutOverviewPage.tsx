@@ -7,7 +7,6 @@ import {
   formatWeight,
   formatEquipment,
   formatSetDuration,
-  getSetSequenceLabel,
   hasWeightedStats,
   hasWorkoutWeightedVolume,
   getTotalSets,
@@ -18,8 +17,9 @@ import Card from "@/components/ui/Card";
 import Metric from "@/components/ui/Metric";
 import Tile from "@/components/ui/Tile";
 import { WorkoutOutletContext } from "@/pages/workout/WorkoutLayout";
-import { estimateOneRepMax } from "@/utils/exerciseUtils";
+import { estimateOneRepMax, getSetTypeLabel } from "@/utils/exerciseUtils";
 import { ExerciseSet, WorkoutExercise } from "@/types/entities";
+import { SetTypeBadge } from "@/components/exercise/SetTypeBadge";
 
 const SetMetrics = ({
   exercise,
@@ -152,9 +152,9 @@ const WorkoutOverviewPage = () => {
                             className="flex items-center justify-between gap-3"
                           >
                             <div className="flex items-center gap-2">
-                              <span className="min-w-6 h-6 flex items-center justify-center font-semibold text-xs text-blue-500 dark:text-blue-300 bg-gray-200 dark:bg-gray-800 rounded-md px-1 py-0.5">
-                                {getSetSequenceLabel(exercise.sets, setIndex)}
-                              </span>
+                              <SetTypeBadge type={set.type} size="small">
+                                {getSetTypeLabel(exercise.sets, setIndex)}
+                              </SetTypeBadge>
                               <SetMetrics exercise={exercise} set={set} />
                             </div>
                             {showLoadStats && (

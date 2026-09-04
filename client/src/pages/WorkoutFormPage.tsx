@@ -42,7 +42,7 @@ const WorkoutFormPage = () => {
     try {
       await workoutService.create({
         userId,
-        title: formData.title || undefined,
+        title: formData.title,
         date: formData.date,
         exercises: getValidExercises(),
       });
