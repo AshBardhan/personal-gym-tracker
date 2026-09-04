@@ -77,14 +77,16 @@ export const mockWorkouts: Workout[] = [
     line(
       "squats",
       "smith_machine",
-      load([15, 20, "warmup"], [12, 90], [10, 120], [8, 150], [4, 160, "failure"]),
+      load(
+        [15, 20, "warmup"],
+        [12, 90],
+        [10, 120],
+        [8, 150],
+        [4, 160, "failure"],
+      ),
     ),
     line("romanian-deadlift", "barbell", load([10, 80], [8, 90], [8, 90])),
-    line(
-      "leg-curl",
-      "machine",
-      load([12, 40], [10, 45], [10, 45, "failure"]),
-    ),
+    line("leg-curl", "machine", load([12, 40], [10, 45], [10, 45, "failure"])),
     line(
       "bulgarian-split-squats",
       "dumbbell",
@@ -108,7 +110,13 @@ export const mockWorkouts: Workout[] = [
     line(
       "lateral-raises",
       "cable",
-      load([20, 5, "warmup"], [15, 8], [12, 10, "drop"], [12, 10], [15, 6, "drop"]),
+      load(
+        [20, 5, "warmup"],
+        [15, 8],
+        [12, 10, "drop"],
+        [12, 10],
+        [15, 6, "drop"],
+      ),
     ),
     line(
       "bicep-curls",
@@ -119,11 +127,7 @@ export const mockWorkouts: Workout[] = [
     line("battle-ropes", "other", timed(30, 30, [20, "failure"])),
   ]),
   workout("8", "Legs", "2026-09-03", [
-    line(
-      "squats",
-      "barbell",
-      load([8, 60, "warmup"], [8, 110], [6, 120]),
-    ),
+    line("squats", "barbell", load([8, 60, "warmup"], [8, 110], [6, 120])),
     line("leg-press", "machine", load([12, 160], [10, 180], [8, 200])),
     line("lunges", "dumbbell", load([10, 22.5], [10, 22.5], [8, 25])),
     line(
@@ -139,11 +143,7 @@ export const mockWorkouts: Workout[] = [
     line("swings", "kettlebell", load([15, 24], [12, 24], [12, 28])),
   ]),
   workout("7", "Pull", "2026-09-02", [
-    line(
-      "deadlift",
-      "barbell",
-      load([5, 80, "warmup"], [4, 150], [3, 155]),
-    ),
+    line("deadlift", "barbell", load([5, 80, "warmup"], [4, 150], [3, 155])),
     line(
       "pull-ups",
       "body_weight",
@@ -151,29 +151,17 @@ export const mockWorkouts: Workout[] = [
     ),
     line("seated-row", "cable", load([12, 55], [10, 60], [10, 60])),
     line("bent-over-row", "dumbbell", load([10, 32.5], [10, 35], [8, 37.5])),
-    line(
-      "face-pulls",
-      "resistance_band",
-      repsOnly(15, 15, [12, "drop"]),
-    ),
+    line("face-pulls", "resistance_band", repsOnly(15, 15, [12, "drop"])),
     line("hammer-curls", "dumbbell", load([12, 16], [10, 18], [10, 18])),
   ]),
   workout("6", "Push", "2026-09-01", [
-    line(
-      "bench-press",
-      "barbell",
-      load([10, 50, "warmup"], [8, 85], [6, 90]),
-    ),
+    line("bench-press", "barbell", load([10, 50, "warmup"], [8, 85], [6, 90])),
     line(
       "incline-bench-press",
       "dumbbell",
       load([10, 30], [8, 32.5], [8, 32.5]),
     ),
-    line(
-      "pec-deck",
-      "machine",
-      load([12, 45], [12, 50], [10, 50, "drop"]),
-    ),
+    line("pec-deck", "machine", load([12, 45], [12, 50], [10, 50, "drop"])),
     line("chest-fly", "cable", load([15, 12.5], [12, 15], [12, 15])),
     line(
       "overhead-tricep-extension",
@@ -221,11 +209,7 @@ export const mockWorkouts: Workout[] = [
     ),
   ]),
   workout("3", "Legs", "2026-08-26", [
-    line(
-      "leg-press",
-      "machine",
-      load([12, 90, "warmup"], [10, 170], [8, 190]),
-    ),
+    line("leg-press", "machine", load([12, 90, "warmup"], [10, 170], [8, 190])),
     line("hack-squats", "machine", load([10, 80], [8, 90], [8, 90])),
     line(
       "leg-extension",
@@ -241,11 +225,7 @@ export const mockWorkouts: Workout[] = [
     ),
   ]),
   workout("2", "Back", "2026-08-25", [
-    line(
-      "lat-pulldown",
-      "cable",
-      load([12, 35, "warmup"], [10, 60], [10, 65]),
-    ),
+    line("lat-pulldown", "cable", load([12, 35, "warmup"], [10, 60], [10, 65])),
     line("seated-row", "cable", load([12, 50], [10, 55], [10, 55])),
     line(
       "face-pulls",
@@ -256,21 +236,9 @@ export const mockWorkouts: Workout[] = [
     line("shrugs", "machine", load([12, 40], [10, 45], [10, 45, "failure"])),
   ]),
   workout("1", "Chest", "2026-08-24", [
-    line(
-      "bench-press",
-      "machine",
-      load([10, 40, "warmup"], [8, 75], [8, 80]),
-    ),
+    line("bench-press", "machine", load([10, 40, "warmup"], [8, 75], [8, 80])),
     line("incline-bench-press", "machine", load([10, 50], [8, 55], [8, 55])),
-    line(
-      "pec-deck",
-      "machine",
-      load([12, 40], [12, 45], [10, 45, "drop"]),
-    ),
-    line(
-      "chest-fly",
-      "cable",
-      load([15, 12.5], [12, 15], [12, 15, "failure"]),
-    ),
+    line("pec-deck", "machine", load([12, 40], [12, 45], [10, 45, "drop"])),
+    line("chest-fly", "cable", load([15, 12.5], [12, 15], [12, 15, "failure"])),
   ]),
 ];

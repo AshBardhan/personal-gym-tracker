@@ -13,6 +13,7 @@ import {
 import Text from "@/components/ui/Text";
 import Card from "@/components/ui/Card";
 import Metric from "@/components/ui/Metric";
+import Tile from "@/components/ui/Tile";
 import { WorkoutOutletContext } from "@/pages/workout/WorkoutLayout";
 
 interface DistributionSectionProps {
@@ -27,15 +28,17 @@ const DistributionSection = ({
   items,
 }: DistributionSectionProps) => (
   <section>
-    <Text variant="h3" className="mb-4">
+    <Text variant="h3" className="mb-2">
       {title}
     </Text>
     {items.length === 0 ? (
-      <Text variant="p" className="text-gray-500 dark:text-gray-300">
-        {emptyMessage}
-      </Text>
+      <Tile>
+        <Text variant="p" className="text-gray-500 dark:text-gray-300">
+          {emptyMessage}
+        </Text>
+      </Tile>
     ) : (
-      <div className="grid grid-cols-3 gap-4">
+      <Tile className="grid grid-cols-3 gap-4">
         {items.map(({ label, percent }) => (
           <Metric
             key={label}
@@ -44,7 +47,7 @@ const DistributionSection = ({
             reverse={true}
           />
         ))}
-      </div>
+      </Tile>
     )}
   </section>
 );
@@ -71,22 +74,22 @@ const WorkoutAnalyticsPage = () => {
       </div>
 
       <Card className="min-h-[16rem]">
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           <section>
-            <Text variant="h3" className="mb-4">
+            <Text variant="h3" className="mb-2">
               Stats
             </Text>
-            <div className="grid grid-cols-3 gap-4">
-              {showVolume ? (
+            <Tile className="grid grid-cols-3 gap-4">
+              <Metric label="Sets" value={totalSets} reverse={true} />
+              <Metric label="Reps" value={totalReps} reverse={true} />
+              {showVolume && (
                 <Metric
                   label="Volume"
                   value={formatVolume(totalVolume)}
                   reverse={true}
                 />
-              ) : null}
-              <Metric label="Sets" value={totalSets} reverse={true} />
-              <Metric label="Reps" value={totalReps} reverse={true} />
-            </div>
+              )}
+            </Tile>
           </section>
 
           <DistributionSection

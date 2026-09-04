@@ -8,6 +8,7 @@ import Button from "@/components/ui/Button";
 import SelectBox from "@/components/ui/SelectBox";
 import Text from "@/components/ui/Text";
 import Card from "@/components/ui/Card";
+import Tile from "@/components/ui/Tile";
 
 interface WorkoutFormContentProps {
   onSubmit: (e: FormEvent) => void;
@@ -118,10 +119,7 @@ const WorkoutFormContent = ({ onSubmit, header }: WorkoutFormContentProps) => {
               !exercise.name.trim();
 
             return (
-              <div
-                key={exerciseIndex}
-                className="app-tile relative mb-6 rounded-lg border border-gray-300 bg-gray-50 p-4 dark:border-transparent"
-              >
+              <Tile key={exerciseIndex} className="relative mb-6">
                 <div className="absolute top-2 right-2 flex">
                   <Button
                     type="button"
@@ -221,7 +219,7 @@ const WorkoutFormContent = ({ onSubmit, header }: WorkoutFormContentProps) => {
                     </Button>
                   </div>
                 </div>
-              </div>
+              </Tile>
             );
           })}
 

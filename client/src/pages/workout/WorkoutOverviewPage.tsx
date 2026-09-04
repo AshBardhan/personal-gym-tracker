@@ -16,6 +16,7 @@ import {
 import Text from "@/components/ui/Text";
 import Card from "@/components/ui/Card";
 import Metric from "@/components/ui/Metric";
+import Tile from "@/components/ui/Tile";
 import { WorkoutOutletContext } from "@/pages/workout/WorkoutLayout";
 import { estimateOneRepMax } from "@/utils/exerciseUtils";
 import { ExerciseSet, WorkoutExercise } from "@/types/entities";
@@ -82,44 +83,38 @@ const WorkoutOverviewPage = () => {
         </Text>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           <Metric label="Date" value={formatDetailDate(workout.date)} />
-        <div className="flex items-center justify-between gap-6">
-          <Metric label="Sets" value={getTotalSets(workout)} reverse={true} />
-          <Metric label="Reps" value={getTotalReps(workout)} reverse={true} />
-          {hasWorkoutWeightedVolume(workout) && (
-            <Metric
-              label="Volume"
-              className="text-right"
-              reverse={true}
-              value={formatVolume(getTotalVolume(workout))}
-            />
-          )}
-        </div>
-
+          <div className="flex items-center justify-between gap-6">
+            <Metric label="Sets" value={getTotalSets(workout)} reverse={true} />
+            <Metric label="Reps" value={getTotalReps(workout)} reverse={true} />
+            {hasWorkoutWeightedVolume(workout) && (
+              <Metric
+                label="Volume"
+                className="text-right"
+                reverse={true}
+                value={formatVolume(getTotalVolume(workout))}
+              />
+            )}
+          </div>
         </div>
 
         <div>
           <Text variant="h3" className="mb-4">
-            Exercises{" "}
-            {workout.exercises.length > 0
-              ? `(${workout.exercises.length})`
-              : ""}
+            Exercises ({workout.exercises.length})
           </Text>
           {workout.exercises.length === 0 ? (
-            <Text
-              variant="p"
-              className="app-tile rounded bg-gray-50 py-8 text-center text-gray-500 dark:bg-neutral-950 dark:text-gray-300"
-            >
-              No exercises added to this workout
-            </Text>
+            <Tile>
+              <Text variant="p" className="text-gray-500 dark:text-gray-300">
+                No exercises added to this workout
+              </Text>
+            </Tile>
           ) : (
             <div className="flex flex-col gap-4">
               {workout.exercises.map((exercise, index) => {
                 const showLoadStats = hasWeightedStats(exercise);
 
                 return (
-                  <div
+                  <Tile
                     key={`${exercise.exerciseId}-${exercise.variantId}-${index}`}
-                    className="app-tile rounded-md border border-gray-200 bg-gray-100 p-4 dark:border-transparent"
                   >
                     <div className="flex items-start justify-between gap-2 mb-2">
                       <div className="min-w-0">
@@ -178,7 +173,7 @@ const WorkoutOverviewPage = () => {
                         ))}
                       </div>
                     </div>
-                  </div>
+                  </Tile>
                 );
               })}
             </div>

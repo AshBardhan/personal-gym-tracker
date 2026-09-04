@@ -18,6 +18,7 @@ import {
 } from "@/utils/exerciseUtils";
 import { ExerciseOutletContext } from "@/pages/exercise/ExerciseLayout";
 import Metric from "@/components/ui/Metric";
+import Tile from "@/components/ui/Tile";
 import { ExerciseSet, WorkoutExercise } from "@/types/entities";
 
 const SetMetrics = ({
@@ -129,7 +130,7 @@ const ExerciseHistoryPage = () => {
                     const showLoadStats = hasWeightedStats(line);
 
                     return (
-                      <div className="app-tile rounded-md border border-gray-200 bg-gray-100 p-4 dark:border-transparent" key={line._id ?? `${line.variantId}-${lineIndex}`}>
+                      <Tile key={line._id ?? `${line.variantId}-${lineIndex}`}>
                         <div className="mb-2">
                           <Text className="text-gray-800 dark:text-gray-200 font-medium">
                             {line.name}
@@ -175,7 +176,7 @@ const ExerciseHistoryPage = () => {
                             </div>
                           ))}
                         </div>
-                      </div>
+                      </Tile>
                     );
                   })}
                 </div>

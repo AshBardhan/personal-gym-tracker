@@ -6,6 +6,7 @@ import Label from "@/components/ui/Label";
 export interface MultiSelectOption {
   value: string;
   label: string;
+  group?: string;
 }
 
 interface MultiSelectProps {
@@ -144,25 +145,35 @@ const MultiSelect = ({
               {placeholder}
             </li>
           )}
-          {options.map((option) => {
+          {options.map((option, index) => {
             const selected = value.includes(option.value);
+            const showGroup =
+              Boolean(option.group) &&
+              option.group !== options[index - 1]?.group;
+
             return (
-              <li
-                key={option.value}
-                role="option"
-                aria-selected={selected}
-                className={clsx(
-                  "flex cursor-pointer items-center gap-2 border-b border-gray-200 px-3 py-2.5 text-sm last:border-b-0 dark:border-white dark:text-white",
-                  selected
-                    ? "bg-gray-100 dark:bg-neutral-800"
-                    : "hover:bg-gray-100 dark:hover:bg-neutral-800",
+              <li key={option.value} className="list-none">
+                {showGroup && (
+                  <div className="sticky top-0 border-b border-gray-200 bg-gray-50 px-3 py-1.5 text-xs font-semibold text-gray-500 dark:border-white dark:bg-neutral-900 dark:text-gray-400">
+                    {option.group}
+                  </div>
                 )}
-                onClick={() => toggleOption(option.value)}
-              >
-                <span className="flex h-4 w-4 shrink-0 items-center justify-center">
-                  {selected && <Check size={14} />}
-                </span>
-                {option.label}
+                <div
+                  role="option"
+                  aria-selected={selected}
+                  className={clsx(
+                    "flex cursor-pointer items-center gap-2 border-b border-gray-200 px-3 py-2.5 text-sm last:border-b-0 dark:border-white dark:text-white",
+                    selected
+                      ? "bg-gray-100 dark:bg-neutral-800"
+                      : "hover:bg-gray-100 dark:hover:bg-neutral-800",
+                  )}
+                  onClick={() => toggleOption(option.value)}
+                >
+                  <span className="flex h-4 w-4 shrink-0 items-center justify-center">
+                    {selected && <Check size={14} />}
+                  </span>
+                  {option.label}
+                </div>
               </li>
             );
           })}

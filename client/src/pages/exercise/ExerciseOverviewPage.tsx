@@ -3,6 +3,7 @@ import { useOutletContext } from "react-router-dom";
 import Text from "@/components/ui/Text";
 import Card from "@/components/ui/Card";
 import Metric from "@/components/ui/Metric";
+import Tile from "@/components/ui/Tile";
 import {
   formatCategory,
   formatExerciseMetrics,
@@ -42,12 +43,12 @@ const ExerciseOverviewPage = () => {
         </Text>
       </div>
 
-      <Card className="flex flex-col gap-8">
+      <Card className="flex flex-col gap-6">
         <section>
-          <Text variant="h3" className="mb-4">
+          <Text variant="h3" className="mb-2">
             Details
           </Text>
-          <div className="grid grid-cols-2 gap-6 sm:grid-cols-3">
+          <Tile className="grid grid-cols-2 gap-6 sm:grid-cols-3">
             <Metric
               label="Category"
               value={formatCategory(exercise.category)}
@@ -56,27 +57,27 @@ const ExerciseOverviewPage = () => {
               label="Primary Muscle Target"
               value={formatMuscleGroup(exercise.primaryMuscleGroup)}
             />
-            <Metric
-              label="Secondary Muscle Targets"
-              value={
-                secondaryMuscles.length > 0
-                  ? secondaryMuscles.map(formatMuscleGroup).join(" · ")
-                  : "None"
-              }
-            />
-          </div>
+            {secondaryMuscles.length > 0 && (
+              <Metric
+                label="Secondary Muscle Targets"
+                value={secondaryMuscles.map(formatMuscleGroup).join(" · ")}
+              />
+            )}
+          </Tile>
         </section>
 
         <section>
-          <Text variant="h3" className="mb-4">
+          <Text variant="h3" className="mb-2">
             Variants
           </Text>
           {exercise.variants.length === 0 ? (
-            <Text variant="p" className="text-gray-500 dark:text-gray-300">
-              No variants for this exercise.
-            </Text>
+            <Tile>
+              <Text variant="p" className="text-gray-500 dark:text-gray-300">
+                No variants for this exercise.
+              </Text>
+            </Tile>
           ) : (
-            <div className="grid grid-cols-2 gap-6 sm:grid-cols-3">
+            <Tile className="grid grid-cols-2 gap-6 sm:grid-cols-3">
               {exercise.variants.map((variant) => (
                 <Metric
                   key={variant._id}
@@ -84,38 +85,40 @@ const ExerciseOverviewPage = () => {
                   value={formatExerciseMetrics(variant.metrics)}
                 />
               ))}
-            </div>
+            </Tile>
           )}
         </section>
 
         <section>
-          <Text variant="h3" className="mb-4">
+          <Text variant="h3" className="mb-2">
             Stats
           </Text>
           {workoutsLoading ? (
-            <Text variant="p" className="text-gray-500 dark:text-gray-300">
-              Loading stats...
-            </Text>
+            <Tile>
+              <Text variant="p" className="text-gray-500 dark:text-gray-300">
+                Loading stats...
+              </Text>
+            </Tile>
           ) : (
-            <div className="flex flex-col gap-8">
+            <Tile className="flex flex-col gap-8">
               <div className="grid grid-cols-2 gap-6 sm:grid-cols-3">
                 <Metric
-                  label={`Day${stats.days > 1 ? "s" : ""}`}
+                  label={`Day${stats.days > 1 && "s"}`}
                   value={stats.days}
                   reverse={true}
                 />
                 <Metric
-                  label={`Total ${stats.totalSets > 1 ? "Sets" : "Set"}`}
+                  label={`Total Set${stats.totalSets > 1 && "s"}`}
                   value={stats.totalSets}
                   reverse={true}
                 />
                 <Metric
-                  label={`Total ${stats.totalReps > 1 ? "Reps" : "Rep"}`}
+                  label={`Total Rep${stats.totalReps > 1 && "s"}`}
                   value={stats.totalReps}
                   reverse={true}
                 />
               </div>
-              {showLoadStats ? (
+              {showLoadStats && (
                 <>
                   <div className="grid grid-cols-2 gap-6 sm:grid-cols-3">
                     <Metric
@@ -147,8 +150,8 @@ const ExerciseOverviewPage = () => {
                     />
                   </div>
                 </>
-              ) : null}
-            </div>
+              )}
+            </Tile>
           )}
         </section>
       </Card>

@@ -208,26 +208,29 @@ const ExerciseListPage = () => {
               Loading exercises...
             </Text>
           ) : exercises.length === 0 ? (
-            <div className="app-card rounded-lg bg-white py-12 text-center shadow-md">
+            <Card className="h-60 flex flex-col items-center justify-center">
+              <Text variant="h3" className="mb-2">
+                No exercises found.
+              </Text>
               <Text
                 variant="p"
-                className="mb-6 text-lg text-gray-500 dark:text-gray-300"
+                className="mb-6 text-gray-500 dark:text-gray-300"
               >
-                No exercises found. Add your first exercise to get started.
+                Add your first exercise to get started.
               </Text>
               <Button variant="primary" size="large" to="/exercise/new">
                 New Exercise
               </Button>
-            </div>
+            </Card>
           ) : filteredExercises.length === 0 ? (
-            <div className="app-card rounded-lg bg-white py-12 text-center shadow-md">
-              <Text
-                variant="p"
-                className="text-lg text-gray-500 dark:text-gray-300"
-              >
-                No exercises match the current filters
+            <Card className="h-60 flex flex-col items-center justify-center">
+              <Text variant="h3" className="mb-2">
+                No matching exercises found.
               </Text>
-            </div>
+              <Text variant="p" className="text-gray-500 dark:text-gray-300">
+                Clear all filters to see all exercises.
+              </Text>
+            </Card>
           ) : isSearching ? (
             <div className="flex flex-col gap-4">
               {filteredExercises.map((exercise) => (

@@ -175,26 +175,30 @@ const WorkoutListPage = () => {
               )}
             </div>
           ) : workouts.length === 0 ? (
-            <div className="app-card rounded-lg bg-white py-12 text-center shadow-md">
+            <Card className="h-60 flex flex-col items-center justify-center">
+              <Text variant="h3" className="mb-2">
+                No workouts found.
+              </Text>
               <Text
                 variant="p"
-                className="mb-6 text-lg text-gray-500 dark:text-gray-300"
+                className="mb-6 text-gray-500 dark:text-gray-300"
               >
-                No workouts found. Start tracking your fitness journey!
+                Start tracking your fitness journey by creating your first
+                workout.
               </Text>
               <Button variant="primary" to="/workouts/new" size="large">
                 Create Your First Workout
               </Button>
-            </div>
+            </Card>
           ) : filteredWorkouts.length === 0 ? (
-            <div className="app-card rounded-lg bg-white py-12 text-center shadow-md">
-              <Text
-                variant="p"
-                className="text-lg text-gray-500 dark:text-gray-300"
-              >
-                No workouts match &ldquo;{searchQuery.trim()}&rdquo;
+            <Card className="h-60 flex flex-col items-center justify-center">
+              <Text variant="h3" className="mb-2">
+                No matching workouts found.
               </Text>
-            </div>
+              <Text variant="p" className="text-gray-500 dark:text-gray-300">
+                Clear all filters to see all workouts.
+              </Text>
+            </Card>
           ) : isSearching ? (
             <WorkoutCardList
               workouts={filteredWorkouts}
@@ -333,13 +337,13 @@ const WorkoutGridCard = ({ workout, onDelete }: WorkoutCardProps) => {
           reverse={true}
         />
         <Metric label="Sets" value={getTotalSets(workout)} reverse={true} />
-        {showVolume ? (
+        {showVolume && (
           <Metric
             label="Volume"
             value={formatVolume(getTotalVolume(workout))}
             reverse={true}
           />
-        ) : null}
+        )}
       </div>
       <div className="absolute top-2 right-2">
         <Button
@@ -382,13 +386,13 @@ const WorkoutListCard = ({ workout, onDelete }: WorkoutCardProps) => {
           reverse={true}
         />
         <Metric label="Sets" value={getTotalSets(workout)} reverse={true} />
-        {showVolume ? (
+        {showVolume && (
           <Metric
             label="Volume"
             value={formatVolume(getTotalVolume(workout))}
             reverse={true}
           />
-        ) : null}
+        )}
       </div>
       <div className="absolute top-2 right-2">
         <Button
