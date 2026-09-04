@@ -2,47 +2,64 @@ import { FormEvent, useEffect, useState } from "react";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import WorkoutFormHeader from "@/components/workout/WorkoutFormHeader";
 import ExerciseFormContent, {
-  ExerciseFormValues,
+  ExerciseFormData,
   isExerciseFormValid,
 } from "@/components/exercise/ExerciseFormContent";
-import { exerciseToFormValues } from "@/utils/exerciseUtils";
+import {
+  buildExerciseWritePayload,
+  getExerciseFormData,
+} from "@/utils/exerciseUtils";
+import { exerciseService } from "@/services/exercises.service";
 import { ExerciseOutletContext } from "@/pages/exercise/ExerciseLayout";
 
 /**
  * Exercise editor tab — edit name, category, and target muscles.
- * Persistence is deferred until the backend service exists.
  */
 const ExerciseEditorPage = () => {
   const navigate = useNavigate();
-  const { exercise, exerciseId } = useOutletContext<ExerciseOutletContext>();
-  const [values, setValues] = useState<ExerciseFormValues>(() =>
-    exerciseToFormValues(exercise),
+  const { exercise, exerciseId, refetchExercise } =
+    useOutletContext<ExerciseOutletContext>();
+  const [formData, setFormData] = useState<ExerciseFormData>(() =>
+    getExerciseFormData(exercise),
   );
   const [submitAttempted, setSubmitAttempted] = useState(false);
 
   useEffect(() => {
-    setValues(exerciseToFormValues(exercise));
+    setFormData(getExerciseFormData(exercise));
   }, [exercise]);
 
   const handleCancel = () => {
     navigate(`/exercises/${exerciseId}`);
   };
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setSubmitAttempted(true);
 
-    if (!isExerciseFormValid(values)) {
+    if (!isExerciseFormValid(formData)) {
       return;
     }
 
-    navigate(`/exercises/${exerciseId}`);
+    try {
+      await exerciseService.update(
+        exerciseId,
+        buildExerciseWritePayload(formData, {
+          userId: exercise.userId,
+          variants: exercise.variants,
+          isCustom: exercise.isCustom,
+        }),
+      );
+      await refetchExercise();
+      navigate(`/exercises/${exerciseId}`);
+    } catch (error) {
+      console.error("Error saving exercise:", error);
+    }
   };
 
   return (
     <ExerciseFormContent
-      values={values}
-      onChange={setValues}
+      formData={formData}
+      onChange={setFormData}
       onSubmit={handleSubmit}
       submitAttempted={submitAttempted}
       header={

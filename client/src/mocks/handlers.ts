@@ -5,11 +5,13 @@ import {
   mockUser,
   mockWorkouts,
 } from "@/mocks/data";
-import { Workout } from "@/types/entities";
+import { Exercise, Workout } from "@/types/entities";
 
 const API_URL = "http://localhost:5000";
 
+let exercisesStore = [...mockExercises];
 let workoutsStore = [...mockWorkouts];
+let nextExerciseId = 100;
 let nextWorkoutId = 11;
 
 export const handlers = [
@@ -34,16 +36,69 @@ export const handlers = [
   }),
 
   http.get(`${API_URL}/api/exercises`, () => {
-    return HttpResponse.json(mockExercises);
+    return HttpResponse.json(exercisesStore);
   }),
 
   http.get(`${API_URL}/api/exercises/:id`, ({ params }) => {
     const { id } = params;
-    const exercise = mockExercises.find((item) => item._id === id);
+    const exercise = exercisesStore.find((item) => item._id === id);
     if (!exercise) {
       return new HttpResponse(null, { status: 404 });
     }
     return HttpResponse.json(exercise);
+  }),
+
+  http.post(`${API_URL}/api/exercises`, async ({ request }) => {
+    const body = (await request.json()) as Omit<
+      Exercise,
+      "_id" | "createdAt" | "updatedAt"
+    >;
+    const now = new Date().toISOString();
+
+    const newExercise: Exercise = {
+      _id: `ex-custom-${nextExerciseId++}`,
+      createdAt: now,
+      updatedAt: now,
+      name: body.name,
+      category: body.category,
+      primaryMuscleGroup: body.primaryMuscleGroup,
+      secondaryMuscleGroups: body.secondaryMuscleGroups,
+      isCustom: body.isCustom ?? true,
+      userId: body.userId ?? MOCK_USER_ID,
+      variants: body.variants,
+    };
+
+    exercisesStore.push(newExercise);
+    return HttpResponse.json(newExercise, { status: 201 });
+  }),
+
+  http.put(`${API_URL}/api/exercises/:id`, async ({ params, request }) => {
+    const { id } = params;
+    const body = (await request.json()) as Partial<Exercise>;
+    const index = exercisesStore.findIndex((item) => item._id === id);
+
+    if (index === -1) {
+      return new HttpResponse(null, { status: 404 });
+    }
+
+    exercisesStore[index] = {
+      ...exercisesStore[index],
+      ...body,
+      _id: exercisesStore[index]._id,
+      createdAt: exercisesStore[index].createdAt,
+      updatedAt: new Date().toISOString(),
+    };
+    return HttpResponse.json(exercisesStore[index]);
+  }),
+
+  http.delete(`${API_URL}/api/exercises/:id`, ({ params }) => {
+    const { id } = params;
+    const index = exercisesStore.findIndex((item) => item._id === id);
+    if (index === -1) {
+      return new HttpResponse(null, { status: 404 });
+    }
+    const deleted = exercisesStore.splice(index, 1)[0];
+    return HttpResponse.json(deleted);
   }),
 
   http.get(`${API_URL}/api/workouts/:userId`, ({ params }) => {

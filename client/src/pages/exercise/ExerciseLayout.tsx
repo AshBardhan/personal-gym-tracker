@@ -2,6 +2,7 @@ import { NavLink, Outlet, useNavigate, useParams } from "react-router-dom";
 import { MoreVertical } from "lucide-react";
 import clsx from "clsx";
 import { useExercise } from "@/hooks/useExercise";
+import { useExerciseMutation } from "@/hooks/useExerciseMutation";
 import { useWorkouts } from "@/hooks/useWorkouts";
 import { config } from "@/config/env";
 import { Exercise, Workout } from "@/types/entities";
@@ -15,6 +16,7 @@ export interface ExerciseOutletContext {
   exerciseId: string;
   workouts: Workout[];
   workoutsLoading: boolean;
+  refetchExercise: () => Promise<void>;
 }
 
 /**
@@ -24,16 +26,21 @@ export interface ExerciseOutletContext {
 const ExerciseLayout = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { exercise, loading, error } = useExercise(id);
+  const { exercise, loading, error, refetch } = useExercise(id);
+  const { deleteExercise } = useExerciseMutation();
   const { workouts, loading: workoutsLoading } = useWorkouts(
     config.user.DEMO_USER_ID,
   );
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (!window.confirm("Are you sure you want to delete this exercise?")) {
       return;
     }
-    navigate("/exercises");
+
+    const deleted = await deleteExercise(id!);
+    if (deleted) {
+      navigate("/exercises");
+    }
   };
 
   if (loading && !exercise) {
@@ -70,6 +77,7 @@ const ExerciseLayout = () => {
     exerciseId: id,
     workouts,
     workoutsLoading,
+    refetchExercise: refetch,
   };
 
   return (

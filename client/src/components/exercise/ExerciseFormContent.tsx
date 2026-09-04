@@ -1,56 +1,85 @@
 import { FormEvent, ReactNode, useMemo } from "react";
-import { EXERCISE_CATEGORIES, TARGET_MUSCLES } from "@/constants/exercises";
+import {
+  ExerciseCategory,
+  MuscleGroup,
+} from "@/types/entities";
+import {
+  getCategoryOptions,
+  getGroupedMuscleOptions,
+  getMuscleSelectOptions,
+  isExerciseFormValid,
+} from "@/utils/exerciseUtils";
 import Input from "@/components/ui/Input";
 import SelectBox from "@/components/ui/SelectBox";
 import MultiSelect from "@/components/ui/MultiSelect";
 import Badge from "@/components/ui/Badge";
 import Card from "@/components/ui/Card";
+import { formatCategory, formatMuscleGroup } from "@/utils/workoutUtils";
 
-export type ExerciseFormValues = {
+export type ExerciseFormData = {
   name: string;
-  category: string;
-  primaryMuscle: string;
-  secondaryMuscles: string[];
+  category: ExerciseCategory | "";
+  primaryMuscleGroup: MuscleGroup | "";
+  secondaryMuscleGroups: MuscleGroup[];
 };
 
 interface ExerciseFormContentProps {
-  values: ExerciseFormValues;
-  onChange: (values: ExerciseFormValues) => void;
+  formData: ExerciseFormData;
+  onChange: (formData: ExerciseFormData) => void;
   onSubmit: (e: FormEvent) => void;
   header?: ReactNode;
   submitAttempted?: boolean;
 }
 
-export const isExerciseFormValid = (values: ExerciseFormValues) =>
-  values.name.trim().length > 0 &&
-  values.category.trim().length > 0 &&
-  values.primaryMuscle.trim().length > 0;
+export { isExerciseFormValid };
 
-const categoryOptions = Object.values(EXERCISE_CATEGORIES).map((category) => ({
-  value: category,
-  label: category,
-}));
-
-const muscleOptions = TARGET_MUSCLES.map((muscle) => ({
-  value: muscle,
-  label: muscle,
-}));
+const categoryOptions = getCategoryOptions();
 
 const ExerciseFormContent = ({
-  values,
+  formData,
   onChange,
   onSubmit,
   header,
   submitAttempted = false,
 }: ExerciseFormContentProps) => {
-  const secondaryOptions = useMemo(
-    () =>
-      muscleOptions.filter((option) => option.value !== values.primaryMuscle),
-    [values.primaryMuscle],
+  const primaryMuscleOptions = useMemo(
+    () => getMuscleSelectOptions(formData.category),
+    [formData.category],
   );
 
-  const categoryError = !values.category.trim();
-  const primaryMuscleError = !values.primaryMuscle.trim();
+  const secondaryOptions = useMemo(() => {
+    const options = formData.category
+      ? getMuscleSelectOptions(formData.category).map((option) => ({
+          ...option,
+          group: formatCategory(formData.category),
+        }))
+      : getGroupedMuscleOptions();
+
+    return options.filter(
+      (option) => option.value !== formData.primaryMuscleGroup,
+    );
+  }, [formData.category, formData.primaryMuscleGroup]);
+
+  const categoryError = !formData.category;
+  const primaryMuscleError = !formData.primaryMuscleGroup;
+
+  const handleCategoryChange = (category: string) => {
+    const nextCategory = category as ExerciseCategory;
+    const validMuscles = new Set(
+      getMuscleSelectOptions(nextCategory).map((option) => option.value),
+    );
+
+    onChange({
+      ...formData,
+      category: nextCategory,
+      primaryMuscleGroup: validMuscles.has(formData.primaryMuscleGroup)
+        ? formData.primaryMuscleGroup
+        : "",
+      secondaryMuscleGroups: formData.secondaryMuscleGroups.filter((muscle) =>
+        validMuscles.has(muscle),
+      ),
+    });
+  };
 
   return (
     <form onSubmit={onSubmit} noValidate className="flex flex-col">
@@ -62,8 +91,8 @@ const ExerciseFormContent = ({
           type="text"
           id="exercise-name"
           name="name"
-          value={values.name}
-          onChange={(e) => onChange({ ...values, name: e.target.value })}
+          value={formData.name}
+          onChange={(e) => onChange({ ...formData, name: e.target.value })}
           placeholder="e.g., Bench Press"
           validate={(value) => String(value).trim().length > 0}
           errorMessage="Exercise name is required"
@@ -74,8 +103,8 @@ const ExerciseFormContent = ({
         <SelectBox
           label="Category"
           id="exercise-category"
-          value={values.category}
-          onChange={(category) => onChange({ ...values, category })}
+          value={formData.category}
+          onChange={handleCategoryChange}
           options={categoryOptions}
           placeholder="Select category"
           allowCustomValue={false}
@@ -87,18 +116,22 @@ const ExerciseFormContent = ({
         <SelectBox
           label="Primary Target Muscle"
           id="exercise-primary-muscle"
-          value={values.primaryMuscle}
-          onChange={(primaryMuscle) =>
+          value={formData.primaryMuscleGroup}
+          onChange={(primaryMuscleGroup) =>
             onChange({
-              ...values,
-              primaryMuscle,
-              secondaryMuscles: values.secondaryMuscles.filter(
-                (muscle) => muscle !== primaryMuscle,
+              ...formData,
+              primaryMuscleGroup: primaryMuscleGroup as MuscleGroup,
+              secondaryMuscleGroups: formData.secondaryMuscleGroups.filter(
+                (muscle) => muscle !== primaryMuscleGroup,
               ),
             })
           }
-          options={muscleOptions}
-          placeholder="Select primary muscle"
+          options={primaryMuscleOptions}
+          placeholder={
+            formData.category
+              ? "Select primary muscle"
+              : "Select a category first"
+          }
           allowCustomValue={false}
           hasError={submitAttempted && primaryMuscleError}
           errorMessage="Primary target muscle is required"
@@ -109,9 +142,12 @@ const ExerciseFormContent = ({
           <MultiSelect
             label="Secondary Target Muscles"
             id="exercise-secondary-muscles"
-            value={values.secondaryMuscles}
-            onChange={(secondaryMuscles) =>
-              onChange({ ...values, secondaryMuscles })
+            value={formData.secondaryMuscleGroups}
+            onChange={(secondaryMuscleGroups) =>
+              onChange({
+                ...formData,
+                secondaryMuscleGroups: secondaryMuscleGroups as MuscleGroup[],
+              })
             }
             options={secondaryOptions}
             placeholder="Select secondary muscles"
@@ -119,26 +155,29 @@ const ExerciseFormContent = ({
             showEmptyOption={false}
           />
 
-          {values.secondaryMuscles.length > 0 && (
+          {formData.secondaryMuscleGroups.length > 0 && (
             <div className="flex flex-wrap items-center gap-2">
-              {values.secondaryMuscles.map((muscle) => (
+              {formData.secondaryMuscleGroups.map((muscle) => (
                 <Badge
                   key={muscle}
                   onRemove={() =>
                     onChange({
-                      ...values,
-                      secondaryMuscles: values.secondaryMuscles.filter(
-                        (item) => item !== muscle,
-                      ),
+                      ...formData,
+                      secondaryMuscleGroups:
+                        formData.secondaryMuscleGroups.filter(
+                          (item) => item !== muscle,
+                        ),
                     })
                   }
                 >
-                  {muscle}
+                  {formatMuscleGroup(muscle)}
                 </Badge>
               ))}
               <button
                 type="button"
-                onClick={() => onChange({ ...values, secondaryMuscles: [] })}
+                onClick={() =>
+                  onChange({ ...formData, secondaryMuscleGroups: [] })
+                }
                 className="cursor-pointer border-none bg-transparent px-1 py-1 text-sm font-medium text-blue-600 hover:text-blue-700 hover:underline dark:text-blue-400 dark:hover:text-blue-300"
               >
                 Clear All

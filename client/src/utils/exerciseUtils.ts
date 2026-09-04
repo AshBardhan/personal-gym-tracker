@@ -1,12 +1,21 @@
-import type { ExerciseFormValues } from "@/components/exercise/ExerciseFormContent";
+import { MultiSelectOption } from "@/components/ui/MultiSelect";
+import { SelectOption } from "@/components/ui/SelectBox";
+import type { ExerciseFormData } from "@/components/exercise/ExerciseFormContent";
 import type {
+  Equipment,
   Exercise,
+  ExerciseCategory,
+  ExerciseMetric,
   ExerciseSet,
+  ExerciseVariant,
+  MuscleGroup,
   SetType,
   Workout,
   WorkoutExercise,
 } from "@/types/entities";
 import {
+  EXERCISE_CATEGORY_ORDER,
+  MUSCLES_BY_CATEGORY,
   formatCategory,
   formatMuscleGroup,
   getExerciseVolume,
@@ -17,15 +26,91 @@ export type ExercisePerformance = {
   lines: WorkoutExercise[];
 };
 
-export const exerciseToFormValues = (
-  exercise: Exercise,
-): ExerciseFormValues => ({
+export type ExerciseWrite = Omit<Exercise, "_id" | "createdAt" | "updatedAt">;
+
+export const createEmptyExerciseFormData = (): ExerciseFormData => ({
+  name: "",
+  category: "",
+  primaryMuscleGroup: "",
+  secondaryMuscleGroups: [],
+});
+
+export const getExerciseFormData = (exercise: Exercise): ExerciseFormData => ({
   name: exercise.name,
-  category: formatCategory(exercise.category),
-  primaryMuscle: formatMuscleGroup(exercise.primaryMuscleGroup),
-  secondaryMuscles: (exercise.secondaryMuscleGroups ?? []).map(
-    formatMuscleGroup,
-  ),
+  category: exercise.category,
+  primaryMuscleGroup: exercise.primaryMuscleGroup,
+  secondaryMuscleGroups: [...(exercise.secondaryMuscleGroups ?? [])],
+});
+
+export const isExerciseFormValid = (formData: ExerciseFormData): boolean =>
+  formData.name.trim().length > 0 &&
+  formData.category !== "" &&
+  formData.primaryMuscleGroup !== "";
+
+export const getCategoryOptions = (): SelectOption[] =>
+  EXERCISE_CATEGORY_ORDER.map((category) => ({
+    value: category,
+    label: formatCategory(category),
+  }));
+
+export const getMuscleSelectOptions = (
+  category: ExerciseCategory | "",
+): SelectOption[] => {
+  if (!category) return [];
+
+  return MUSCLES_BY_CATEGORY[category].map((muscle) => ({
+    value: muscle,
+    label: formatMuscleGroup(muscle),
+  }));
+};
+
+export const getGroupedMuscleOptions = (): MultiSelectOption[] =>
+  EXERCISE_CATEGORY_ORDER.flatMap((category) =>
+    MUSCLES_BY_CATEGORY[category].map((muscle) => ({
+      value: muscle,
+      label: formatMuscleGroup(muscle),
+      group: formatCategory(category),
+    })),
+  );
+
+const slugify = (value: string): string =>
+  value
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "") || "custom";
+
+const createDefaultVariant = (name: string): ExerciseVariant => {
+  const slug = slugify(name);
+  const equipment: Equipment = "barbell";
+  const metrics: ExerciseMetric[] = ["weight", "reps"];
+
+  return {
+    _id: `var-${slug}-${equipment}`,
+    name: "Barbell",
+    equipment,
+    metrics,
+  };
+};
+
+export const buildExerciseWritePayload = (
+  formData: ExerciseFormData,
+  options: {
+    userId?: string;
+    variants?: ExerciseVariant[];
+    isCustom?: boolean;
+  } = {},
+): ExerciseWrite => ({
+  name: formData.name.trim(),
+  category: formData.category as ExerciseCategory,
+  primaryMuscleGroup: formData.primaryMuscleGroup as MuscleGroup,
+  secondaryMuscleGroups:
+    formData.secondaryMuscleGroups.length > 0
+      ? formData.secondaryMuscleGroups
+      : undefined,
+  isCustom: options.isCustom ?? true,
+  userId: options.userId,
+  variants: options.variants ?? [createDefaultVariant(formData.name)],
 });
 
 export const getWorkoutsForExercise = (

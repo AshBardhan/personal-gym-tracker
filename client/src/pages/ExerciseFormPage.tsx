@@ -3,47 +3,53 @@ import { useNavigate } from "react-router-dom";
 import PageContainer from "@/components/layout/PageContainer";
 import WorkoutFormHeader from "@/components/workout/WorkoutFormHeader";
 import ExerciseFormContent, {
-  ExerciseFormValues,
   isExerciseFormValid,
 } from "@/components/exercise/ExerciseFormContent";
-
-const emptyForm: ExerciseFormValues = {
-  name: "",
-  category: "",
-  primaryMuscle: "",
-  secondaryMuscles: [],
-};
+import { config } from "@/config/env";
+import { exerciseService } from "@/services/exercises.service";
+import {
+  buildExerciseWritePayload,
+  createEmptyExerciseFormData,
+} from "@/utils/exerciseUtils";
 
 /**
  * Create-exercise page at `/exercise/new`.
- * Persistence is deferred until the backend service exists.
  */
 const ExerciseFormPage = () => {
   const navigate = useNavigate();
-  const [values, setValues] = useState<ExerciseFormValues>(emptyForm);
+  const [formData, setFormData] = useState(createEmptyExerciseFormData);
   const [submitAttempted, setSubmitAttempted] = useState(false);
 
   const handleCancel = () => {
     navigate("/exercises");
   };
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setSubmitAttempted(true);
 
-    if (!isExerciseFormValid(values)) {
+    if (!isExerciseFormValid(formData)) {
       return;
     }
 
-    navigate("/exercises");
+    try {
+      await exerciseService.create(
+        buildExerciseWritePayload(formData, {
+          userId: config.user.DEMO_USER_ID,
+        }),
+      );
+      navigate("/exercises");
+    } catch (error) {
+      console.error("Error creating exercise:", error);
+    }
   };
 
   return (
     <div className="min-h-0 w-full flex-1 overflow-y-auto">
       <PageContainer className="py-4 sm:py-6">
         <ExerciseFormContent
-          values={values}
-          onChange={setValues}
+          formData={formData}
+          onChange={setFormData}
           onSubmit={handleSubmit}
           submitAttempted={submitAttempted}
           header={
