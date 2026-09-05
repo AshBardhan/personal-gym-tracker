@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import mongoose from "mongoose";
-import User from "./models/User.js";
+import User from "@/models/User.js";
 
 const createDemoUser = async (): Promise<void> => {
   try {

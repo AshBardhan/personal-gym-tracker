@@ -1,5 +1,5 @@
 import { Schema } from "mongoose";
-import { SET_TYPES, type SetType } from "../types/exercise.js";
+import { SET_TYPES, type SetType } from "@/types/exercise.js";
 
 /**
  * Subdocument — embedded in workout exercises, not a top-level collection.

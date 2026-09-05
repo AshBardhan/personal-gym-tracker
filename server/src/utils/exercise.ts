@@ -1,4 +1,4 @@
-import { ExerciseMetric, MetricSetValues } from "../types/exercise";
+import { ExerciseMetric, MetricSetValues } from "@/types/exercise.js";
 
 /** At least one of reps, weight, or duration must be selected. */
 export const hasAtLeastOneMetric = (metrics: ExerciseMetric[]): boolean =>

@@ -1,5 +1,5 @@
 import express, { Request, Response } from "express";
-import Workout from "../models/Workout.js";
+import Workout from "@/models/Workout.js";
 
 const router = express.Router();
 

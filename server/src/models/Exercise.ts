@@ -1,7 +1,7 @@
 import mongoose, { Document, Schema } from "mongoose";
-import { hasAtLeastOneMetric } from "../utils/exercise.js";
-import { type ExerciseCategory, type MuscleGroup, type Equipment, type ExerciseMetric } from "../types/exercise.js";
-import { EXERCISE_CATEGORIES, MUSCLE_GROUPS, EQUIPMENT, EXERCISE_METRICS } from "../types/exercise.js";
+import { hasAtLeastOneMetric } from "@/utils/exercise.js";
+import { type ExerciseCategory, type MuscleGroup, type Equipment, type ExerciseMetric } from "@/types/exercise.js";
+import { EXERCISE_CATEGORIES, MUSCLE_GROUPS, EQUIPMENT, EXERCISE_METRICS } from "@/types/exercise.js";
 
 /** Embedded variant — equipment + metrics for a catalog exercise. */
 export interface IExerciseVariant {
