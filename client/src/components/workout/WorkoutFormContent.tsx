@@ -220,9 +220,7 @@ const WorkoutFormContent = ({ onSubmit, header }: WorkoutFormContentProps) => {
         </div>
 
         <div className="space-y-4">
-          <Text variant="h3">
-            Exercises ({exercises.length})
-          </Text>
+          <Text variant="h3">Exercises ({exercises.length})</Text>
 
           {exercises.map((exercise, exerciseIndex) => {
             const hasExerciseNameError =

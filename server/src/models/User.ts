@@ -7,7 +7,7 @@ export interface IUser extends Document {
   // TODO: Implement password hashing and user role when auth is implemented.
   passwordHash?: string;
   isAdmin: boolean;
-  
+
   createdAt: Date;
   updatedAt: Date;
 }

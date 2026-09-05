@@ -6,27 +6,26 @@ React + TypeScript frontend for the Personal Gym Tracker application with modern
 
 ### Core Features
 
-- **Workout Management** - Create, view, edit, and delete workouts
-- **Inline Editing** - Real-time form editing with visual validation feedback
-- **Exercise Tracking** - Multiple exercises per workout with unlimited sets
-- **Date Organization** - Calendar-based workout organization
-- **Responsive Design** - Modern, mobile-friendly UI
+- **Workout Management** — Create, view, edit, and delete workouts with catalog-backed exercises
+- **Exercise Catalog** — Browse, search, filter, and create custom exercises with variants
+- **Workout Detail** — Overview, editor, and analytics tabs per session
+- **Exercise Detail** — Overview, editor, and cross-workout history per exercise
+- **Responsive Design** — Modern UI with light/dark theme support
 
 ### User Experience
 
-- **Visual Feedback** - Red borders for invalid inputs, loading states
-- **Default States** - Pre-populated forms with empty exercise/set templates
-- **Instant Validation** - Field-level validation on blur and submit
-- **Icon Integration** - Professional Lucide React SVG icons throughout
-- **Smooth Navigation** - Client-side routing with React Router
+- **Catalog Picker** — Select exercises by equipment variant with metric-aware set inputs
+- **Volume Calculation** — Client-side volume from weight and reps
+- **Visual Feedback** — Loading states, validation, and error messages
+- **Smooth Navigation** — Client-side routing with React Router nested layouts
 
 ### Developer Experience
 
-- **API Mocking** - MSW integration for offline development
-- **Type Safety** - Full TypeScript coverage
-- **State Management** - Zustand for predictable state updates
-- **Hot Reload** - Instant feedback with Vite HMR
-- **Component Library** - Reusable UI components (Button, Input, Card, etc.)
+- **API Mocking** — MSW integration for offline development
+- **Structured API Client** — Axios unwraps `ApiResponse<T>` automatically
+- **Type Safety** — Shared entity types across pages, services, and mocks
+- **Hot Reload** — Instant feedback with Vite HMR
+- **Component Library** — Reusable UI components (Button, Input, Card, MultiSelect, etc.)
 
 ## Tech Stack
 
@@ -34,7 +33,7 @@ React + TypeScript frontend for the Personal Gym Tracker application with modern
 | -------- | ---------- | ------- | ------- |
 | **Core** | React | 19.2 | UI library with hooks |
 | **Language** | TypeScript | 5.9 | Static typing and tooling |
-| **Build Tool** | Vite | 7.2 | Fast dev server & bundler |
+| **Build Tool** | Vite | 7.2 | Fast dev server and bundler |
 | **Routing** | React Router DOM | 7.9 | Client-side navigation |
 | **HTTP Client** | Axios | 1.13 | Promise-based API calls |
 | **State** | Zustand | 5.0 | Lightweight state management |
@@ -47,17 +46,23 @@ See [Architecture Decision Records](docs/ADR.md) for technology rationale.
 
 ## Page Routes
 
-Routes currently implemented in `src/App.tsx`. All workout pages use the demo user ID from config (no authentication yet).
+Routes implemented in `src/App.tsx`. Workout pages use the demo user ID from config (no authentication yet).
 
-| Route | Component | Access | Description |
-| ----- | --------- | ------ | ----------- |
-| `/` | `WorkoutListPage` | Public (prototype) | Home — workout grid with volume/set metrics and delete |
-| `/workouts` | `WorkoutListPage` | Public (prototype) | Same list view as `/` |
-| `/workouts/new` | `WorkoutFormPage` | Public (prototype) | Create workout (title, date, exercises, sets) |
-| `/workouts/:id` | `WorkoutDetailPage` | Public (prototype) | View a single workout and its exercises |
-| `/workouts/:id/edit` | `WorkoutFormPage` | Public (prototype) | Edit an existing workout |
+| Route | Component | Description |
+| ----- | --------- | ----------- |
+| `/` | `WorkoutListPage` | Home — workout grid with volume/set metrics |
+| `/workouts` | `WorkoutListPage` | Same list view as `/` |
+| `/workouts/new` | `WorkoutFormPage` | Create workout |
+| `/workouts/:id` | `WorkoutOverviewPage` | Workout overview (nested layout) |
+| `/workouts/:id/edit` | `WorkoutEditorPage` | Edit workout |
+| `/workouts/:id/analytics` | `WorkoutAnalyticsPage` | Workout analytics |
+| `/exercises` | `ExerciseListPage` | Browse and search exercise catalog |
+| `/exercise/new` | `ExerciseFormPage` | Create custom exercise |
+| `/exercises/:id` | `ExerciseOverviewPage` | Exercise detail |
+| `/exercises/:id/edit` | `ExerciseEditorPage` | Edit exercise |
+| `/exercises/:id/history` | `ExerciseHistoryPage` | Exercise history across workouts |
 
-Planned MVP and post-MVP page routes are tracked in [MVP_ROADMAP.md](../MVP_ROADMAP.md) and [docs/IMPROVEMENTS.md](docs/IMPROVEMENTS.md).
+Planned MVP routes (`/progress`, `/login`, `/admin/*`) are tracked in [MVP_ROADMAP.md](../MVP_ROADMAP.md).
 
 ## Project Structure
 
@@ -68,68 +73,42 @@ client/
 │
 ├── src/
 │   ├── components/                  # Reusable components
-│   │   ├── layout/
-│   │   │   └── Navbar.tsx          # Main navigation bar
-│   │   └── ui/                     # UI primitives
-│   │       ├── Button.tsx          # 6 variants (primary, secondary, etc.)
-│   │       ├── Card.tsx            # Card container
-│   │       ├── Input.tsx           # Self-validating input
-│   │       ├── Metric.tsx          # Stat display
-│   │       ├── SelectBox.tsx       # Custom select
-│   │       ├── Skeleton.tsx        # Loading skeleton
-│   │       └── Text.tsx            # Typography
+│   │   ├── layout/                  # Navbar, PageContainer
+│   │   ├── exercise/                # Exercise form content
+│   │   ├── workout/                 # Workout form components
+│   │   └── ui/                      # UI primitives
 │   │
 │   ├── pages/                       # Page-level components
-│   │   ├── WorkoutListPage.tsx     # Home - workout grid
-│   │   ├── WorkoutDetailPage.tsx   # Single workout view
-│   │   └── WorkoutFormPage.tsx     # Create/edit form
+│   │   ├── WorkoutListPage.tsx
+│   │   ├── WorkoutFormPage.tsx
+│   │   ├── ExerciseListPage.tsx
+│   │   ├── ExerciseFormPage.tsx
+│   │   ├── workout/                 # WorkoutLayout, overview, editor, analytics
+│   │   └── exercise/                # ExerciseLayout, overview, editor, history
 │   │
 │   ├── services/                    # API layer
-│   │   ├── apiClient.ts            # Configured Axios instance
-│   │   ├── users.service.ts        # User API calls
-│   │   └── workouts.service.ts     # Workout API calls
+│   │   ├── apiClient.ts            # Axios + ApiResponse unwrap
+│   │   ├── users.service.ts
+│   │   ├── workouts.service.ts
+│   │   └── exercises.service.ts
 │   │
 │   ├── stores/                      # Zustand stores
-│   │   └── workoutFormStore.ts     # Form state & actions
-│   │
 │   ├── hooks/                       # Custom React hooks
-│   │   ├── useWorkout.ts           # Fetch single workout
-│   │   ├── useWorkouts.ts          # Fetch all workouts
-│   │   └── useWorkoutMutation.ts   # Create/update/delete
-│   │
-│   ├── mocks/                       # MSW setup
-│   │   ├── browser.ts              # Browser service worker
-│   │   ├── server.ts               # Node server (for tests)
-│   │   ├── handlers.ts             # Request handlers
-│   │   ├── data.ts                 # Mock data
-│   │   └── README.md               # MSW documentation
-│   │
-│   ├── types/                       # TypeScript definitions
-│   │   └── workout.ts              # Workout, Exercise, Set types
-│   │
-│   ├── config/                      # App configuration
-│   │   └── env.ts                  # Environment variables
-│   │
-│   ├── constants/                   # Static data
-│   │   └── exercises.ts            # Exercise suggestions
-│   │
-│   ├── utils/                       # Utility functions
-│   │   └── workoutUtils.ts         # Workout helpers
-│   │
+│   ├── mocks/                       # MSW setup, handlers, fixtures
+│   ├── types/                       # entities.ts, api.ts
+│   ├── config/                      # Environment config
+│   ├── context/                     # Theme context
+│   ├── utils/                       # workoutUtils, exerciseUtils
 │   ├── App.tsx                      # Root component with routing
-│   ├── main.tsx                     # Entry point
-│   └── index.css                    # Global styles
+│   └── main.tsx                     # Entry point
 │
 ├── docs/                            # Documentation
-│   ├── ADR.md                       # Architecture decisions
-│   └── IMPROVEMENTS.md              # Planned enhancements
+│   ├── ADR.md
+│   └── IMPROVEMENTS.md
 │
-├── vite.config.js                   # Vite configuration
-├── tailwind.config.js               # Tailwind CSS config
-├── postcss.config.js                # PostCSS config
-├── tsconfig.json                    # TypeScript config
-├── eslint.config.js                 # ESLint config
-└── package.json                     # Dependencies & scripts
+├── vite.config.js                   # Vite configuration (@ alias)
+├── tailwind.config.js
+└── package.json
 ```
 
 ## Mocking with MSW for Offline Development
@@ -138,52 +117,31 @@ client/
 
 Mock Service Worker (MSW) intercepts HTTP requests at the network level, allowing frontend development without running the backend server.
 
-### How It Works
-
-1. **Service Worker Registration** - MSW installs a service worker in the browser
-2. **Request Interception** - All API calls to `http://localhost:5000` are intercepted
-3. **Mock Responses** - Handlers return mock data from in-memory storage
-4. **Full CRUD** - Create, read, update, and delete operations supported
-5. **Session Persistence** - Data persists during browser session, resets on refresh
-
 ### Configuration
 
-**Enable/Disable MSW** - Set in `.env`:
+**Enable/Disable MSW** — Set in `.env`:
 
 ```bash
 # Use mock data (no backend needed)
 VITE_ENABLE_MSW=true
 
-# Use real API (backend must be running)
+# Use real API (backend must be running and seeded)
 VITE_ENABLE_MSW=false
 ```
 
 ### Mock Data
 
-- **Default workouts:** 3 sample workouts with various exercises
+- **Exercises:** 68 catalog exercises with variants (mirrors server seed)
+- **Workouts:** 10 sample sessions
 - **Demo user:** `673092a6fd2a34e8e4b91234`
-- **Operations:** Full CRUD with in-memory storage
-
-### Benefits
-
-- **No Backend Dependency** - Develop UI independently
-- **Consistent Data** - Same test data every time
-- **Fast Iteration** - No server startup time
-- **Offline Work** - No internet connection needed
-- **Test Ready** - Pre-configured for unit tests
-
-See [src/mocks/README.md](src/mocks/README.md) for complete MSW documentation.
+- **Response format:** Same `ApiResponse<T>` envelope as the real API
 
 ## Getting Started
 
 ### Installation
 
 ```bash
-# Install dependencies
 npm install
-
-# Optional: Generate MSW service worker (already included)
-npx msw init public/ --save
 ```
 
 ### Environment Variables
@@ -198,13 +156,13 @@ VITE_API_BASE_URL=http://localhost:5000/api
 VITE_DEMO_USER_ID=673092a6fd2a34e8e4b91234
 
 # Enable/disable MSW
-VITE_ENABLE_MSW=true
+VITE_ENABLE_MSW=false
 ```
 
 ### Development
 
 ```bash
-# Start dev server with MSW (default)
+# Start dev server
 npm run dev
 
 # Build for production
@@ -219,9 +177,9 @@ npm run lint
 
 ## Documentation
 
-- [Architecture Decision Records](docs/ADR.md) - Technology choices and rationale
-- [Improvements](docs/IMPROVEMENTS.md) - Planned enhancements and roadmap
-- [MVP Roadmap](../MVP_ROADMAP.md) - Parallel task and route checklist
-- [Exercise Catalog](../EXERCISES.md) - Categories, muscles, variants, and seed exercises
-- [Main README](../README.md) - Project overview and setup
-- [Server Documentation](../server/README.md) - Backend API documentation
+- [Architecture Decision Records](docs/ADR.md) — Technology choices and rationale
+- [Improvements](docs/IMPROVEMENTS.md) — Planned enhancements and roadmap
+- [MVP Roadmap](../MVP_ROADMAP.md) — Parallel task and route checklist
+- [Exercise Catalog](../EXERCISES.md) — Categories, muscles, variants, and seed exercises
+- [Main README](../README.md) — Project overview and setup
+- [Server Documentation](../server/README.md) — Backend API documentation

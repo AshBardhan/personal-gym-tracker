@@ -9,7 +9,12 @@ interface BadgeProps {
   size?: "normal" | "small";
 }
 
-const Badge = ({ children, onRemove, className, size = "normal" }: BadgeProps) => {
+const Badge = ({
+  children,
+  onRemove,
+  className,
+  size = "normal",
+}: BadgeProps) => {
   return (
     <span
       className={clsx(

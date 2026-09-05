@@ -6,19 +6,20 @@ Express + TypeScript backend API for the Personal Gym Tracker application with M
 
 ### Core Features
 
-- **RESTful API** - Standard REST endpoints for CRUD operations
-- **User Management** - Create and manage user accounts
-- **Workout Management** - Full CRUD for workouts with nested exercises
-- **Data Validation** - Mongoose schema validation
-- **CORS Enabled** - Cross-origin resource sharing configured
+- **RESTful API** — Standard REST endpoints for CRUD operations
+- **Exercise Catalog** — Shared exercise list with embedded equipment variants
+- **Workout Management** — Full CRUD with catalog-backed exercise snapshots and sets
+- **Structured Responses** — All endpoints return `ApiResponse<T>` (`success`, `data`, `error`)
+- **Database Seeding** — `npm run seed` loads demo user, 68 exercises, and 10 workouts
+- **CORS Enabled** — Cross-origin resource sharing configured for development
 
 ### Technical Features
 
-- **TypeScript** - Full type safety across the codebase
-- **ESM Modules** - Modern ES2020 module system
-- **MongoDB** - NoSQL document database with Mongoose ODM
-- **Environment Config** - dotenv for configuration management
-- **Hot Reload** - nodemon for development server
+- **TypeScript** — Full type safety across the codebase
+- **ESM Modules** — Modern ES2020 module system with `@/` path aliases
+- **MongoDB** — NoSQL document database with Mongoose ODM
+- **Environment Config** — dotenv for configuration management
+- **Hot Reload** — nodemon + tsx for development server
 
 ## Tech Stack
 
@@ -31,8 +32,8 @@ Express + TypeScript backend API for the Personal Gym Tracker application with M
 | **ODM** | Mongoose | 8.0 | MongoDB object modeling |
 | **Middleware** | CORS | 2.8 | Cross-origin support |
 | **Config** | dotenv | 16.3 | Environment variables |
+| **Dev Tools** | tsx | 4.x | TypeScript execution |
 | **Dev Tools** | nodemon | 3.1 | Development server |
-| **Dev Tools** | ts-node | 10.9 | TypeScript execution |
 
 See [Architecture Decision Records](docs/ADR.md) for technology rationale.
 
@@ -42,18 +43,28 @@ See [Architecture Decision Records](docs/ADR.md) for technology rationale.
 server/
 ├── src/
 │   ├── models/                      # Mongoose models
-│   │   ├── User.ts                  # User schema & model
-│   │   └── Workout.ts               # Workout schema & model
+│   │   ├── User.ts                  # User schema (isAdmin, passwordHash placeholder)
+│   │   ├── Exercise.ts              # Catalog with embedded variants
+│   │   ├── Workout.ts               # Session with embedded exercise snapshots
+│   │   └── Set.ts                   # Set subdocument schema
 │   │
 │   ├── routes/                      # API routes
 │   │   ├── users.ts                 # User endpoints
+│   │   ├── exercises.ts             # Exercise catalog endpoints
 │   │   └── workouts.ts              # Workout endpoints
+│   │
+│   ├── seed/                        # Database seed data & script
+│   │   ├── index.ts                 # Drop collections and seed
+│   │   └── data/                    # User, exercise, and workout fixtures
+│   │
+│   ├── types/                       # Shared types
+│   │
+│   ├── utils/                       # Helper functions
 │   │
 │   ├── config/                      # Configuration
 │   │   └── db.ts                    # MongoDB connection
 │   │
-│   ├── server.ts                    # Express server setup
-│   └── createDemoUser.ts            # Demo user creation script
+│   └── server.ts                    # Express server setup
 │
 ├── dist/                            # Compiled JavaScript (ES2020)
 │
@@ -101,8 +112,8 @@ NODE_ENV=development
 ### Development
 
 ```bash
-# Create demo user (optional)
-npm run setup
+# Seed demo data (drops and recreates users, exercises, workouts)
+npm run seed
 
 # Start development server with hot reload
 npm run dev
@@ -121,13 +132,20 @@ npm start
 
 ## API Routes
 
-Routes currently implemented. There is **no authentication or authorization** — callers supply `userId` directly. Planned MVP and post-MVP routes are tracked in [MVP_ROADMAP.md](../MVP_ROADMAP.md) and [docs/IMPROVEMENTS.md](docs/IMPROVEMENTS.md).
+All endpoints return `ApiResponse<T>`:
+
+```json
+{ "success": true, "data": { ... } }
+{ "success": false, "error": { "message": "..." } }
+```
+
+There is **no authentication or authorization** yet — callers supply `userId` directly. Planned MVP routes are tracked in [MVP_ROADMAP.md](../MVP_ROADMAP.md).
 
 ### Status
 
 | Method | Endpoint | Description |
 | ------ | -------- | ----------- |
-| `GET` | `/` | API status message (`Gym Tracker API is running`) |
+| `GET` | `/` | API status message |
 
 ### Users
 
@@ -139,24 +157,34 @@ Routes currently implemented. There is **no authentication or authorization** �
 | `PUT` | `/api/users/:id` | Update user | `{ name?, email? }` |
 | `DELETE` | `/api/users/:id` | Delete user | None |
 
+### Exercises
+
+| Method | Endpoint | Description | Request Body |
+| ------ | -------- | ----------- | ------------ |
+| `GET` | `/api/exercises` | List catalog (sorted by name) | None |
+| `GET` | `/api/exercises/:id` | Get exercise by ID | None |
+| `POST` | `/api/exercises` | Create exercise | See Exercise model |
+| `PUT` | `/api/exercises/:id` | Update exercise | Partial exercise |
+| `DELETE` | `/api/exercises/:id` | Delete exercise | None |
+
 ### Workouts
 
 | Method | Endpoint | Description | Request Body |
 | ------ | -------- | ----------- | ------------ |
 | `GET` | `/api/workouts/:userId` | List workouts for a user (newest date first) | None |
 | `GET` | `/api/workouts/detail/:id` | Get workout by ID | None |
-| `POST` | `/api/workouts` | Create workout | `{ userId, title?, date?, exercises? }` |
-| `PUT` | `/api/workouts/:id` | Update workout | `{ title?, date?, exercises? }` |
+| `POST` | `/api/workouts` | Create workout | `{ userId, title, date?, memo?, exercises? }` |
+| `PUT` | `/api/workouts/:id` | Update workout | `{ title?, date?, memo?, exercises? }` |
 | `DELETE` | `/api/workouts/:id` | Delete workout | None |
 
-**Create/update `exercises` shape:** array of `{ name, category?, muscleGroup?, sets: [{ reps, weight }] }`.
+**Workout `exercises` shape:** denormalized snapshots with `exerciseId`, `variantId`, name, category, muscles, equipment, metrics, and `sets[]` (`type`, `reps?`, `weight?`, `duration?`).
 
 ## Documentation
 
-- [Architecture Decision Records](docs/ADR.md) - Technology choices and rationale
-- [Database Setup](docs/DATABASE_SETUP.md) - MongoDB configuration and schema
-- [Exercise Catalog](../EXERCISES.md) - Categories, muscles, variants, and seed exercises
-- [Improvements](docs/IMPROVEMENTS.md) - Planned enhancements and roadmap
-- [MVP Roadmap](../MVP_ROADMAP.md) - Parallel task and route checklist
-- [Main README](../README.md) - Project overview and setup
-- [Client Documentation](../client/README.md) - Frontend application documentation
+- [Architecture Decision Records](docs/ADR.md) — Technology choices and rationale
+- [Database Setup](docs/DATABASE_SETUP.md) — MongoDB configuration and schema
+- [Exercise Catalog](../EXERCISES.md) — Categories, muscles, variants, and seed exercises
+- [Improvements](docs/IMPROVEMENTS.md) — Planned enhancements and roadmap
+- [MVP Roadmap](../MVP_ROADMAP.md) — Parallel task and route checklist
+- [Main README](../README.md) — Project overview and setup
+- [Client Documentation](../client/README.md) — Frontend application documentation

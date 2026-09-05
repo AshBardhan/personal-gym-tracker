@@ -1,7 +1,4 @@
-import {
-  Equipment,
-  SetType,
-} from "@/types/exercise.js";
+import { Equipment, SetType } from "@/types/exercise.js";
 import { getWorkoutExerciseSnapshot } from "./exercises.js";
 import { MOCK_USER_ID, workoutId } from "./ids.js";
 import mongoose from "mongoose";

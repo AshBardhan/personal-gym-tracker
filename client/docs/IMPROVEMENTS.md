@@ -1,23 +1,8 @@
 # Frontend Improvements
 
-Priorities align with the near-term build order: **workout and exercise pages with sample/MSW data first**, then domain contract alignment with the API, then auth for deploy. See [MVP_ROADMAP.md](../../MVP_ROADMAP.md) for the parallel client/server checklist. Shared catalog reference: [EXERCISES.md](../../EXERCISES.md).
+Priorities align with the near-term build order: **mobile polish, progress page, and validation** next, then **auth for deploy**. See [MVP_ROADMAP.md](../../MVP_ROADMAP.md). Shared catalog reference: [EXERCISES.md](../../EXERCISES.md).
 
 ## High Priority
-
-### Workout and Exercise Pages (sample / MSW data)
-
-- **Workout experience against sample data**: Build and refine user-facing workout flows before authentication.
-  - Keep list, detail, create, and edit pages working with MSW (or demo user + local fixtures).
-  - Align form and detail UI with catalog-backed exercises, primary/secondary muscles, and per-log **variant** + sets.
-  - Use rich sample workouts so mobile logging and empty/loading/error states are easy to exercise offline.
-- **Exercise-related pages**: Surface the exercise catalog in the product UI with sample data.
-  - Browse/search exercises by category and muscle (user-facing and/or admin catalog views).
-  - Drive the workout exercise picker from MSW `GET /exercises` shaped like [EXERCISES.md](../../EXERCISES.md), not name-only constants long term.
-  - Show primary muscle, secondary muscles, and default variant in pickers and detail views.
-- **Focused domain contracts**: Adopt stable exercise identities and purpose-specific API types on the client.
-  - Separate workout summaries, details, and form inputs.
-  - Replace name-based exercise selection with catalog IDs when wiring to the real API.
-  - Keep MSW fixtures and handlers synchronized with the server models.
 
 ### Mobile Gym Experience
 
@@ -45,7 +30,7 @@ Priorities align with the near-term build order: **workout and exercise pages wi
 - **Admin shell**: Provide a dashboard layout for elevated users (role guards can wait until auth).
   - Add `/admin`, `/admin/users`, and `/admin/exercises` routes.
 - **User management UI**: List, create, update, and delete users against MSW, then the real API.
-- **Exercise catalog UI**: Manage the shared exercise list (name, category, primary/secondary muscles, default variant).
+- **Exercise catalog UI**: Manage the shared exercise list (name, category, primary/secondary muscles, variants).
 
 ### Error Handling and Feedback
 
@@ -55,7 +40,7 @@ Priorities align with the near-term build order: **workout and exercise pages wi
   - Provide contextual errors beside invalid form fields.
 - **Application error boundaries**: Prevent rendering failures from breaking the entire interface.
   - Provide fallback views for unexpected component errors.
-- **API client errors**: Centralize handling in Axios interceptors (shared error shape; 401 redirect after auth lands).
+- **401 handling**: Redirect to login when auth lands (Axios interceptor already normalizes `ApiResponse` errors).
 
 ### Environment Configuration
 
@@ -66,7 +51,7 @@ Priorities align with the near-term build order: **workout and exercise pages wi
 
 ### Form Validation
 
-- **Schema validation**: Define a single typed validation contract for workout forms.
+- **Schema validation**: Define a single typed validation contract for workout and exercise forms.
   - Validate workout date, title, exercises, variant, sets, repetitions, and weight.
   - Reuse validation rules during editing and submission.
 - **Detailed feedback**: Make invalid fields easy to identify and correct.
@@ -88,7 +73,7 @@ Priorities align with the near-term build order: **workout and exercise pages wi
 
 ### Authentication and Authorization
 
-Deferred until workout/exercise pages and server domain models are in place and integrable via API.
+Deferred until mobile polish and progress page are in good shape.
 
 - **Authentication flow**: Add secure account access for production use.
   - Create login and registration pages (`/login`, `/register`).
