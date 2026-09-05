@@ -106,9 +106,9 @@ npm install --prefix server
 
 # Configure server/.env for MongoDB and client/.env for the API and MSW.
 
-# Start local MongoDB and optionally create the demo user.
+# Start local MongoDB and seed demo data.
 sudo systemctl start mongod
-npm run setup --prefix server
+npm run seed --prefix server
 
 # Start both applications or either application independently.
 npm run dev
