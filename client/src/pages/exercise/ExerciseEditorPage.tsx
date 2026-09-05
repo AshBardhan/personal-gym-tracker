@@ -45,7 +45,6 @@ const ExerciseEditorPage = () => {
         exerciseId,
         buildExerciseWritePayload(formData, {
           userId: exercise.userId,
-          variants: exercise.variants,
           isCustom: exercise.isCustom,
         }),
       );

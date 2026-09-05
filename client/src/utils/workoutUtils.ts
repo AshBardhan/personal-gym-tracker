@@ -434,5 +434,24 @@ export const formatExerciseMetrics = (metrics: ExerciseMetric[]): string => {
   return metrics.map((metric) => labels[metric]).join(" × ");
 };
 
+export const ALL_EQUIPMENT: Equipment[] = [
+  "barbell",
+  "dumbbell",
+  "machine",
+  "cable",
+  "smith_machine",
+  "ez_bar",
+  "kettlebell",
+  "resistance_band",
+  "body_weight",
+  "other",
+];
+
+export const ALL_EXERCISE_METRICS: ExerciseMetric[] = [
+  "weight",
+  "reps",
+  "duration",
+];
+
 export const formatSetDuration = (durationSec: number): string =>
   `${durationSec}s`;

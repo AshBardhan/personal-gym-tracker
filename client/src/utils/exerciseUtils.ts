@@ -14,9 +14,12 @@ import type {
   WorkoutExercise,
 } from "@/types/entities";
 import {
+  ALL_EQUIPMENT,
+  ALL_EXERCISE_METRICS,
   EXERCISE_CATEGORY_ORDER,
   MUSCLES_BY_CATEGORY,
   formatCategory,
+  formatEquipment,
   formatMuscleGroup,
   getExerciseVolume,
 } from "@/utils/workoutUtils";
@@ -28,11 +31,19 @@ export type ExercisePerformance = {
 
 export type ExerciseWrite = Omit<Exercise, "_id" | "createdAt" | "updatedAt">;
 
+export const createEmptyVariant = (): ExerciseVariant => ({
+  _id: `temp-${crypto.randomUUID()}`,
+  name: formatEquipment("barbell"),
+  equipment: "barbell",
+  metrics: ["weight", "reps"],
+});
+
 export const createEmptyExerciseFormData = (): ExerciseFormData => ({
   name: "",
   category: "",
   primaryMuscleGroup: "",
   secondaryMuscleGroups: [],
+  variants: [createEmptyVariant()],
 });
 
 export const getExerciseFormData = (exercise: Exercise): ExerciseFormData => ({
@@ -40,12 +51,60 @@ export const getExerciseFormData = (exercise: Exercise): ExerciseFormData => ({
   category: exercise.category,
   primaryMuscleGroup: exercise.primaryMuscleGroup,
   secondaryMuscleGroups: [...(exercise.secondaryMuscleGroups ?? [])],
+  variants: exercise.variants.map((variant) => ({
+    ...variant,
+    metrics: [...variant.metrics],
+  })),
 });
+
+export const getEquipmentOptions = (): SelectOption[] =>
+  ALL_EQUIPMENT.map((equipment) => ({
+    value: equipment,
+    label: formatEquipment(equipment),
+  }));
+
+export const getMetricOptions = (): MultiSelectOption[] =>
+  ALL_EXERCISE_METRICS.map((metric) => ({
+    value: metric,
+    label:
+      metric === "weight" ? "Weight" : metric === "reps" ? "Reps" : "Duration",
+  }));
+
+export const defaultMetricsForEquipment = (
+  equipment: Equipment,
+): ExerciseMetric[] => {
+  if (equipment === "body_weight") return ["reps"];
+  return ["weight", "reps"];
+};
+
+export const isValidVariant = (variant: ExerciseVariant): boolean =>
+  Boolean(variant.equipment && variant.metrics.length > 0);
+
+export const hasUniqueVariantEquipment = (
+  variants: ExerciseVariant[],
+): boolean =>
+  new Set(variants.map((variant) => variant.equipment)).size ===
+  variants.length;
 
 export const isExerciseFormValid = (formData: ExerciseFormData): boolean =>
   formData.name.trim().length > 0 &&
   formData.category !== "" &&
-  formData.primaryMuscleGroup !== "";
+  formData.primaryMuscleGroup !== "" &&
+  formData.variants.length > 0 &&
+  formData.variants.every(isValidVariant) &&
+  hasUniqueVariantEquipment(formData.variants);
+
+const normalizeVariantForWrite = (
+  variant: ExerciseVariant,
+  exerciseName: string,
+): ExerciseVariant => ({
+  _id: variant._id.startsWith("temp-")
+    ? `var-${slugify(exerciseName)}-${variant.equipment}`
+    : variant._id,
+  name: variant.name.trim() || formatEquipment(variant.equipment),
+  equipment: variant.equipment,
+  metrics: variant.metrics,
+});
 
 export const getCategoryOptions = (): SelectOption[] =>
   EXERCISE_CATEGORY_ORDER.map((category) => ({
@@ -80,24 +139,10 @@ const slugify = (value: string): string =>
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "") || "custom";
 
-const createDefaultVariant = (name: string): ExerciseVariant => {
-  const slug = slugify(name);
-  const equipment: Equipment = "barbell";
-  const metrics: ExerciseMetric[] = ["weight", "reps"];
-
-  return {
-    _id: `var-${slug}-${equipment}`,
-    name: "Barbell",
-    equipment,
-    metrics,
-  };
-};
-
 export const buildExerciseWritePayload = (
   formData: ExerciseFormData,
   options: {
     userId?: string;
-    variants?: ExerciseVariant[];
     isCustom?: boolean;
   } = {},
 ): ExerciseWrite => ({
@@ -110,7 +155,9 @@ export const buildExerciseWritePayload = (
       : undefined,
   isCustom: options.isCustom ?? true,
   userId: options.userId,
-  variants: options.variants ?? [createDefaultVariant(formData.name)],
+  variants: formData.variants.map((variant) =>
+    normalizeVariantForWrite(variant, formData.name),
+  ),
 });
 
 export const getWorkoutsForExercise = (
