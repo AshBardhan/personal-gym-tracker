@@ -81,7 +81,7 @@ const WorkoutOverviewPage = () => {
         <Text variant="h3" className="mb-2">
           Summary
         </Text>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <Tile className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           <Metric label="Date" value={formatDetailDate(workout.date)} />
           <div className="flex items-center justify-between gap-6">
             <Metric label="Sets" value={getTotalSets(workout)} reverse={true} />
@@ -95,7 +95,7 @@ const WorkoutOverviewPage = () => {
               />
             )}
           </div>
-        </div>
+        </Tile>
 
         <div>
           <Text variant="h3" className="mb-4">

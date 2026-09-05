@@ -179,46 +179,49 @@ const WorkoutFormContent = ({ onSubmit, header }: WorkoutFormContentProps) => {
     <form onSubmit={onSubmit} className="flex flex-col">
       {header}
 
-      <Card className="flex flex-col">
-        {submitAttempted && !hasValidExercises() && (
-          <div className="mb-4 flex items-center gap-3 rounded border border-red-600 bg-red-50 p-4 text-red-700 dark:bg-red-950 dark:text-red-300">
-            <AlertTriangle className="text-red-600 flex-shrink-0" size={24} />
-            <Text variant="p">
-              Please add at least one valid exercise with sets to save the
-              workout.
-            </Text>
-          </div>
-        )}
+      {submitAttempted && !hasValidExercises() && (
+        <Card className="mb-4 flex items-center gap-3 rounded border border-red-600 bg-red-50 p-4 text-red-700 dark:bg-red-950 dark:text-red-300">
+          <AlertTriangle className="text-red-600 flex-shrink-0" size={24} />
+          <Text variant="p">
+            Please add at least one valid exercise with sets to save the
+            workout.
+          </Text>
+        </Card>
+      )}
 
-        <div className="flex flex-col gap-4 mb-4 sm:flex-row">
-          <div className="flex-1">
-            <Input
-              label="Workout Title"
-              type="text"
-              id="title"
-              name="title"
-              value={formData.title}
-              onChange={handleFormChange}
-              placeholder="e.g., Upper Body Day"
-            />
-          </div>
+      <Card className="flex flex-col gap-4">
+        <div className="space-y-4">
+          <Text variant="h3">Basic Information</Text>
+          <Tile className="flex flex-col gap-4 mb-4 sm:flex-row">
+            <div className="flex-1">
+              <Input
+                label="Workout Title"
+                type="text"
+                id="title"
+                name="title"
+                value={formData.title}
+                onChange={handleFormChange}
+                placeholder="e.g., Upper Body Day"
+              />
+            </div>
 
-          <div className="flex-1">
-            <Input
-              label="Date"
-              type="date"
-              id="date"
-              name="date"
-              value={formData.date}
-              onChange={handleFormChange}
-              required
-            />
-          </div>
+            <div className="flex-1">
+              <Input
+                label="Date"
+                type="date"
+                id="date"
+                name="date"
+                value={formData.date}
+                onChange={handleFormChange}
+                required
+              />
+            </div>
+          </Tile>
         </div>
 
-        <div>
-          <Text variant="h3" className="mb-4">
-            Exercises {exercises.length > 0 ? `(${exercises.length})` : ""}
+        <div className="space-y-4">
+          <Text variant="h3">
+            Exercises ({exercises.length})
           </Text>
 
           {exercises.map((exercise, exerciseIndex) => {

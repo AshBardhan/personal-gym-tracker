@@ -26,7 +26,7 @@ const MultiSelect = ({
   options,
   value,
   onChange,
-  placeholder = "All muscles",
+  placeholder = "Select options",
   label,
   id,
   "aria-label": ariaLabel,
@@ -65,7 +65,7 @@ const MultiSelect = ({
       : selectedCount === 1
         ? (options.find((option) => option.value === value[0])?.label ??
           placeholder)
-        : `${selectedCount} muscles`;
+        : `${selectedCount} options`;
 
   const toggleOption = (optionValue: string) => {
     if (value.includes(optionValue)) {

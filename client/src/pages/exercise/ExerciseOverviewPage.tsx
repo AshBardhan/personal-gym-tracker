@@ -46,7 +46,7 @@ const ExerciseOverviewPage = () => {
       <Card className="flex flex-col gap-6">
         <section>
           <Text variant="h3" className="mb-2">
-            Details
+            Summary
           </Text>
           <Tile className="grid grid-cols-2 gap-6 sm:grid-cols-3">
             <Metric
@@ -103,17 +103,17 @@ const ExerciseOverviewPage = () => {
             <Tile className="flex flex-col gap-8">
               <div className="grid grid-cols-2 gap-6 sm:grid-cols-3">
                 <Metric
-                  label={`Day${stats.days > 1 && "s"}`}
+                  label={`Day${stats.days > 1 ? "s" : ""}`}
                   value={stats.days}
                   reverse={true}
                 />
                 <Metric
-                  label={`Total Set${stats.totalSets > 1 && "s"}`}
+                  label={`Total Set${stats.totalSets > 1 ? "s" : ""}`}
                   value={stats.totalSets}
                   reverse={true}
                 />
                 <Metric
-                  label={`Total Rep${stats.totalReps > 1 && "s"}`}
+                  label={`Total Rep${stats.totalReps > 1 ? "s" : ""}`}
                   value={stats.totalReps}
                   reverse={true}
                 />
