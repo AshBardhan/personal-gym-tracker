@@ -1,5 +1,6 @@
 import express, { Request, Response } from "express";
 import Workout from "@/models/Workout.js";
+import { sendError, sendSuccess } from "@/utils/api.js";
 
 const router = express.Router();
 
@@ -9,9 +10,9 @@ router.get("/:userId", async (req: Request, res: Response): Promise<void> => {
     const workouts = await Workout.find({ userId: req.params.userId }).sort({
       date: -1,
     });
-    res.json(workouts);
+    sendSuccess(res, workouts);
   } catch (error) {
-    res.status(500).json({ message: (error as Error).message });
+    sendError(res, (error as Error).message);
   }
 });
 
@@ -22,12 +23,12 @@ router.get(
     try {
       const workout = await Workout.findById(req.params.id);
       if (!workout) {
-        res.status(404).json({ message: "Workout not found" });
+        sendError(res, "Workout not found", 404);
         return;
       }
-      res.json(workout);
+      sendSuccess(res, workout);
     } catch (error) {
-      res.status(500).json({ message: (error as Error).message });
+      sendError(res, (error as Error).message);
     }
   },
 );
@@ -43,9 +44,9 @@ router.post("/", async (req: Request, res: Response): Promise<void> => {
 
   try {
     const newWorkout = await workout.save();
-    res.status(201).json(newWorkout);
+    sendSuccess(res, newWorkout, 201);
   } catch (error) {
-    res.status(400).json({ message: (error as Error).message });
+    sendError(res, (error as Error).message, 400);
   }
 });
 
@@ -54,7 +55,7 @@ router.put("/:id", async (req: Request, res: Response): Promise<void> => {
   try {
     const workout = await Workout.findById(req.params.id);
     if (!workout) {
-      res.status(404).json({ message: "Workout not found" });
+      sendError(res, "Workout not found", 404);
       return;
     }
 
@@ -63,9 +64,9 @@ router.put("/:id", async (req: Request, res: Response): Promise<void> => {
     if (req.body.exercises) workout.exercises = req.body.exercises;
 
     const updatedWorkout = await workout.save();
-    res.json(updatedWorkout);
+    sendSuccess(res, updatedWorkout);
   } catch (error) {
-    res.status(400).json({ message: (error as Error).message });
+    sendError(res, (error as Error).message, 400);
   }
 });
 
@@ -74,14 +75,14 @@ router.delete("/:id", async (req: Request, res: Response): Promise<void> => {
   try {
     const workout = await Workout.findById(req.params.id);
     if (!workout) {
-      res.status(404).json({ message: "Workout not found" });
+      sendError(res, "Workout not found", 404);
       return;
     }
 
     await workout.deleteOne();
-    res.json({ message: "Workout deleted successfully" });
+    sendSuccess(res, { message: "Workout deleted successfully" });
   } catch (error) {
-    res.status(500).json({ message: (error as Error).message });
+    sendError(res, (error as Error).message);
   }
 });
 

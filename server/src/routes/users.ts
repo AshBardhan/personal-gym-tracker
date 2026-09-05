@@ -1,15 +1,16 @@
 import express, { Request, Response } from "express";
 import User from "@/models/User.js";
+import { sendError, sendSuccess } from "@/utils/api.js";
 
 const router = express.Router();
 
 // Get all users
-router.get("/", async (req: Request, res: Response): Promise<void> => {
+router.get("/", async (_req: Request, res: Response): Promise<void> => {
   try {
     const users = await User.find();
-    res.json(users);
+    sendSuccess(res, users);
   } catch (error) {
-    res.status(500).json({ message: (error as Error).message });
+    sendError(res, (error as Error).message);
   }
 });
 
@@ -18,12 +19,12 @@ router.get("/:id", async (req: Request, res: Response): Promise<void> => {
   try {
     const user = await User.findById(req.params.id);
     if (!user) {
-      res.status(404).json({ message: "User not found" });
+      sendError(res, "User not found", 404);
       return;
     }
-    res.json(user);
+    sendSuccess(res, user);
   } catch (error) {
-    res.status(500).json({ message: (error as Error).message });
+    sendError(res, (error as Error).message);
   }
 });
 
@@ -36,9 +37,9 @@ router.post("/", async (req: Request, res: Response): Promise<void> => {
 
   try {
     const newUser = await user.save();
-    res.status(201).json(newUser);
+    sendSuccess(res, newUser, 201);
   } catch (error) {
-    res.status(400).json({ message: (error as Error).message });
+    sendError(res, (error as Error).message, 400);
   }
 });
 
@@ -47,7 +48,7 @@ router.put("/:id", async (req: Request, res: Response): Promise<void> => {
   try {
     const user = await User.findById(req.params.id);
     if (!user) {
-      res.status(404).json({ message: "User not found" });
+      sendError(res, "User not found", 404);
       return;
     }
 
@@ -55,9 +56,9 @@ router.put("/:id", async (req: Request, res: Response): Promise<void> => {
     if (req.body.email) user.email = req.body.email;
 
     const updatedUser = await user.save();
-    res.json(updatedUser);
+    sendSuccess(res, updatedUser);
   } catch (error) {
-    res.status(400).json({ message: (error as Error).message });
+    sendError(res, (error as Error).message, 400);
   }
 });
 
@@ -66,14 +67,14 @@ router.delete("/:id", async (req: Request, res: Response): Promise<void> => {
   try {
     const user = await User.findById(req.params.id);
     if (!user) {
-      res.status(404).json({ message: "User not found" });
+      sendError(res, "User not found", 404);
       return;
     }
 
     await user.deleteOne();
-    res.json({ message: "User deleted successfully" });
+    sendSuccess(res, { message: "User deleted successfully" });
   } catch (error) {
-    res.status(500).json({ message: (error as Error).message });
+    sendError(res, (error as Error).message);
   }
 });
 

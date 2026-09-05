@@ -1,4 +1,5 @@
 import { http, HttpResponse } from "msw";
+import { mockError, mockSuccess } from "@/mocks/apiResponse";
 import {
   MOCK_USER_ID,
   mockExercises,
@@ -16,36 +17,43 @@ let nextWorkoutId = 11;
 
 export const handlers = [
   http.get(`${API_URL}/`, () => {
-    return HttpResponse.json({
+    const { body, status } = mockSuccess({
       message: "Personal Gym Tracker API (MSW Mock)",
       version: "1.0.0",
       status: "running",
     });
+    return HttpResponse.json(body, { status });
   }),
 
   http.get(`${API_URL}/api/users`, () => {
-    return HttpResponse.json([mockUser]);
+    const { body, status } = mockSuccess([mockUser]);
+    return HttpResponse.json(body, { status });
   }),
 
   http.get(`${API_URL}/api/users/:id`, ({ params }) => {
     const { id } = params;
     if (id === MOCK_USER_ID) {
-      return HttpResponse.json(mockUser);
+      const { body, status } = mockSuccess(mockUser);
+      return HttpResponse.json(body, { status });
     }
-    return new HttpResponse(null, { status: 404 });
+    const { body, status } = mockError("User not found", 404);
+    return HttpResponse.json(body, { status });
   }),
 
   http.get(`${API_URL}/api/exercises`, () => {
-    return HttpResponse.json(exercisesStore);
+    const { body, status } = mockSuccess(exercisesStore);
+    return HttpResponse.json(body, { status });
   }),
 
   http.get(`${API_URL}/api/exercises/:id`, ({ params }) => {
     const { id } = params;
     const exercise = exercisesStore.find((item) => item._id === id);
     if (!exercise) {
-      return new HttpResponse(null, { status: 404 });
+      const { body, status } = mockError("Exercise not found", 404);
+      return HttpResponse.json(body, { status });
     }
-    return HttpResponse.json(exercise);
+    const { body, status } = mockSuccess(exercise);
+    return HttpResponse.json(body, { status });
   }),
 
   http.post(`${API_URL}/api/exercises`, async ({ request }) => {
@@ -69,7 +77,8 @@ export const handlers = [
     };
 
     exercisesStore.push(newExercise);
-    return HttpResponse.json(newExercise, { status: 201 });
+    const response = mockSuccess(newExercise, 201);
+    return HttpResponse.json(response.body, { status: response.status });
   }),
 
   http.put(`${API_URL}/api/exercises/:id`, async ({ params, request }) => {
@@ -78,7 +87,8 @@ export const handlers = [
     const index = exercisesStore.findIndex((item) => item._id === id);
 
     if (index === -1) {
-      return new HttpResponse(null, { status: 404 });
+      const response = mockError("Exercise not found", 404);
+      return HttpResponse.json(response.body, { status: response.status });
     }
 
     exercisesStore[index] = {
@@ -88,17 +98,20 @@ export const handlers = [
       createdAt: exercisesStore[index].createdAt,
       updatedAt: new Date().toISOString(),
     };
-    return HttpResponse.json(exercisesStore[index]);
+    const response = mockSuccess(exercisesStore[index]);
+    return HttpResponse.json(response.body, { status: response.status });
   }),
 
   http.delete(`${API_URL}/api/exercises/:id`, ({ params }) => {
     const { id } = params;
     const index = exercisesStore.findIndex((item) => item._id === id);
     if (index === -1) {
-      return new HttpResponse(null, { status: 404 });
+      const response = mockError("Exercise not found", 404);
+      return HttpResponse.json(response.body, { status: response.status });
     }
-    const deleted = exercisesStore.splice(index, 1)[0];
-    return HttpResponse.json(deleted);
+    exercisesStore.splice(index, 1);
+    const response = mockSuccess({ message: "Exercise deleted successfully" });
+    return HttpResponse.json(response.body, { status: response.status });
   }),
 
   http.get(`${API_URL}/api/workouts/:userId`, ({ params }) => {
@@ -107,18 +120,22 @@ export const handlers = [
       const sorted = [...workoutsStore].sort(
         (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
       );
-      return HttpResponse.json(sorted);
+      const response = mockSuccess(sorted);
+      return HttpResponse.json(response.body, { status: response.status });
     }
-    return HttpResponse.json([]);
+    const response = mockSuccess([]);
+    return HttpResponse.json(response.body, { status: response.status });
   }),
 
   http.get(`${API_URL}/api/workouts/detail/:id`, ({ params }) => {
     const { id } = params;
     const workout = workoutsStore.find((item) => item._id === id);
-    if (workout) {
-      return HttpResponse.json(workout);
+    if (!workout) {
+      const response = mockError("Workout not found", 404);
+      return HttpResponse.json(response.body, { status: response.status });
     }
-    return new HttpResponse(null, { status: 404 });
+    const response = mockSuccess(workout);
+    return HttpResponse.json(response.body, { status: response.status });
   }),
 
   http.post(`${API_URL}/api/workouts`, async ({ request }) => {
@@ -140,7 +157,8 @@ export const handlers = [
     };
 
     workoutsStore.push(newWorkout);
-    return HttpResponse.json(newWorkout, { status: 201 });
+    const response = mockSuccess(newWorkout, 201);
+    return HttpResponse.json(response.body, { status: response.status });
   }),
 
   http.put(`${API_URL}/api/workouts/:id`, async ({ params, request }) => {
@@ -149,7 +167,8 @@ export const handlers = [
     const index = workoutsStore.findIndex((item) => item._id === id);
 
     if (index === -1) {
-      return new HttpResponse(null, { status: 404 });
+      const response = mockError("Workout not found", 404);
+      return HttpResponse.json(response.body, { status: response.status });
     }
 
     workoutsStore[index] = {
@@ -159,16 +178,19 @@ export const handlers = [
       createdAt: workoutsStore[index].createdAt,
       updatedAt: new Date().toISOString(),
     };
-    return HttpResponse.json(workoutsStore[index]);
+    const response = mockSuccess(workoutsStore[index]);
+    return HttpResponse.json(response.body, { status: response.status });
   }),
 
   http.delete(`${API_URL}/api/workouts/:id`, ({ params }) => {
     const { id } = params;
     const index = workoutsStore.findIndex((item) => item._id === id);
     if (index === -1) {
-      return new HttpResponse(null, { status: 404 });
+      const response = mockError("Workout not found", 404);
+      return HttpResponse.json(response.body, { status: response.status });
     }
-    const deleted = workoutsStore.splice(index, 1)[0];
-    return HttpResponse.json(deleted);
+    workoutsStore.splice(index, 1);
+    const response = mockSuccess({ message: "Workout deleted successfully" });
+    return HttpResponse.json(response.body, { status: response.status });
   }),
 ];

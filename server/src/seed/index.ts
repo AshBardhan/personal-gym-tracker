@@ -5,11 +5,7 @@ import mongoose from "mongoose";
 import User from "@/models/User.js";
 import Exercise from "@/models/Exercise.js";
 import Workout from "@/models/Workout.js";
-import {
-  mockUser,
-  mockExercises,
-  mockWorkouts,
-} from "./data/index.js";
+import { mockUser, mockExercises, mockWorkouts } from "./data/index.js";
 
 const COLLECTIONS = ["users", "exercises", "workouts"] as const;
 

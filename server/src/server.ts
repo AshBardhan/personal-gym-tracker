@@ -6,6 +6,8 @@ import cors from "cors";
 import connectDB from "@/config/db.js";
 import userRoutes from "@/routes/users.js";
 import workoutRoutes from "@/routes/workouts.js";
+import exerciseRoutes from "@/routes/exercises.js";
+import { sendError, sendSuccess } from "@/utils/api.js";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -18,19 +20,20 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Routes
+// API Routes
 app.use("/api/users", userRoutes);
 app.use("/api/workouts", workoutRoutes);
+app.use("/api/exercises", exerciseRoutes);
 
 // Basic route
-app.get("/", (req: Request, res: Response) => {
-  res.json({ message: "Gym Tracker API is running" });
+app.get("/", (_req: Request, res: Response) => {
+  sendSuccess(res, { message: "Gym Tracker API is running" });
 });
 
 // Error handling middleware
-app.use((err: Error, req: Request, res: Response, _next: NextFunction) => {
+app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   console.error(err.stack);
-  res.status(500).json({ message: "Something went wrong!" });
+  sendError(res, "Something went wrong!");
 });
 
 app.listen(PORT, () => {

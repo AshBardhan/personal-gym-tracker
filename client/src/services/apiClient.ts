@@ -1,5 +1,21 @@
-import axios from "axios";
+import axios, { AxiosResponse } from "axios";
 import { config } from "@/config/env";
+import { ApiResponse } from "@/types/api";
+
+/**
+ * Get the data from the API response
+ * @param response - The API response
+ * @returns The data from the API response
+ */
+const getApiResponseData = <T>(response: AxiosResponse<ApiResponse<T>>): T => {
+  const body = response.data;
+
+  if (!body.success) {
+    throw new Error(body.error?.message ?? "Request failed");
+  }
+
+  return body.data as T;
+};
 
 /**
  * Configured axios instance for API calls
@@ -14,24 +30,29 @@ const apiClient = axios.create({
 
 // Request interceptor - can be extended for auth tokens in the future
 apiClient.interceptors.request.use(
-  (config) => {
+  (requestConfig) => {
     // Future: Add auth token here
     // const token = localStorage.getItem('authToken');
     // if (token) {
-    //   config.headers.Authorization = `Bearer ${token}`;
+    //   requestConfig.headers.Authorization = `Bearer ${token}`;
     // }
-    return config;
+    return requestConfig;
   },
   (error) => Promise.reject(error),
 );
 
-// Response interceptor - centralized error handling
+// Response interceptor - unwrap ApiResponse and normalize errors
 apiClient.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    response.data = getApiResponseData(response);
+    return response;
+  },
   (error) => {
-    // Log errors for debugging
-    console.error("API Error:", error.response?.data || error.message);
-    return Promise.reject(error);
+    const body = error.response?.data as ApiResponse<unknown> | undefined;
+    const message = body?.error?.message ?? error.message ?? "Request failed";
+
+    console.error("API Error:", message);
+    return Promise.reject(new Error(message));
   },
 );
 
