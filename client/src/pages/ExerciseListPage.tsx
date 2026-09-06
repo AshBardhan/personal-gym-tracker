@@ -1,7 +1,9 @@
 import { Fragment, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Dot, MoreVertical, Search } from "lucide-react";
 import { Exercise, MuscleGroup } from "@/types/entities";
 import { useExercises } from "@/hooks/useExercises";
+import { useExerciseMutation } from "@/hooks/useExerciseMutation";
 import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
@@ -24,7 +26,9 @@ const getExerciseMuscles = (exercise: Exercise): MuscleGroup[] => [
 ];
 
 const ExerciseListPage = () => {
+  const navigate = useNavigate();
   const { exercises, setExercises, loading, error } = useExercises();
+  const { cloneExercise } = useExerciseMutation();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedMuscles, setSelectedMuscles] = useState<string[]>([]);
 
@@ -94,22 +98,11 @@ const ExerciseListPage = () => {
     }));
   }, [filteredExercises]);
 
-  const handleClone = (id: string) => {
-    const source = exercises.find((exercise) => exercise._id === id);
-    if (!source) return;
-
-    const clone: Exercise = {
-      ...source,
-      _id: `${source._id}-copy-${crypto.randomUUID()}`,
-      name: `${source.name} (copy)`,
-      isCustom: true,
-      secondaryMuscleGroups: source.secondaryMuscleGroups
-        ? [...source.secondaryMuscleGroups]
-        : undefined,
-      variants: source.variants.map((variant) => ({ ...variant })),
-    };
-
-    setExercises((prev) => [clone, ...prev]);
+  const handleClone = async (id: string) => {
+    const cloned = await cloneExercise(id);
+    if (cloned) {
+      navigate(`/exercises/${cloned._id}/edit`);
+    }
   };
 
   const handleDelete = (id: string) => {

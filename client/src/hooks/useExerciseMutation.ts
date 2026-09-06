@@ -55,5 +55,26 @@ export const useExerciseMutation = () => {
     }
   };
 
-  return { createExercise, updateExercise, deleteExercise, loading, error };
+  const cloneExercise = async (id: string): Promise<Exercise | null> => {
+    try {
+      setLoading(true);
+      setError(null);
+      return await exerciseService.clone(id);
+    } catch (err) {
+      setError("Failed to clone exercise");
+      console.error("Error cloning exercise:", err);
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return {
+    createExercise,
+    updateExercise,
+    deleteExercise,
+    cloneExercise,
+    loading,
+    error,
+  };
 };

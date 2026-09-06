@@ -39,4 +39,11 @@ export const exerciseService = {
   delete: async (id: string): Promise<void> => {
     await apiClient.delete(`/exercises/${id}`);
   },
+
+  clone: async (id: string): Promise<Exercise> => {
+    const response: AxiosResponse<Exercise> = await apiClient.post(
+      `/exercises/${id}/clone`,
+    );
+    return response.data;
+  },
 };

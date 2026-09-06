@@ -27,7 +27,7 @@ const ExerciseLayout = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { exercise, loading, error, refetch } = useExercise(id);
-  const { deleteExercise } = useExerciseMutation();
+  const { deleteExercise, cloneExercise } = useExerciseMutation();
   const { workouts, loading: workoutsLoading } = useWorkouts(
     config.user.DEMO_USER_ID,
   );
@@ -40,6 +40,13 @@ const ExerciseLayout = () => {
     const deleted = await deleteExercise(id!);
     if (deleted) {
       navigate("/exercises");
+    }
+  };
+
+  const handleClone = async () => {
+    const cloned = await cloneExercise(id!);
+    if (cloned) {
+      navigate(`/exercises/${cloned._id}/edit`);
     }
   };
 
@@ -93,6 +100,10 @@ const ExerciseLayout = () => {
               aria-label="Exercise actions"
               trigger={<MoreVertical size={22} />}
               items={[
+                {
+                  label: "Clone",
+                  onClick: handleClone,
+                },
                 {
                   label: "Delete",
                   variant: "danger",
