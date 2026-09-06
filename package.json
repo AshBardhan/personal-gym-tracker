@@ -1,6 +1,6 @@
 {
   "name": "personal-gym-tracker",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "private": true,
   "description": "Full-stack personal gym tracker",
   "type": "module",
