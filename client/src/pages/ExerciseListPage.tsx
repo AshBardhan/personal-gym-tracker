@@ -27,8 +27,8 @@ const getExerciseMuscles = (exercise: Exercise): MuscleGroup[] => [
 
 const ExerciseListPage = () => {
   const navigate = useNavigate();
-  const { exercises, setExercises, loading, error } = useExercises();
-  const { cloneExercise } = useExerciseMutation();
+  const { exercises, loading, error, refetch } = useExercises();
+  const { cloneExercise, deleteExercise } = useExerciseMutation();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedMuscles, setSelectedMuscles] = useState<string[]>([]);
 
@@ -105,9 +105,14 @@ const ExerciseListPage = () => {
     }
   };
 
-  const handleDelete = (id: string) => {
-    if (window.confirm("Are you sure you want to delete this exercise?")) {
-      setExercises((prev) => prev.filter((exercise) => exercise._id !== id));
+  const handleDelete = async (id: string) => {
+    if (!window.confirm("Are you sure you want to delete this exercise?")) {
+      return;
+    }
+
+    const deleted = await deleteExercise(id);
+    if (deleted) {
+      refetch();
     }
   };
 
