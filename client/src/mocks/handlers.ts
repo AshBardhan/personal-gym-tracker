@@ -81,6 +81,39 @@ export const handlers = [
     return HttpResponse.json(response.body, { status: response.status });
   }),
 
+  http.post(`${API_URL}/api/exercises/:id/clone`, ({ params }) => {
+    const { id } = params;
+    const source = exercisesStore.find((item) => item._id === id);
+    if (!source) {
+      const { body, status } = mockError("Exercise not found", 404);
+      return HttpResponse.json(body, { status });
+    }
+
+    const now = new Date().toISOString();
+    const cloneId = `ex-custom-${nextExerciseId++}`;
+
+    const cloned: Exercise = {
+      _id: cloneId,
+      createdAt: now,
+      updatedAt: now,
+      name: `${source.name} (cloned)`,
+      category: source.category,
+      primaryMuscleGroup: source.primaryMuscleGroup,
+      secondaryMuscleGroups: source.secondaryMuscleGroups,
+      isCustom: Boolean(source.userId),
+      userId: source.userId,
+      variants: source.variants.map((variant, index) => ({
+        _id: `var-${cloneId}-${index}`,
+        name: variant.name,
+        equipment: variant.equipment,
+        metrics: [...variant.metrics],
+      })),
+    };
+    exercisesStore.push(cloned);
+    const response = mockSuccess(cloned, 201);
+    return HttpResponse.json(response.body, { status: response.status });
+  }),
+
   http.put(`${API_URL}/api/exercises/:id`, async ({ params, request }) => {
     const { id } = params;
     const body = (await request.json()) as Partial<Exercise>;
