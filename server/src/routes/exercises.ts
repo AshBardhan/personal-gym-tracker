@@ -1,6 +1,7 @@
 import express, { Request, Response } from "express";
 import Exercise from "@/models/Exercise.js";
 import { sendError, sendSuccess } from "@/utils/api.js";
+import { buildExerciseClonePayload } from "@/utils/exercise.js";
 
 const router = express.Router();
 
@@ -11,6 +12,23 @@ router.get("/", async (_req: Request, res: Response): Promise<void> => {
     sendSuccess(res, exercises);
   } catch (error) {
     sendError(res, (error as Error).message);
+  }
+});
+
+// Clone exercise
+router.post("/:id/clone", async (req: Request, res: Response): Promise<void> => {
+  try {
+    const source = await Exercise.findById(req.params.id);
+    if (!source) {
+      sendError(res, "Exercise not found", 404);
+      return;
+    }
+
+    const clone = new Exercise(buildExerciseClonePayload(source));
+    const saved = await clone.save();
+    sendSuccess(res, saved, 201);
+  } catch (error) {
+    sendError(res, (error as Error).message, 400);
   }
 });
 
