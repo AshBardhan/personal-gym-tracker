@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
-import { LayoutGrid, List, Search, Trash2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { LayoutGrid, List, MoreVertical, Search } from "lucide-react";
 import { useWorkouts } from "@/hooks/useWorkouts";
 import { useWorkoutMutation } from "@/hooks/useWorkoutMutation";
 import {
@@ -19,6 +20,7 @@ import Input from "@/components/ui/Input";
 import Skeleton from "@/components/ui/Skeleton";
 import ToggleSwitchButton from "@/components/ui/ToggleSwitchButton";
 import PageContainer from "@/components/layout/PageContainer";
+import DropdownMenu from "@/components/ui/DropdownMenu";
 
 type ViewMode = "grid" | "list";
 
@@ -29,10 +31,11 @@ const SKELETON_TILE_COUNT = 3;
  * Displays all workouts for the user with search and grid/list views
  */
 const WorkoutListPage = () => {
+  const navigate = useNavigate();
   const { workouts, loading, error, refetch } = useWorkouts(
     config.user.DEMO_USER_ID,
   );
-  const { deleteWorkout } = useWorkoutMutation();
+  const { deleteWorkout, cloneWorkout } = useWorkoutMutation();
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
 
@@ -80,9 +83,14 @@ const WorkoutListPage = () => {
     return groups;
   }, [filteredWorkouts]);
 
-  const handleDelete = async (e: React.MouseEvent, id: string) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const handleClone = async (id: string) => {
+    const cloned = await cloneWorkout(id);
+    if (cloned) {
+      navigate(`/workouts/${cloned._id}/edit`);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
     if (window.confirm("Are you sure you want to delete this workout?")) {
       const success = await deleteWorkout(id);
       if (success) {
@@ -203,6 +211,7 @@ const WorkoutListPage = () => {
             <WorkoutCardList
               workouts={filteredWorkouts}
               viewMode={viewMode}
+              onClone={handleClone}
               onDelete={handleDelete}
             />
           ) : (
@@ -215,6 +224,7 @@ const WorkoutListPage = () => {
                   <WorkoutCardList
                     workouts={group.items}
                     viewMode={viewMode}
+                    onClone={handleClone}
                     onDelete={handleDelete}
                   />
                 </section>
@@ -230,12 +240,14 @@ const WorkoutListPage = () => {
 type WorkoutCardListProps = {
   workouts: Workout[];
   viewMode: ViewMode;
-  onDelete: (e: React.MouseEvent, id: string) => void;
+  onClone: (id: string) => void;
+  onDelete: (id: string) => void;
 };
 
 const WorkoutCardList = ({
   workouts,
   viewMode,
+  onClone,
   onDelete,
 }: WorkoutCardListProps) => (
   <div
@@ -250,12 +262,14 @@ const WorkoutCardList = ({
         <WorkoutGridCard
           key={workout._id}
           workout={workout}
+          onClone={onClone}
           onDelete={onDelete}
         />
       ) : (
         <WorkoutListCard
           key={workout._id}
           workout={workout}
+          onClone={onClone}
           onDelete={onDelete}
         />
       ),
@@ -265,7 +279,8 @@ const WorkoutCardList = ({
 
 type WorkoutCardProps = {
   workout: Workout;
-  onDelete: (e: React.MouseEvent, id: string) => void;
+  onClone: (id: string) => void;
+  onDelete: (id: string) => void;
 };
 
 const MetricSkeleton = ({ size = "md" }: { size?: "sm" | "md" }) => (
@@ -315,7 +330,33 @@ const WorkoutListSkeleton = () => (
   </Card>
 );
 
-const WorkoutGridCard = ({ workout, onDelete }: WorkoutCardProps) => {
+const WorkoutCardMenu = ({ workout, onClone, onDelete }: WorkoutCardProps) => (
+  <div
+    className="absolute top-2 right-2 z-10"
+    onClick={(event) => {
+      event.preventDefault();
+      event.stopPropagation();
+    }}
+  >
+    <DropdownMenu
+      aria-label={`${workout.title || "Untitled Workout"} actions`}
+      trigger={<MoreVertical size={18} />}
+      items={[
+        {
+          label: "Clone",
+          onClick: () => onClone(workout._id),
+        },
+        {
+          label: "Delete",
+          variant: "danger",
+          onClick: () => onDelete(workout._id),
+        },
+      ]}
+    />
+  </div>
+);
+
+const WorkoutGridCard = ({ workout, onClone, onDelete }: WorkoutCardProps) => {
   const showVolume = hasWorkoutWeightedVolume(workout);
 
   return (
@@ -345,21 +386,16 @@ const WorkoutGridCard = ({ workout, onDelete }: WorkoutCardProps) => {
           />
         )}
       </div>
-      <div className="absolute top-2 right-2">
-        <Button
-          title="Delete Workout"
-          onClick={(e: React.MouseEvent) => onDelete(e, workout._id)}
-          variant="icon-only"
-          className="!text-red-600 hover:!text-red-700"
-        >
-          <Trash2 size={20} />
-        </Button>
-      </div>
+      <WorkoutCardMenu
+        workout={workout}
+        onClone={onClone}
+        onDelete={onDelete}
+      />
     </Card>
   );
 };
 
-const WorkoutListCard = ({ workout, onDelete }: WorkoutCardProps) => {
+const WorkoutListCard = ({ workout, onClone, onDelete }: WorkoutCardProps) => {
   const showVolume = hasWorkoutWeightedVolume(workout);
 
   return (
@@ -394,16 +430,11 @@ const WorkoutListCard = ({ workout, onDelete }: WorkoutCardProps) => {
           />
         )}
       </div>
-      <div className="absolute top-2 right-2">
-        <Button
-          title="Delete Workout"
-          onClick={(e: React.MouseEvent) => onDelete(e, workout._id)}
-          variant="icon-only"
-          className="!text-red-600 hover:!text-red-700"
-        >
-          <Trash2 size={20} />
-        </Button>
-      </div>
+      <WorkoutCardMenu
+        workout={workout}
+        onClone={onClone}
+        onDelete={onDelete}
+      />
     </Card>
   );
 };

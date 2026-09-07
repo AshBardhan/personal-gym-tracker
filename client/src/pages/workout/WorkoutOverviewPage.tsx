@@ -11,6 +11,8 @@ import {
   hasWorkoutWeightedVolume,
   getTotalSets,
   getTotalReps,
+  isValidSetForMetrics,
+  canEstimateSetOneRepMax,
 } from "@/utils/workoutUtils";
 import Text from "@/components/ui/Text";
 import Card from "@/components/ui/Card";
@@ -28,17 +30,25 @@ const SetMetrics = ({
   exercise: WorkoutExercise;
   set: ExerciseSet;
 }) => {
-  if (exercise.metrics.includes("duration") && set.duration != null) {
+  if (!isValidSetForMetrics(set, exercise.metrics)) {
+    return (
+      <span className="text-gray-500 dark:text-gray-400">
+        <strong>Incomplete Data:</strong> Please update the set details
+      </span>
+    );
+  }
+
+  if (exercise.metrics.includes("duration") && (set.duration ?? 0) > 0) {
     return (
       <span className="text-gray-600 dark:text-gray-300">
-        {formatSetDuration(set.duration)}
+        {formatSetDuration(set.duration!)}
       </span>
     );
   }
 
   const showWeight =
-    exercise.metrics.includes("weight") && set.weight != null && set.weight > 0;
-  const showReps = exercise.metrics.includes("reps") && set.reps != null;
+    exercise.metrics.includes("weight") && (set.weight ?? 0) > 0;
+  const showReps = exercise.metrics.includes("reps") && (set.reps ?? 0) > 0;
 
   if (showWeight && showReps) {
     return (
@@ -57,6 +67,14 @@ const SetMetrics = ({
   if (showReps) {
     return (
       <span className="text-gray-600 dark:text-gray-300">{set.reps} reps</span>
+    );
+  }
+
+  if (showWeight) {
+    return (
+      <span className="font-medium text-green-600 dark:text-green-300">
+        {formatWeight(set.weight!)}
+      </span>
     );
   }
 
@@ -111,6 +129,9 @@ const WorkoutOverviewPage = () => {
             <div className="flex flex-col gap-4">
               {workout.exercises.map((exercise, index) => {
                 const showLoadStats = hasWeightedStats(exercise);
+                const showOneRepMaxColumn = exercise.sets.some((set) =>
+                  canEstimateSetOneRepMax(exercise, set),
+                );
 
                 return (
                   <Tile
@@ -139,38 +160,54 @@ const WorkoutOverviewPage = () => {
                         <Text className="text-gray-800 dark:text-gray-200 font-medium">
                           Sets
                         </Text>
-                        {showLoadStats && (
+                        {showOneRepMaxColumn && (
                           <Text className="text-gray-800 dark:text-gray-200 font-medium">
                             1 RM
                           </Text>
                         )}
                       </div>
                       <div className="flex flex-col gap-2">
-                        {exercise.sets.map((set, setIndex) => (
-                          <div
-                            key={set._id ?? setIndex}
-                            className="flex items-center justify-between gap-3"
-                          >
-                            <div className="flex items-center gap-2">
-                              <SetTypeBadge type={set.type} size="small">
-                                {getSetTypeLabel(exercise.sets, setIndex)}
-                              </SetTypeBadge>
-                              <SetMetrics exercise={exercise} set={set} />
-                            </div>
-                            {showLoadStats && (
-                              <span className="shrink-0 font-medium text-gray-600 dark:text-gray-100">
-                                {formatWeight(
-                                  Math.round(
-                                    estimateOneRepMax(
-                                      set.weight ?? 0,
-                                      set.reps ?? 0,
+                        {exercise.sets.map((set, setIndex) => {
+                          const showOneRepMax = canEstimateSetOneRepMax(
+                            exercise,
+                            set,
+                          );
+
+                          return (
+                            <div
+                              key={set._id ?? setIndex}
+                              className="flex items-center justify-between gap-3"
+                            >
+                              <div className="flex items-center gap-2">
+                                <SetTypeBadge type={set.type} size="small">
+                                  {getSetTypeLabel(exercise.sets, setIndex)}
+                                </SetTypeBadge>
+                                <SetMetrics exercise={exercise} set={set} />
+                              </div>
+                              {showOneRepMax ? (
+                                <span className="shrink-0 font-medium text-gray-600 dark:text-gray-100">
+                                  {formatWeight(
+                                    Math.round(
+                                      estimateOneRepMax(
+                                        set.weight ?? 0,
+                                        set.reps ?? 0,
+                                      ),
                                     ),
-                                  ),
-                                )}
-                              </span>
-                            )}
-                          </div>
-                        ))}
+                                  )}
+                                </span>
+                              ) : (
+                                showOneRepMaxColumn && (
+                                  <span
+                                    className="shrink-0 text-gray-400 dark:text-gray-500"
+                                    aria-hidden="true"
+                                  >
+                                    —
+                                  </span>
+                                )
+                              )}
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
                   </Tile>

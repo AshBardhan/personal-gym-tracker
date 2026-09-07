@@ -60,4 +60,14 @@ export const workoutService = {
   delete: async (id: string): Promise<void> => {
     await apiClient.delete(`/workouts/${id}`);
   },
+
+  /**
+   * Clone a workout into a new session
+   */
+  clone: async (id: string): Promise<Workout> => {
+    const response: AxiosResponse<Workout> = await apiClient.post(
+      `/workouts/${id}/clone`,
+    );
+    return response.data;
+  },
 };

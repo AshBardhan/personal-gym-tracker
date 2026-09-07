@@ -3,7 +3,7 @@ import { Workout } from "@/types/entities";
 import { workoutService, WorkoutWrite } from "@/services/workouts.service";
 
 /**
- * Custom hook for workout mutations (create, update, delete)
+ * Custom hook for workout mutations (create, update, delete, clone)
  * Encapsulates loading and error state for mutation operations
  */
 export const useWorkoutMutation = () => {
@@ -67,5 +67,26 @@ export const useWorkoutMutation = () => {
     }
   };
 
-  return { createWorkout, updateWorkout, deleteWorkout, loading, error };
+  const cloneWorkout = async (id: string): Promise<Workout | null> => {
+    try {
+      setLoading(true);
+      setError(null);
+      return await workoutService.clone(id);
+    } catch (err) {
+      setError("Failed to clone workout");
+      console.error("Error cloning workout:", err);
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return {
+    createWorkout,
+    updateWorkout,
+    deleteWorkout,
+    cloneWorkout,
+    loading,
+    error,
+  };
 };

@@ -458,6 +458,16 @@ export const hasWeightedStats = (exercise: {
 }): boolean =>
   exercise.equipment !== "body_weight" && exercise.metrics.includes("weight");
 
+/** Per-set e1RM requires logged weight and reps on a weighted variant. */
+export const canEstimateSetOneRepMax = (
+  exercise: { equipment: Equipment; metrics: ExerciseMetric[] },
+  set: ExerciseSet,
+): boolean =>
+  hasWeightedStats(exercise) &&
+  exercise.metrics.includes("reps") &&
+  (set.weight ?? 0) > 0 &&
+  (set.reps ?? 0) > 0;
+
 export const hasWorkoutWeightedVolume = (workout: {
   exercises: { equipment: Equipment; metrics: ExerciseMetric[] }[];
 }): boolean => workout.exercises.some(hasWeightedStats);

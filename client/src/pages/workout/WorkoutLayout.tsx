@@ -23,7 +23,15 @@ const WorkoutLayout = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { workout, loading, error, refetch } = useWorkout(id);
-  const { deleteWorkout } = useWorkoutMutation();
+  const { deleteWorkout, cloneWorkout } = useWorkoutMutation();
+
+  const handleClone = async () => {
+    if (!id) return;
+    const cloned = await cloneWorkout(id);
+    if (cloned) {
+      navigate(`/workouts/${cloned._id}/edit`);
+    }
+  };
 
   const handleDelete = async () => {
     if (!id) return;
@@ -84,6 +92,10 @@ const WorkoutLayout = () => {
               aria-label="Workout actions"
               trigger={<MoreVertical size={22} />}
               items={[
+                {
+                  label: "Clone",
+                  onClick: handleClone,
+                },
                 {
                   label: "Delete",
                   variant: "danger",
