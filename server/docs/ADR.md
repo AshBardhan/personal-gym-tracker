@@ -37,6 +37,7 @@ This document summarizes the principal technology and design decisions for the b
 - **Referenced ownership**: Each workout stores a Mongoose ObjectId reference to its user, preserving a clear one-to-many ownership relationship.
 - **Schema validation**: Mongoose enforces required fields, enum constraints, and custom validators (e.g. at least one metric per variant, custom exercise rules).
 - **Indexes**: Exercises indexed by category, primary muscle group, and variant equipment; workouts indexed by `userId` and `date`.
+- **Clone vs templates**: Workout clone extracts a reusable structure (set type and weight, no reps/duration/memo) and writes a new session dated now. The same blueprint is intended for future template instantiation. Exercise clone copies catalog fields and variants, appends ` (cloned)` to the name, assigns new variant ids, and keeps `isCustom` tied to source `userId`.
 
 ### Database Lifecycle
 

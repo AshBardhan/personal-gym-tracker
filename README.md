@@ -4,8 +4,8 @@ A full-stack MERN application with TypeScript support for tracking gym workouts 
 
 ## Features Overview
 
-- **Workout Management** — Create, edit, and delete workouts with catalog-backed exercises, variants, and sets
-- **Exercise Catalog** — Browse, search, and create custom exercises with muscle groups and equipment variants
+- **Workout Management** — Create, edit, clone, and delete workouts with catalog-backed exercises, variants, and sets
+- **Exercise Catalog** — Browse, search, create, and clone exercises with muscle groups and equipment variants
 - **Progress Views** — Per-workout analytics and per-exercise history across sessions
 - **Structured API** — Consistent `{ success, data, error }` response envelope on all endpoints
 - **Data Persistence** — MongoDB with Mongoose models and a seed script for demo data
@@ -46,11 +46,13 @@ All API endpoints return `ApiResponse<T>`: `{ success: boolean, data?: T, error?
 | `GET` | `/api/exercises/:id` | Get exercise by ID |
 | `POST` | `/api/exercises` | Create exercise |
 | `PUT` | `/api/exercises/:id` | Update exercise |
+| `POST` | `/api/exercises/:id/clone` | Clone exercise |
 | `DELETE` | `/api/exercises/:id` | Delete exercise |
 | `GET` | `/api/workouts/:userId` | Get all workouts for user |
 | `GET` | `/api/workouts/detail/:id` | Get workout by ID |
 | `POST` | `/api/workouts` | Create workout |
 | `PUT` | `/api/workouts/:id` | Update workout |
+| `POST` | `/api/workouts/:id/clone` | Clone workout into a new session |
 | `DELETE` | `/api/workouts/:id` | Delete workout |
 
 ## Tech Stack
@@ -97,7 +99,7 @@ personal-gym-tracker/
     │   ├── routes/         # API routes
     │   ├── seed/           # Seed data and script
     │   ├── types/          # Shared types (api, exercise)
-    │   ├── utils/          # Helpers (api envelope, volume)
+    │   ├── utils/          # Helper functions
     │   ├── config/         # Configuration
     │   └── server.ts       # Entry point
     ├── docs/               # Backend documentation

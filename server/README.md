@@ -165,6 +165,7 @@ There is **no authentication or authorization** yet — callers supply `userId` 
 | `GET` | `/api/exercises/:id` | Get exercise by ID | None |
 | `POST` | `/api/exercises` | Create exercise | See Exercise model |
 | `PUT` | `/api/exercises/:id` | Update exercise | Partial exercise |
+| `POST` | `/api/exercises/:id/clone` | Clone exercise (`name` gets `(cloned)`; new variant ids) | None |
 | `DELETE` | `/api/exercises/:id` | Delete exercise | None |
 
 ### Workouts
@@ -175,9 +176,12 @@ There is **no authentication or authorization** yet — callers supply `userId` 
 | `GET` | `/api/workouts/detail/:id` | Get workout by ID | None |
 | `POST` | `/api/workouts` | Create workout | `{ userId, title, date?, memo?, exercises? }` |
 | `PUT` | `/api/workouts/:id` | Update workout | `{ title?, date?, memo?, exercises? }` |
+| `POST` | `/api/workouts/:id/clone` | Clone workout into a new session | None |
 | `DELETE` | `/api/workouts/:id` | Delete workout | None |
 
 **Workout `exercises` shape:** denormalized snapshots with `exerciseId`, `variantId`, name, category, muscles, equipment, metrics, and `sets[]` (`type`, `reps?`, `weight?`, `duration?`).
+
+**Clone behavior:** Workout clone copies title and exercise structure, sets `date` to now, and omits memo plus logged reps/duration (set type and weight are kept). Exercise clone copies catalog fields and variants, appends ` (cloned)` to the name, and assigns new variant ids. Catalog clones without a `userId` stay non-custom until auth.
 
 ## Documentation
 

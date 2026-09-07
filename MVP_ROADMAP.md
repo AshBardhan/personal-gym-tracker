@@ -25,8 +25,8 @@ Lists are ordered **highest priority first** within each category.
 
 ### Client-only (MSW; integrate later)
 
-- [x] Workout pages: list, detail (overview/edit/analytics), create, edit aligned to catalog + variant + sets
-- [x] Exercise pages: browse/search catalog; create/edit custom exercises; overview and history
+- [x] Workout pages: list, detail (overview/edit/analytics), create, edit, clone aligned to catalog + variant + sets
+- [x] Exercise pages: browse/search catalog; create/edit/clone custom exercises; overview and history
 - [x] Domain types + MSW handlers aligned with server exercise/workout contracts and `ApiResponse<T>`
 - [x] API client unwraps `ApiResponse` envelope and normalizes error messages
 - [ ] Mobile gym UX: touch targets, stacked layouts, sticky primary actions, numeric keyboards for reps/weight
@@ -56,6 +56,7 @@ Lists are ordered **highest priority first** within each category.
 - [x] Workout schema: ordered exercises with `exerciseId` + snapshots + variant + sets
 - [x] Exercise CRUD API routes (`/api/exercises`)
 - [x] Workout CRUD API routes (`/api/workouts`; legacy `:userId` list + `/detail/:id` get)
+- [x] Clone APIs: `POST /api/workouts/:id/clone` and `POST /api/exercises/:id/clone`
 - [x] Seed script: demo user, exercise catalog, sample workouts (`npm run seed`)
 - [x] Structured `ApiResponse<T>` envelope on all routes (`sendSuccess` / `sendError`)
 - [ ] Env validation and typed config (`MONGODB_URI`, `PORT`, `NODE_ENV`)
@@ -83,6 +84,7 @@ Lists are ordered **highest priority first** within each category.
 - [x] Shared `ApiResponse<T>` contract and client unwrap layer
 - [x] Exercise catalog: seed ↔ MSW ↔ client picker ↔ workout submit with `exerciseId`
 - [x] Workout create/update payload alignment (types, MSW, form submit)
+- [x] Workout/exercise clone: server payload helpers, MSW handlers, and list/detail Clone actions
 - [ ] Auth end-to-end: real login/register against API; MSW parity for status codes and bodies
 - [ ] Replace `VITE_DEMO_USER_ID` with authenticated identity on all workout calls
 - [ ] CORS + credentials for staging/production client origin(s)
@@ -146,11 +148,13 @@ Lists are ordered **highest priority first** within each category.
 - [x] `GET /api/exercises/:id` — get exercise
 - [x] `POST /api/exercises` — create exercise
 - [x] `PUT /api/exercises/:id` — update exercise
+- [x] `POST /api/exercises/:id/clone` — clone exercise
 - [x] `DELETE /api/exercises/:id` — delete exercise
 - [x] `GET /api/workouts/:userId` — list workouts for user
 - [x] `GET /api/workouts/detail/:id` — get workout
 - [x] `POST /api/workouts` — create workout
 - [x] `PUT /api/workouts/:id` — update workout
+- [x] `POST /api/workouts/:id/clone` — clone workout into a new session
 - [x] `DELETE /api/workouts/:id` — delete workout
 
 All endpoints return `{ success, data?, error? }`.

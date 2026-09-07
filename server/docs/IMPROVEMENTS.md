@@ -64,6 +64,7 @@ Deferred until validation and health checks are in place; domain models and clie
 ### Workout Templates
 
 - **Templates**: Support reusable, user-owned exercise sequences.
+  - Workout clone already extracts a blueprint (set type and weight; no reps, duration, or memo) via `extractStructureFromWorkout` for future instantiation.
   - Store ordered exercise references without completed sets.
   - Template CRUD, duplication, and workout-draft instantiation with empty sets.
 
@@ -99,7 +100,7 @@ Deferred until validation and health checks are in place; domain models and clie
 - **Unit tests**: Model constraints, utilities, validation; controllers/services after separation.
 - **Integration tests**: CRUD, authz, and validation against a controlled database; reset between runs.
 - **Quality gates**: Coverage targets; CI for tests and type checking; regression tests for fixes.
-- **Smoke scripts**: Maintain curl cookbooks for exercises and workouts (add auth when implemented).
+- **Smoke scripts**: Maintain curl cookbooks for exercises and workouts, including clone (add auth when implemented).
 
 ### Code Organization
 

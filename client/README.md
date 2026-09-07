@@ -6,14 +6,15 @@ React + TypeScript frontend for the Personal Gym Tracker application with modern
 
 ### Core Features
 
-- **Workout Management** — Create, view, edit, and delete workouts with catalog-backed exercises
-- **Exercise Catalog** — Browse, search, filter, and create custom exercises with variants
+- **Workout Management** — Create, view, edit, clone, and delete workouts with catalog-backed exercises
+- **Exercise Catalog** — Browse, search, filter, create, and clone exercises with variants
 - **Workout Detail** — Overview, editor, and analytics tabs per session
 - **Exercise Detail** — Overview, editor, and cross-workout history per exercise
 - **Responsive Design** — Modern UI with light/dark theme support
 
 ### User Experience
 
+- **Clone Actions** — Clone a workout or exercise from list cards and detail menus; the new record opens in the editor
 - **Catalog Picker** — Select exercises by equipment variant with metric-aware set inputs
 - **Volume Calculation** — Client-side volume from weight and reps
 - **Visual Feedback** — Loading states, validation, and error messages

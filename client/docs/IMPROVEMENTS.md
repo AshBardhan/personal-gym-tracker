@@ -35,7 +35,7 @@ Priorities align with the near-term build order: **mobile polish, progress page,
 ### Error Handling and Feedback
 
 - **User notifications**: Provide clear feedback for successful and failed operations.
-  - Add toast notifications for create, update, and delete actions.
+  - Add toast notifications for create, update, clone, and delete actions.
   - Display user-friendly messages for API and network failures.
   - Provide contextual errors beside invalid form fields.
 - **Application error boundaries**: Prevent rendering failures from breaking the entire interface.
@@ -67,7 +67,7 @@ Priorities align with the near-term build order: **mobile polish, progress page,
   - Cover reusable UI components and validation states.
   - Cover custom data hooks, utilities, and Zustand form actions.
 - **Integration coverage**: Test critical workflows against MSW handlers.
-  - Create, edit, and delete workouts; exercise catalog flows; loading, empty, and error states.
+  - Create, edit, clone, and delete workouts; exercise catalog flows including clone; loading, empty, and error states.
 
 ## Medium Priority
 
@@ -93,8 +93,8 @@ Deferred until mobile polish and progress page are in good shape.
 ### Workout Templates and Rich Dashboard
 
 - **Dashboard experience**: Combine workout history, progress distribution, and templates.
-  - Provide view, duplicate, and delete actions for workout and template summaries.
-  - Add create-workout and create-template actions.
+  - Workout and exercise clone is available from list cards and detail menus (opens the new record in the editor).
+  - Remaining: view, duplicate, and delete actions for template summaries; create-template actions.
 - **Workout and template editing**: Support ordered exercise workflows.
   - Add, replace, remove, and reorder workout exercises and their raw sets.
   - Create and edit templates containing ordered exercises without completed set data.
