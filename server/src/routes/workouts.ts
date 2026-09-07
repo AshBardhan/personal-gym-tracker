@@ -1,6 +1,7 @@
 import express, { Request, Response } from "express";
 import Workout from "@/models/Workout.js";
 import { sendError, sendSuccess } from "@/utils/api.js";
+import { buildWorkoutClonePayload } from "@/utils/workout.js";
 
 const router = express.Router();
 
@@ -69,6 +70,26 @@ router.put("/:id", async (req: Request, res: Response): Promise<void> => {
     sendError(res, (error as Error).message, 400);
   }
 });
+
+// Clone workout
+router.post(
+  "/:id/clone",
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const source = await Workout.findById(req.params.id);
+      if (!source) {
+        sendError(res, "Workout not found", 404);
+        return;
+      }
+
+      const clone = new Workout(buildWorkoutClonePayload(source));
+      const saved = await clone.save();
+      sendSuccess(res, saved, 201);
+    } catch (error) {
+      sendError(res, (error as Error).message, 400);
+    }
+  },
+);
 
 // Delete workout
 router.delete("/:id", async (req: Request, res: Response): Promise<void> => {
