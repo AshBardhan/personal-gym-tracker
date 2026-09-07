@@ -1,5 +1,5 @@
-import { FormEvent, ReactNode, useMemo } from "react";
-import { AlertTriangle, Trash2 } from "lucide-react";
+import { FormEvent, useMemo } from "react";
+import { AlertTriangle, Save, Trash2, X } from "lucide-react";
 import {
   Equipment,
   ExerciseCategory,
@@ -43,10 +43,11 @@ export type ExerciseFormData = {
 };
 
 interface ExerciseFormContentProps {
+  title: string;
   formData: ExerciseFormData;
   onChange: (formData: ExerciseFormData) => void;
   onSubmit: (e: FormEvent) => void;
-  header?: ReactNode;
+  onCancel: () => void;
   submitAttempted?: boolean;
 }
 
@@ -57,10 +58,11 @@ const equipmentOptions = getEquipmentOptions();
 const metricOptions = getMetricOptions();
 
 const ExerciseFormContent = ({
+  title,
   formData,
   onChange,
   onSubmit,
-  header,
+  onCancel,
   submitAttempted = false,
 }: ExerciseFormContentProps) => {
   const primaryMuscleOptions = useMemo(
@@ -177,7 +179,35 @@ const ExerciseFormContent = ({
 
   return (
     <form onSubmit={onSubmit} noValidate className="flex flex-col">
-      {header}
+      <div className="mb-6 flex items-center justify-between gap-3">
+        <Text variant="h2" className="m-0 min-w-0 truncate">
+          {title}
+        </Text>
+
+        <div className="flex shrink-0 items-center gap-2">
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={onCancel}
+            title="Cancel"
+            aria-label="Cancel"
+            className="px-2.5 lg:px-4"
+          >
+            <X size={18} className="lg:hidden" aria-hidden />
+            <span className="hidden lg:inline">Cancel</span>
+          </Button>
+          <Button
+            type="submit"
+            variant="primary"
+            title="Save"
+            aria-label="Save"
+            className="px-2.5 lg:px-4"
+          >
+            <Save size={18} className="lg:hidden" aria-hidden />
+            <span className="hidden lg:inline">Save</span>
+          </Button>
+        </div>
+      </div>
 
       {submitAttempted && !isExerciseFormValid(formData) && (
         <Card className="flex items-center gap-3 rounded border border-red-600 bg-red-50 p-4 text-red-700 dark:bg-red-950 dark:text-red-300">

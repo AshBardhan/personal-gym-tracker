@@ -1,7 +1,6 @@
 import { FormEvent, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import PageContainer from "@/components/layout/PageContainer";
-import WorkoutFormHeader from "@/components/workout/WorkoutFormHeader";
 import ExerciseFormContent, {
   isExerciseFormValid,
 } from "@/components/exercise/ExerciseFormContent";
@@ -48,13 +47,12 @@ const ExerciseFormPage = () => {
     <div className="min-h-0 w-full flex-1 overflow-y-auto">
       <PageContainer className="py-4 sm:py-6">
         <ExerciseFormContent
+          title="New Exercise"
           formData={formData}
           onChange={setFormData}
           onSubmit={handleSubmit}
+          onCancel={handleCancel}
           submitAttempted={submitAttempted}
-          header={
-            <WorkoutFormHeader title="New Exercise" onCancel={handleCancel} />
-          }
         />
       </PageContainer>
     </div>

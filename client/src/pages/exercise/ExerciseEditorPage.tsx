@@ -1,6 +1,5 @@
 import { FormEvent, useEffect, useState } from "react";
 import { useNavigate, useOutletContext } from "react-router-dom";
-import WorkoutFormHeader from "@/components/workout/WorkoutFormHeader";
 import ExerciseFormContent, {
   ExerciseFormData,
   isExerciseFormValid,
@@ -57,13 +56,12 @@ const ExerciseEditorPage = () => {
 
   return (
     <ExerciseFormContent
+      title="Exercise Editor"
       formData={formData}
       onChange={setFormData}
       onSubmit={handleSubmit}
+      onCancel={handleCancel}
       submitAttempted={submitAttempted}
-      header={
-        <WorkoutFormHeader title="Exercise Editor" onCancel={handleCancel} />
-      }
     />
   );
 };
