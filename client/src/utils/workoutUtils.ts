@@ -6,9 +6,11 @@ import {
   ExerciseSet,
   ExerciseVariant,
   MuscleGroup,
+  Workout,
   WorkoutExercise,
 } from "@/types/entities";
 import { SelectOption } from "@/components/ui/SelectBox";
+import { WorkoutWrite } from "@/services/workouts.service";
 
 type LoadSet = {
   reps?: number;
@@ -121,6 +123,41 @@ export const getValidWorkoutExercises = (
       .filter((set) => isValidSetForMetrics(set, exercise.metrics))
       .map((set) => serializeWorkoutSet(set, exercise.metrics)),
   }));
+
+// ============================================================
+// CLONE UTILITIES (MSW)
+// ============================================================
+
+const cloneSetForWrite = (set: ExerciseSet): ExerciseSet => {
+  const next: ExerciseSet = { type: set.type };
+  if ((set.weight ?? 0) > 0) {
+    next.weight = set.weight;
+  }
+  return next;
+};
+
+/** MSW-only: build create payload when cloning a workout in the mock API. */
+export const buildWorkoutCloneWrite = (
+  source: Workout,
+  date = new Date().toISOString(),
+): WorkoutWrite => ({
+  userId: source.userId,
+  title: source.title,
+  date,
+  exercises: source.exercises.map((exercise) => ({
+    exerciseId: exercise.exerciseId,
+    variantId: exercise.variantId,
+    name: exercise.name,
+    category: exercise.category,
+    primaryMuscleGroup: exercise.primaryMuscleGroup,
+    secondaryMuscleGroups: exercise.secondaryMuscleGroups
+      ? [...exercise.secondaryMuscleGroups]
+      : undefined,
+    equipment: exercise.equipment,
+    metrics: [...exercise.metrics],
+    sets: exercise.sets.map(cloneSetForWrite),
+  })),
+});
 
 // ============================================================
 // CALCULATION UTILITIES

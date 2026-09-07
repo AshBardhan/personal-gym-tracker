@@ -7,6 +7,7 @@ import {
   mockWorkouts,
 } from "@/mocks/data";
 import { Exercise, Workout } from "@/types/entities";
+import { buildWorkoutCloneWrite } from "@/utils/workoutUtils";
 
 const API_URL = "http://localhost:5000";
 
@@ -191,6 +192,27 @@ export const handlers = [
 
     workoutsStore.push(newWorkout);
     const response = mockSuccess(newWorkout, 201);
+    return HttpResponse.json(response.body, { status: response.status });
+  }),
+
+  http.post(`${API_URL}/api/workouts/:id/clone`, ({ params }) => {
+    const { id } = params;
+    const source = workoutsStore.find((item) => item._id === id);
+    if (!source) {
+      const response = mockError("Workout not found", 404);
+      return HttpResponse.json(response.body, { status: response.status });
+    }
+
+    const now = new Date().toISOString();
+    const cloned: Workout = {
+      _id: String(nextWorkoutId++),
+      ...buildWorkoutCloneWrite(source, now),
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    workoutsStore.push(cloned);
+    const response = mockSuccess(cloned, 201);
     return HttpResponse.json(response.body, { status: response.status });
   }),
 
