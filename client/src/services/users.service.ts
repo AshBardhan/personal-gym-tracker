@@ -1,4 +1,4 @@
-import apiClient from "@/services/apiClient";
+import apiClient from "@/lib/apiClient";
 import { User } from "@/types/entities";
 import { AxiosResponse } from "axios";
 
