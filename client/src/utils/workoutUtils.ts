@@ -124,6 +124,77 @@ export const getValidWorkoutExercises = (
       .map((set) => serializeWorkoutSet(set, exercise.metrics)),
   }));
 
+export const setHasMetricValues = (
+  set: ExerciseSet,
+  metrics: ExerciseMetric[],
+): boolean => metrics.some((metric) => (set[metric] ?? 0) > 0);
+
+/** Selected exercise with at least one set missing required metric values. */
+export const exerciseHasIncompleteSets = (exercise: WorkoutExercise): boolean =>
+  Boolean(exercise.exerciseId) &&
+  exercise.sets.some((set) => !isValidSetForMetrics(set, exercise.metrics));
+
+export const countIncompleteSets = (exercises: WorkoutExercise[]): number =>
+  exercises.reduce(
+    (total, exercise) =>
+      exercise.exerciseId
+        ? total +
+          exercise.sets.filter(
+            (set) => !isValidSetForMetrics(set, exercise.metrics),
+          ).length
+        : total,
+    0,
+  );
+
+/** True when save would drop incomplete sets or exercises without valid sets. */
+export const wouldPruneWorkoutForm = (exercises: WorkoutExercise[]): boolean =>
+  countIncompleteSets(exercises) > 0;
+
+export const isStartedEmptyExerciseRow = (
+  exercise: WorkoutExercise,
+): boolean => {
+  const metrics =
+    exercise.metrics.length > 0 ? exercise.metrics : ["weight", "reps"];
+  return (
+    !exercise.exerciseId &&
+    exercise.sets.some((set) =>
+      setHasMetricValues(set, metrics as ExerciseMetric[]),
+    )
+  );
+};
+
+export const hasInvalidWorkoutFormData = (
+  exercises: WorkoutExercise[],
+): boolean =>
+  exercises.some(isStartedEmptyExerciseRow) ||
+  exercises.some(exerciseHasIncompleteSets);
+
+/** Highlight required metric inputs on incomplete sets when validation is forced. */
+export const shouldHighlightSetMetric = (
+  exercise: WorkoutExercise,
+  set: ExerciseSet,
+  metric: ExerciseMetric,
+  showErrors: boolean,
+): boolean => {
+  if (!showErrors || !exercise.exerciseId) return false;
+  if (isValidSetForMetrics(set, exercise.metrics)) return false;
+  if (!exercise.metrics.includes(metric)) return false;
+
+  if (metric === "reps" || metric === "duration") {
+    return (set[metric] ?? 0) <= 0;
+  }
+
+  if (
+    metric === "weight" &&
+    !exercise.metrics.includes("reps") &&
+    !exercise.metrics.includes("duration")
+  ) {
+    return (set.weight ?? 0) <= 0;
+  }
+
+  return false;
+};
+
 // ============================================================
 // CLONE UTILITIES (MSW)
 // ============================================================

@@ -1,10 +1,11 @@
-import { FormEvent, useEffect } from "react";
+import { useEffect } from "react";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import { workoutService } from "@/services/workouts.service";
 import { useWorkoutForm } from "@/stores/workoutFormStore";
 import { config } from "@/config/env";
-import WorkoutFormContent from "@/components/workout/WorkoutFormContent";
-import WorkoutFormHeader from "@/components/workout/WorkoutFormHeader";
+import WorkoutFormContent, {
+  WorkoutFormSaveData,
+} from "@/components/workout/WorkoutFormContent";
 import { WorkoutOutletContext } from "@/pages/workout/WorkoutLayout";
 
 /**
@@ -12,18 +13,19 @@ import { WorkoutOutletContext } from "@/pages/workout/WorkoutLayout";
  */
 const WorkoutEditorPage = () => {
   const navigate = useNavigate();
-  const { workout, workoutId, refetchWorkout } =
-    useOutletContext<WorkoutOutletContext>();
-  const {
-    setSubmitAttempted,
-    getValidExercises,
-    hasValidExercises,
-    resetForm,
-    loadWorkoutData,
-    formData,
-  } = useWorkoutForm();
-
+  const { workout, workoutId } = useOutletContext<WorkoutOutletContext>();
+  const { loadWorkoutData, resetForm } = useWorkoutForm();
   const userId = config.user.DEMO_USER_ID;
+
+  const handleCancel = () => {
+    resetForm();
+    navigate(`/workouts/${workoutId}`);
+  };
+
+  const handleSave = async (data: WorkoutFormSaveData) => {
+    await workoutService.update(workoutId, { userId, ...data });
+    navigate(`/workouts/${workoutId}`);
+  };
 
   useEffect(() => {
     loadWorkoutData({
@@ -33,40 +35,11 @@ const WorkoutEditorPage = () => {
     });
   }, [workout, loadWorkoutData]);
 
-  const handleCancel = () => {
-    resetForm();
-    navigate(`/workouts/${workoutId}`);
-  };
-
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    setSubmitAttempted(true);
-
-    if (!hasValidExercises()) {
-      return;
-    }
-
-    try {
-      await workoutService.update(workoutId, {
-        userId,
-        title: formData.title,
-        date: formData.date,
-        exercises: getValidExercises(),
-      });
-      await refetchWorkout();
-      resetForm();
-      navigate(`/workouts/${workoutId}`);
-    } catch (error) {
-      console.error("Error saving workout:", error);
-    }
-  };
-
   return (
     <WorkoutFormContent
-      onSubmit={handleSubmit}
-      header={
-        <WorkoutFormHeader title="Workout Editor" onCancel={handleCancel} />
-      }
+      title="Workout Editor"
+      onCancel={handleCancel}
+      onSave={handleSave}
     />
   );
 };

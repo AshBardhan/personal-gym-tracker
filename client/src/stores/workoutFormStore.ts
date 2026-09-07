@@ -146,6 +146,7 @@ export const useWorkoutForm = create<WorkoutFormState>((set, get) => ({
               sets: exercise.sets.map((set) => ({ ...set })),
             }))
           : [createEmptyWorkoutExercise()],
+      submitAttempted: false,
       loading: false,
     }),
 }));

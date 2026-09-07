@@ -1,5 +1,5 @@
-import { FormEvent, ReactNode, useMemo, useState } from "react";
-import { ChevronDown, Trash2, X, AlertTriangle } from "lucide-react";
+import { FormEvent, useMemo, useState } from "react";
+import { ChevronDown, Trash2, X, AlertTriangle, Save } from "lucide-react";
 import { useWorkoutForm } from "@/stores/workoutFormStore";
 import { useExercises } from "@/hooks/useExercises";
 import {
@@ -14,6 +14,11 @@ import {
   getCatalogExerciseOptions,
   getVariantOptions,
   snapshotWorkoutExercise,
+  countIncompleteSets,
+  hasInvalidWorkoutFormData,
+  isStartedEmptyExerciseRow,
+  shouldHighlightSetMetric,
+  wouldPruneWorkoutForm,
 } from "@/utils/workoutUtils";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
@@ -45,6 +50,18 @@ const SET_FIELD_LABELS: Record<ExerciseMetric, string> = {
   duration: "Duration (s)",
 };
 
+export type WorkoutFormSaveData = {
+  title: string;
+  date: string;
+  exercises: WorkoutExercise[];
+};
+
+interface WorkoutFormContentProps {
+  title: string;
+  onCancel: () => void;
+  onSave: (data: WorkoutFormSaveData) => Promise<void>;
+}
+
 const parseMetricValue = (value: string): number | undefined => {
   if (value === "") return undefined;
   const parsed = parseFloat(value);
@@ -56,16 +73,16 @@ const setFieldValue = (set: ExerciseSet, field: ExerciseMetric): string => {
   return value != null && value !== 0 ? String(value) : "";
 };
 
-interface WorkoutFormContentProps {
-  onSubmit: (e: FormEvent) => void;
-  header?: ReactNode;
-}
-
-const WorkoutFormContent = ({ onSubmit, header }: WorkoutFormContentProps) => {
+const WorkoutFormContent = ({
+  title,
+  onCancel,
+  onSave,
+}: WorkoutFormContentProps) => {
   const {
     formData,
     exercises,
     submitAttempted,
+    setSubmitAttempted,
     updateFormField,
     addExercise,
     removeExercise,
@@ -73,13 +90,60 @@ const WorkoutFormContent = ({ onSubmit, header }: WorkoutFormContentProps) => {
     addSet,
     removeSet,
     updateSet,
+    getValidExercises,
     hasValidExercises,
+    resetForm,
   } = useWorkoutForm();
   const { exercises: catalog } = useExercises();
 
+  const [showValidationErrors, setShowValidationErrors] = useState(false);
   const [exerciseNameTouched, setExerciseNameTouched] = useState<{
     [key: number]: boolean;
   }>({});
+
+  const buildSaveData = (): WorkoutFormSaveData => ({
+    title: formData.title,
+    date: formData.date,
+    exercises: getValidExercises(),
+  });
+
+  const confirmPruneOnSave = (): boolean => {
+    const incompleteCount = countIncompleteSets(exercises);
+    return window.confirm(
+      `${incompleteCount} incomplete set(s) will be removed. Save anyway?`,
+    );
+  };
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    setSubmitAttempted(true);
+
+    if (!hasValidExercises()) {
+      setShowValidationErrors(true);
+      return;
+    }
+
+    if (wouldPruneWorkoutForm(exercises) && !confirmPruneOnSave()) {
+      setShowValidationErrors(true);
+      return;
+    }
+
+    try {
+      const savedData = buildSaveData();
+      await onSave(savedData);
+      resetForm();
+      setShowValidationErrors(false);
+      setSubmitAttempted(false);
+    } catch (error) {
+      console.error("Error saving workout:", error);
+    }
+  };
+
+  const handleCancel = () => {
+    resetForm();
+    setShowValidationErrors(false);
+    onCancel();
+  };
 
   const exerciseOptions = useMemo(() => {
     const options = getCatalogExerciseOptions(catalog);
@@ -175,17 +239,56 @@ const WorkoutFormContent = ({ onSubmit, header }: WorkoutFormContentProps) => {
     return options;
   };
 
-  return (
-    <form onSubmit={onSubmit} className="flex flex-col">
-      {header}
+  const showFormErrors = showValidationErrors || submitAttempted;
+  const incompleteSetCount = countIncompleteSets(exercises);
+  const hasStartedEmptyRows = exercises.some(isStartedEmptyExerciseRow);
+  const showValidationBanner =
+    showFormErrors && hasInvalidWorkoutFormData(exercises);
 
-      {submitAttempted && !hasValidExercises() && (
+  const validationBannerMessage = !hasValidExercises()
+    ? "Please add at least one valid exercise with complete sets before saving."
+    : hasStartedEmptyRows
+      ? "Select an exercise name for all rows that have set data."
+      : incompleteSetCount > 0
+        ? `Complete ${incompleteSetCount} incomplete set(s), or confirm removal when saving.`
+        : "Please fix the highlighted fields before saving.";
+
+  return (
+    <form onSubmit={handleSubmit} className="flex flex-col">
+      <div className="mb-6 flex items-center justify-between gap-3">
+        <Text variant="h2" className="m-0 min-w-0 truncate">
+          {title}
+        </Text>
+
+        <div className="flex shrink-0 items-center gap-2">
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={handleCancel}
+            title="Cancel"
+            aria-label="Cancel"
+            className="px-2.5 lg:px-4"
+          >
+            <X size={18} className="lg:hidden" aria-hidden />
+            <span className="hidden lg:inline">Cancel</span>
+          </Button>
+          <Button
+            type="submit"
+            variant="primary"
+            title="Save"
+            aria-label="Save"
+            className="px-2.5 lg:px-4"
+          >
+            <Save size={18} className="lg:hidden" aria-hidden />
+            <span className="hidden lg:inline">Save</span>
+          </Button>
+        </div>
+      </div>
+
+      {showValidationBanner && (
         <Card className="mb-4 flex items-center gap-3 rounded border border-red-600 bg-red-50 p-4 text-red-700 dark:bg-red-950 dark:text-red-300">
           <AlertTriangle className="text-red-600 flex-shrink-0" size={24} />
-          <Text variant="p">
-            Please add at least one valid exercise with sets to save the
-            workout.
-          </Text>
+          <Text variant="p">{validationBannerMessage}</Text>
         </Card>
       )}
 
@@ -224,7 +327,7 @@ const WorkoutFormContent = ({ onSubmit, header }: WorkoutFormContentProps) => {
 
           {exercises.map((exercise, exerciseIndex) => {
             const hasExerciseNameError =
-              (submitAttempted || exerciseNameTouched[exerciseIndex]) &&
+              (showFormErrors || exerciseNameTouched[exerciseIndex]) &&
               !exercise.exerciseId;
             const variantOptions = variantOptionsFor(exercise);
             const metrics = metricsForLine(exercise);
@@ -239,7 +342,9 @@ const WorkoutFormContent = ({ onSubmit, header }: WorkoutFormContentProps) => {
                     type="button"
                     disabled={exercises.length === 1}
                     variant="icon-only"
-                    onClick={() => removeExercise(exerciseIndex)}
+                    onClick={() => {
+                      removeExercise(exerciseIndex);
+                    }}
                     title="Remove exercise"
                   >
                     <Trash2 size={18} />
@@ -321,10 +426,11 @@ const WorkoutFormContent = ({ onSubmit, header }: WorkoutFormContentProps) => {
                                   <span className="text-xs">{option.name}</span>
                                 </div>
                               ),
-                              onClick: () =>
+                              onClick: () => {
                                 updateSet(exerciseIndex, setIndex, {
                                   type: option.value,
-                                }),
+                                });
+                              },
                             }))}
                           />
                           <div className="flex gap-4 flex-1">
@@ -363,6 +469,12 @@ const WorkoutFormContent = ({ onSubmit, header }: WorkoutFormContentProps) => {
                                       ? "Duration must be greater than 0"
                                       : undefined
                                 }
+                                forceShowError={shouldHighlightSetMetric(
+                                  exercise,
+                                  set,
+                                  metric,
+                                  showFormErrors,
+                                )}
                               />
                             ))}
                           </div>
@@ -370,7 +482,9 @@ const WorkoutFormContent = ({ onSubmit, header }: WorkoutFormContentProps) => {
                             type="button"
                             variant="icon-only"
                             disabled={exercise.sets.length === 1}
-                            onClick={() => removeSet(exerciseIndex, setIndex)}
+                            onClick={() => {
+                              removeSet(exerciseIndex, setIndex);
+                            }}
                             title="Remove set"
                           >
                             <X size={16} />
@@ -382,7 +496,9 @@ const WorkoutFormContent = ({ onSubmit, header }: WorkoutFormContentProps) => {
                     <Button
                       type="button"
                       variant="secondary"
-                      onClick={() => addSet(exerciseIndex)}
+                      onClick={() => {
+                        addSet(exerciseIndex);
+                      }}
                     >
                       Add Set
                     </Button>
@@ -392,7 +508,13 @@ const WorkoutFormContent = ({ onSubmit, header }: WorkoutFormContentProps) => {
             );
           })}
 
-          <Button type="button" variant="positive" onClick={addExercise}>
+          <Button
+            type="button"
+            variant="positive"
+            onClick={() => {
+              addExercise();
+            }}
+          >
             Add Exercise
           </Button>
         </div>
