@@ -1,8 +1,8 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { LayoutGrid, List, MoreVertical, Search } from "lucide-react";
-import { useWorkouts } from "@/hooks/useWorkouts";
-import { useWorkoutMutation } from "@/hooks/useWorkoutMutation";
+import { useApiQuery } from "@/hooks/useApiQuery";
+import { useApiMutation } from "@/hooks/useApiMutation";
 import {
   getTotalSets,
   getTotalVolume,
@@ -32,28 +32,44 @@ const SKELETON_TILE_COUNT = 3;
  */
 const WorkoutListPage = () => {
   const navigate = useNavigate();
-  const { workouts, loading, error, refetch } = useWorkouts(
-    config.user.DEMO_USER_ID,
-  );
-  const { deleteWorkout, cloneWorkout } = useWorkoutMutation();
+  const userId = config.user.DEMO_USER_ID;
+  const {
+    data: workouts,
+    loading,
+    error,
+    refetch,
+  } = useApiQuery<Workout[]>({
+    endpoint: `/workouts/${userId}`,
+    enabled: !!userId,
+  });
+  const { execute: deleteWorkout } = useApiMutation<void, void>({
+    method: "DELETE",
+    endpoint: "/workouts",
+  });
+  const { execute: cloneWorkout } = useApiMutation<Workout, void>({
+    method: "POST",
+    endpoint: "/workouts/clone",
+  });
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
 
   const searchQueryTrimmed = searchQuery.trim();
   const isSearching = searchQueryTrimmed.length > 0;
 
+  const workoutList = workouts ?? [];
+
   const filteredWorkouts = useMemo(() => {
     const query = searchQueryTrimmed.toLowerCase();
     const matched = !query
-      ? workouts
-      : workouts.filter((workout) =>
+      ? workoutList
+      : workoutList.filter((workout) =>
           (workout.title || "Untitled Workout").toLowerCase().includes(query),
         );
 
     return [...matched].sort(
       (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
     );
-  }, [workouts, searchQueryTrimmed]);
+  }, [workoutList, searchQueryTrimmed]);
 
   const workoutGroups = useMemo(() => {
     const groups: { key: string; label: string; items: Workout[] }[] = [];
@@ -84,7 +100,9 @@ const WorkoutListPage = () => {
   }, [filteredWorkouts]);
 
   const handleClone = async (id: string) => {
-    const cloned = await cloneWorkout(id);
+    const cloned = await cloneWorkout(undefined, {
+      endpoint: `/workouts/${id}/clone`,
+    });
     if (cloned) {
       navigate(`/workouts/${cloned._id}/edit`);
     }
@@ -92,8 +110,10 @@ const WorkoutListPage = () => {
 
   const handleDelete = async (id: string) => {
     if (window.confirm("Are you sure you want to delete this workout?")) {
-      const success = await deleteWorkout(id);
-      if (success) {
+      const deleted = await deleteWorkout(undefined, {
+        endpoint: `/workouts/${id}`,
+      });
+      if (deleted !== null) {
         refetch();
       }
     }
@@ -103,7 +123,7 @@ const WorkoutListPage = () => {
     return (
       <div className="flex flex-1 min-h-0 items-center justify-center">
         <Text variant="p" className="text-red-600 text-lg">
-          {error}
+          {error.message}
         </Text>
       </div>
     );
@@ -182,7 +202,7 @@ const WorkoutListPage = () => {
                 ),
               )}
             </div>
-          ) : workouts.length === 0 ? (
+          ) : workoutList.length === 0 ? (
             <Card className="h-60 flex flex-col items-center justify-center">
               <Text variant="h3" className="mb-2">
                 No workouts found.

@@ -210,7 +210,7 @@ const ExerciseFormContent = ({
       </div>
 
       {submitAttempted && !isExerciseFormValid(formData) && (
-        <Card className="flex items-center gap-3 rounded border border-red-600 bg-red-50 p-4 text-red-700 dark:bg-red-950 dark:text-red-300">
+        <Card className="flex items-center gap-3 rounded border border-red-600 bg-red-50 p-4 text-red-700 dark:bg-red-950 dark:text-red-300 mb-6">
           <AlertTriangle className="text-red-600 flex-shrink-0" size={24} />
           <Text variant="p">
             Please complete all required fields and add at least one valid

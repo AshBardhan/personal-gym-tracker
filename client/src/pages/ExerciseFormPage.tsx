@@ -5,7 +5,8 @@ import ExerciseFormContent, {
   isExerciseFormValid,
 } from "@/components/exercise/ExerciseFormContent";
 import { config } from "@/config/env";
-import { exerciseService } from "@/services/exercises.service";
+import { useApiMutation } from "@/hooks/useApiMutation";
+import { Exercise } from "@/types/entities";
 import {
   buildExerciseWritePayload,
   createEmptyExerciseFormData,
@@ -16,6 +17,13 @@ import {
  */
 const ExerciseFormPage = () => {
   const navigate = useNavigate();
+  const { execute: createExercise } = useApiMutation<
+    Exercise,
+    ReturnType<typeof buildExerciseWritePayload>
+  >({
+    method: "POST",
+    endpoint: "/exercises",
+  });
   const [formData, setFormData] = useState(createEmptyExerciseFormData);
   const [submitAttempted, setSubmitAttempted] = useState(false);
 
@@ -31,15 +39,13 @@ const ExerciseFormPage = () => {
       return;
     }
 
-    try {
-      await exerciseService.create(
-        buildExerciseWritePayload(formData, {
-          userId: config.user.DEMO_USER_ID,
-        }),
-      );
+    const created = await createExercise(
+      buildExerciseWritePayload(formData, {
+        userId: config.user.DEMO_USER_ID,
+      }),
+    );
+    if (created) {
       navigate("/exercises");
-    } catch (error) {
-      console.error("Error creating exercise:", error);
     }
   };
 

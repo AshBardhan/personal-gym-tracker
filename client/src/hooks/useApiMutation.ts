@@ -9,11 +9,18 @@ export interface UseApiMutationOptions {
   enabled?: boolean;
 }
 
+export interface UseApiMutationExecuteOptions {
+  endpoint?: string;
+}
+
 export interface UseApiMutationResult<TResponse, TRequest> {
   data: TResponse | null;
   loading: boolean;
   error: Error | null;
-  execute: (body?: TRequest) => Promise<TResponse | null>;
+  execute: (
+    body?: TRequest,
+    options?: UseApiMutationExecuteOptions,
+  ) => Promise<TResponse | null>;
 }
 
 const toError = (err: unknown): Error =>
@@ -32,10 +39,15 @@ export function useApiMutation<TResponse, TRequest>({
   const [error, setError] = useState<Error | null>(null);
 
   const execute = useCallback(
-    async (body?: TRequest): Promise<TResponse | null> => {
+    async (
+      body?: TRequest,
+      options?: UseApiMutationExecuteOptions,
+    ): Promise<TResponse | null> => {
       if (!enabled) {
         return null;
       }
+
+      const resolvedEndpoint = options?.endpoint ?? endpoint;
 
       try {
         setLoading(true);
@@ -43,7 +55,7 @@ export function useApiMutation<TResponse, TRequest>({
 
         const result = await apiRequest<TResponse, TRequest>(
           method,
-          endpoint,
+          resolvedEndpoint,
           body,
         );
         setData(result);
@@ -53,7 +65,7 @@ export function useApiMutation<TResponse, TRequest>({
         const requestError = toError(err);
         setError(requestError);
         console.error(
-          `API mutation failed (${method} ${endpoint}):`,
+          `API mutation failed (${method} ${resolvedEndpoint}):`,
           requestError,
         );
         return null;

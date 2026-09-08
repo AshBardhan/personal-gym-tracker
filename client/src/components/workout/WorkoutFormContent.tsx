@@ -1,7 +1,7 @@
 import { FormEvent, useMemo, useState } from "react";
 import { ChevronDown, Trash2, X, AlertTriangle, Save } from "lucide-react";
 import { useWorkoutForm } from "@/stores/workoutFormStore";
-import { useExercises } from "@/hooks/useExercises";
+import { useApiQuery } from "@/hooks/useApiQuery";
 import {
   Exercise,
   ExerciseMetric,
@@ -59,7 +59,8 @@ export type WorkoutFormSaveData = {
 interface WorkoutFormContentProps {
   title: string;
   onCancel: () => void;
-  onSave: (data: WorkoutFormSaveData) => Promise<void>;
+  onSave: (data: WorkoutFormSaveData) => Promise<boolean>;
+  saveError?: Error | null;
 }
 
 const parseMetricValue = (value: string): number | undefined => {
@@ -77,6 +78,7 @@ const WorkoutFormContent = ({
   title,
   onCancel,
   onSave,
+  saveError,
 }: WorkoutFormContentProps) => {
   const {
     formData,
@@ -94,7 +96,10 @@ const WorkoutFormContent = ({
     hasValidExercises,
     resetForm,
   } = useWorkoutForm();
-  const { exercises: catalog } = useExercises();
+  const { data: catalogData } = useApiQuery<Exercise[]>({
+    endpoint: "/exercises",
+  });
+  const catalog = catalogData ?? [];
 
   const [showValidationErrors, setShowValidationErrors] = useState(false);
   const [exerciseNameTouched, setExerciseNameTouched] = useState<{
@@ -102,7 +107,7 @@ const WorkoutFormContent = ({
   }>({});
 
   const buildSaveData = (): WorkoutFormSaveData => ({
-    title: formData.title,
+    title: formData.title.trim() || "Untitled Workout",
     date: formData.date,
     exercises: getValidExercises(),
   });
@@ -130,10 +135,12 @@ const WorkoutFormContent = ({
 
     try {
       const savedData = buildSaveData();
-      await onSave(savedData);
-      resetForm();
-      setShowValidationErrors(false);
-      setSubmitAttempted(false);
+      const saved = await onSave(savedData);
+      if (saved) {
+        resetForm();
+        setShowValidationErrors(false);
+        setSubmitAttempted(false);
+      }
     } catch (error) {
       console.error("Error saving workout:", error);
     }
@@ -285,6 +292,13 @@ const WorkoutFormContent = ({
         </div>
       </div>
 
+      {saveError && (
+        <Card className="mb-4 flex items-center gap-3 rounded border border-red-600 bg-red-50 p-4 text-red-700 dark:bg-red-950 dark:text-red-300">
+          <AlertTriangle className="text-red-600 flex-shrink-0" size={24} />
+          <Text variant="p">{saveError.message}</Text>
+        </Card>
+      )}
+
       {showValidationBanner && (
         <Card className="mb-4 flex items-center gap-3 rounded border border-red-600 bg-red-50 p-4 text-red-700 dark:bg-red-950 dark:text-red-300">
           <AlertTriangle className="text-red-600 flex-shrink-0" size={24} />
@@ -381,128 +395,126 @@ const WorkoutFormContent = ({
                     />
                   )}
 
-                  <div className="space-y-3">
-                    <Text variant="h6">Sets</Text>
+                  {exercise.exerciseId && (
+                    <div className="space-y-3">
+                      <Text variant="h6">Sets</Text>
 
-                    <div className="flex flex-col gap-2">
-                      {exercise.sets.map((set, setIndex) => (
-                        <div
-                          key={set._id ?? setIndex}
-                          className="flex items-center gap-3"
-                        >
-                          <DropdownMenu
-                            className="shrink-0"
-                            align="left"
-                            aria-label="Set type"
-                            triggerClassName=""
-                            size="small"
-                            offset={{ x: -8, y: 0 }}
-                            trigger={(open) => (
-                              <div className="flex items-center gap-1">
-                                <SetTypeBadge type={set.type} size="small">
-                                  {getSetTypeLabel(exercise.sets, setIndex)}
-                                </SetTypeBadge>
-                                <ChevronDown
-                                  size={14}
-                                  aria-hidden
-                                  className={clsx(
-                                    "shrink-0 transition-transform",
-                                    open && "rotate-180",
+                      <div className="flex flex-col gap-2">
+                        {exercise.sets.map((set, setIndex) => (
+                          <div
+                            key={set._id ?? setIndex}
+                            className="flex items-center gap-3"
+                          >
+                            <DropdownMenu
+                              className="shrink-0"
+                              align="left"
+                              aria-label="Set type"
+                              triggerClassName=""
+                              size="small"
+                              offset={{ x: -8, y: 0 }}
+                              trigger={(open) => (
+                                <div className="flex items-center gap-1">
+                                  <SetTypeBadge type={set.type} size="small">
+                                    {getSetTypeLabel(exercise.sets, setIndex)}
+                                  </SetTypeBadge>
+                                  <ChevronDown
+                                    size={14}
+                                    aria-hidden
+                                    className={clsx(
+                                      "shrink-0 transition-transform",
+                                      open && "rotate-180",
+                                    )}
+                                  />
+                                </div>
+                              )}
+                              items={SET_TYPE_OPTIONS.map((option) => ({
+                                id: option.value,
+                                selected: option.value === set.type,
+                                label: (
+                                  <div className="flex items-center gap-2">
+                                    <SetTypeBadge
+                                      type={option.value}
+                                      size="small"
+                                    >
+                                      {option.letter}
+                                    </SetTypeBadge>
+                                    <span className="text-xs">
+                                      {option.name}
+                                    </span>
+                                  </div>
+                                ),
+                                onClick: () => {
+                                  updateSet(exerciseIndex, setIndex, {
+                                    type: option.value,
+                                  });
+                                },
+                              }))}
+                            />
+                            <div className="flex gap-4 flex-1">
+                              {metrics.map((metric) => (
+                                <Input
+                                  key={metric}
+                                  label={SET_FIELD_LABELS[metric]}
+                                  type="number"
+                                  inputSize="small"
+                                  id={`${metric}-${exerciseIndex}-${setIndex}`}
+                                  name={metric}
+                                  value={setFieldValue(set, metric)}
+                                  onChange={(e) =>
+                                    handleSetMetricChange(
+                                      exerciseIndex,
+                                      setIndex,
+                                      metric,
+                                      e.target.value,
+                                    )
+                                  }
+                                  placeholder={SET_FIELD_PLACEHOLDERS[metric]}
+                                  min={metric === "weight" ? "0" : "1"}
+                                  step={metric === "weight" ? "0.5" : "1"}
+                                  showErrorOnBlur={true}
+                                  validate={(value) => Number(value) > 0}
+                                  errorMessage={
+                                    metric === "reps"
+                                      ? "Reps must be greater than 0"
+                                      : metric === "duration"
+                                        ? "Duration must be greater than 0"
+                                        : "Weight must be greater than 0"
+                                  }
+                                  forceShowError={shouldHighlightSetMetric(
+                                    exercise,
+                                    set,
+                                    metric,
+                                    showFormErrors,
                                   )}
                                 />
-                              </div>
-                            )}
-                            items={SET_TYPE_OPTIONS.map((option) => ({
-                              id: option.value,
-                              selected: option.value === set.type,
-                              label: (
-                                <div className="flex items-center gap-2">
-                                  <SetTypeBadge
-                                    type={option.value}
-                                    size="small"
-                                  >
-                                    {option.letter}
-                                  </SetTypeBadge>
-                                  <span className="text-xs">{option.name}</span>
-                                </div>
-                              ),
-                              onClick: () => {
-                                updateSet(exerciseIndex, setIndex, {
-                                  type: option.value,
-                                });
-                              },
-                            }))}
-                          />
-                          <div className="flex gap-4 flex-1">
-                            {metrics.map((metric) => (
-                              <Input
-                                key={metric}
-                                label={SET_FIELD_LABELS[metric]}
-                                type="number"
-                                inputSize="small"
-                                id={`${metric}-${exerciseIndex}-${setIndex}`}
-                                name={metric}
-                                value={setFieldValue(set, metric)}
-                                onChange={(e) =>
-                                  handleSetMetricChange(
-                                    exerciseIndex,
-                                    setIndex,
-                                    metric,
-                                    e.target.value,
-                                  )
-                                }
-                                placeholder={SET_FIELD_PLACEHOLDERS[metric]}
-                                min={metric === "weight" ? "0" : "1"}
-                                step={metric === "weight" ? "0.5" : "1"}
-                                showErrorOnBlur={
-                                  metric === "reps" || metric === "duration"
-                                }
-                                validate={
-                                  metric === "reps" || metric === "duration"
-                                    ? (value) => Number(value) > 0
-                                    : undefined
-                                }
-                                errorMessage={
-                                  metric === "reps"
-                                    ? "Reps must be greater than 0"
-                                    : metric === "duration"
-                                      ? "Duration must be greater than 0"
-                                      : undefined
-                                }
-                                forceShowError={shouldHighlightSetMetric(
-                                  exercise,
-                                  set,
-                                  metric,
-                                  showFormErrors,
-                                )}
-                              />
-                            ))}
+                              ))}
+                            </div>
+                            <Button
+                              type="button"
+                              variant="icon-only"
+                              disabled={exercise.sets.length === 1}
+                              onClick={() => {
+                                removeSet(exerciseIndex, setIndex);
+                              }}
+                              title="Remove set"
+                            >
+                              <X size={16} />
+                            </Button>
                           </div>
-                          <Button
-                            type="button"
-                            variant="icon-only"
-                            disabled={exercise.sets.length === 1}
-                            onClick={() => {
-                              removeSet(exerciseIndex, setIndex);
-                            }}
-                            title="Remove set"
-                          >
-                            <X size={16} />
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
+                        ))}
+                      </div>
 
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      onClick={() => {
-                        addSet(exerciseIndex);
-                      }}
-                    >
-                      Add Set
-                    </Button>
-                  </div>
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        onClick={() => {
+                          addSet(exerciseIndex);
+                        }}
+                      >
+                        Add Set
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </Tile>
             );

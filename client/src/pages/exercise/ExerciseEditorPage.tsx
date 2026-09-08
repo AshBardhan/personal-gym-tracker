@@ -8,7 +8,8 @@ import {
   buildExerciseWritePayload,
   getExerciseFormData,
 } from "@/utils/exerciseUtils";
-import { exerciseService } from "@/services/exercises.service";
+import { useApiMutation } from "@/hooks/useApiMutation";
+import { Exercise } from "@/types/entities";
 import { ExerciseOutletContext } from "@/pages/exercise/ExerciseLayout";
 
 /**
@@ -22,6 +23,13 @@ const ExerciseEditorPage = () => {
     getExerciseFormData(exercise),
   );
   const [submitAttempted, setSubmitAttempted] = useState(false);
+  const { execute: updateExercise } = useApiMutation<
+    Exercise,
+    ReturnType<typeof buildExerciseWritePayload>
+  >({
+    method: "PUT",
+    endpoint: `/exercises/${exerciseId}`,
+  });
 
   useEffect(() => {
     setFormData(getExerciseFormData(exercise));
@@ -39,18 +47,15 @@ const ExerciseEditorPage = () => {
       return;
     }
 
-    try {
-      await exerciseService.update(
-        exerciseId,
-        buildExerciseWritePayload(formData, {
-          userId: exercise.userId,
-          isCustom: exercise.isCustom,
-        }),
-      );
+    const updated = await updateExercise(
+      buildExerciseWritePayload(formData, {
+        userId: exercise.userId,
+        isCustom: exercise.isCustom,
+      }),
+    );
+    if (updated) {
       await refetchExercise();
       navigate(`/exercises/${exerciseId}`);
-    } catch (error) {
-      console.error("Error saving exercise:", error);
     }
   };
 

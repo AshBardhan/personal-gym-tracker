@@ -1,9 +1,8 @@
 import { NavLink, Outlet, useNavigate, useParams } from "react-router-dom";
 import { MoreVertical } from "lucide-react";
 import clsx from "clsx";
-import { useExercise } from "@/hooks/useExercise";
-import { useExerciseMutation } from "@/hooks/useExerciseMutation";
-import { useWorkouts } from "@/hooks/useWorkouts";
+import { useApiQuery } from "@/hooks/useApiQuery";
+import { useApiMutation } from "@/hooks/useApiMutation";
 import { config } from "@/config/env";
 import { Exercise, Workout } from "@/types/entities";
 import Button from "@/components/ui/Button";
@@ -16,7 +15,7 @@ export interface ExerciseOutletContext {
   exerciseId: string;
   workouts: Workout[];
   workoutsLoading: boolean;
-  refetchExercise: () => Promise<void>;
+  refetchExercise: () => Promise<Exercise | null>;
 }
 
 /**
@@ -26,25 +25,44 @@ export interface ExerciseOutletContext {
 const ExerciseLayout = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { exercise, loading, error, refetch } = useExercise(id);
-  const { deleteExercise, cloneExercise } = useExerciseMutation();
-  const { workouts, loading: workoutsLoading } = useWorkouts(
-    config.user.DEMO_USER_ID,
-  );
+  const userId = config.user.DEMO_USER_ID;
+  const {
+    data: exercise,
+    loading,
+    error,
+    refetch,
+  } = useApiQuery<Exercise>({
+    endpoint: `/exercises/${id}`,
+    enabled: !!id,
+  });
+  const { execute: deleteExercise } = useApiMutation<void, void>({
+    method: "DELETE",
+    endpoint: `/exercises/${id}`,
+    enabled: !!id,
+  });
+  const { execute: cloneExercise } = useApiMutation<Exercise, void>({
+    method: "POST",
+    endpoint: `/exercises/${id}/clone`,
+    enabled: !!id,
+  });
+  const { data: workouts, loading: workoutsLoading } = useApiQuery<Workout[]>({
+    endpoint: `/workouts/${userId}`,
+    enabled: !!userId,
+  });
 
   const handleDelete = async () => {
     if (!window.confirm("Are you sure you want to delete this exercise?")) {
       return;
     }
 
-    const deleted = await deleteExercise(id!);
-    if (deleted) {
+    const deleted = await deleteExercise();
+    if (deleted !== null) {
       navigate("/exercises");
     }
   };
 
   const handleClone = async () => {
-    const cloned = await cloneExercise(id!);
+    const cloned = await cloneExercise();
     if (cloned) {
       navigate(`/exercises/${cloned._id}/edit`);
     }
@@ -64,7 +82,7 @@ const ExerciseLayout = () => {
     return (
       <div className="flex flex-1 min-h-0 flex-col items-center justify-center gap-6">
         <Text variant="p" className="text-red-600 text-lg">
-          {error || "Exercise not found"}
+          {error?.message || "Exercise not found"}
         </Text>
         <Button variant="primary" to="/exercises">
           ← Back to exercises
@@ -82,7 +100,7 @@ const ExerciseLayout = () => {
   const outletContext: ExerciseOutletContext = {
     exercise,
     exerciseId: id,
-    workouts,
+    workouts: workouts ?? [],
     workoutsLoading,
     refetchExercise: refetch,
   };

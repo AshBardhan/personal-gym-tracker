@@ -2,8 +2,8 @@ import { Fragment, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Dot, MoreVertical, Search } from "lucide-react";
 import { Exercise, MuscleGroup } from "@/types/entities";
-import { useExercises } from "@/hooks/useExercises";
-import { useExerciseMutation } from "@/hooks/useExerciseMutation";
+import { useApiQuery } from "@/hooks/useApiQuery";
+import { useApiMutation } from "@/hooks/useApiMutation";
 import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
@@ -27,17 +27,31 @@ const getExerciseMuscles = (exercise: Exercise): MuscleGroup[] => [
 
 const ExerciseListPage = () => {
   const navigate = useNavigate();
-  const { exercises, loading, error, refetch } = useExercises();
-  const { cloneExercise, deleteExercise } = useExerciseMutation();
+  const {
+    data: exercises,
+    loading,
+    error,
+    refetch,
+  } = useApiQuery<Exercise[]>({ endpoint: "/exercises" });
+  const { execute: deleteExercise } = useApiMutation<void, void>({
+    method: "DELETE",
+    endpoint: "/exercises",
+  });
+  const { execute: cloneExercise } = useApiMutation<Exercise, void>({
+    method: "POST",
+    endpoint: "/exercises/clone",
+  });
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedMuscles, setSelectedMuscles] = useState<string[]>([]);
 
   const searchQueryTrimmed = searchQuery.trim();
   const isSearching = searchQueryTrimmed.length > 0;
 
+  const exerciseList = exercises ?? [];
+
   const muscleOptions = useMemo((): MultiSelectOption[] => {
     const present = new Set(
-      exercises.flatMap((exercise) => getExerciseMuscles(exercise)),
+      exerciseList.flatMap((exercise) => getExerciseMuscles(exercise)),
     );
 
     return EXERCISE_CATEGORY_ORDER.flatMap((category) =>
@@ -49,12 +63,12 @@ const ExerciseListPage = () => {
           group: formatCategory(category),
         })),
     );
-  }, [exercises]);
+  }, [exerciseList]);
 
   const filteredExercises = useMemo(() => {
     const query = searchQueryTrimmed.toLowerCase();
 
-    const matched = exercises.filter((exercise) => {
+    const matched = exerciseList.filter((exercise) => {
       const muscles = getExerciseMuscles(exercise);
       const categoryLabel = formatCategory(exercise.category);
 
@@ -79,7 +93,7 @@ const ExerciseListPage = () => {
     });
 
     return [...matched].sort((a, b) => a.name.localeCompare(b.name));
-  }, [exercises, searchQueryTrimmed, selectedMuscles]);
+  }, [exerciseList, searchQueryTrimmed, selectedMuscles]);
 
   const exerciseGroups = useMemo(() => {
     const groups = new Map<string, Exercise[]>();
@@ -99,7 +113,9 @@ const ExerciseListPage = () => {
   }, [filteredExercises]);
 
   const handleClone = async (id: string) => {
-    const cloned = await cloneExercise(id);
+    const cloned = await cloneExercise(undefined, {
+      endpoint: `/exercises/${id}/clone`,
+    });
     if (cloned) {
       navigate(`/exercises/${cloned._id}/edit`);
     }
@@ -110,8 +126,10 @@ const ExerciseListPage = () => {
       return;
     }
 
-    const deleted = await deleteExercise(id);
-    if (deleted) {
+    const deleted = await deleteExercise(undefined, {
+      endpoint: `/exercises/${id}`,
+    });
+    if (deleted !== null) {
       refetch();
     }
   };
@@ -124,7 +142,7 @@ const ExerciseListPage = () => {
     return (
       <div className="flex flex-1 min-h-0 items-center justify-center">
         <Text variant="p" className="text-red-600 text-lg">
-          {error}
+          {error.message}
         </Text>
       </div>
     );
@@ -205,7 +223,7 @@ const ExerciseListPage = () => {
             <Text variant="p" className="text-gray-500 dark:text-gray-300">
               Loading exercises...
             </Text>
-          ) : exercises.length === 0 ? (
+          ) : exerciseList.length === 0 ? (
             <Card className="h-60 flex flex-col items-center justify-center">
               <Text variant="h3" className="mb-2">
                 No exercises found.

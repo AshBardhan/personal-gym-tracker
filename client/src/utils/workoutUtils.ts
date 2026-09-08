@@ -10,7 +10,7 @@ import {
   WorkoutExercise,
 } from "@/types/entities";
 import { SelectOption } from "@/components/ui/SelectBox";
-import { WorkoutWrite } from "@/services/workouts.service";
+import { WorkoutWrite } from "@/types/entities";
 
 type LoadSet = {
   reps?: number;
@@ -79,15 +79,7 @@ export const snapshotWorkoutExercise = (
 export const isValidSetForMetrics = (
   set: ExerciseSet,
   metrics: ExerciseMetric[],
-): boolean => {
-  if (metrics.includes("duration")) {
-    return (set.duration ?? 0) > 0;
-  }
-  if (metrics.includes("reps")) {
-    return (set.reps ?? 0) > 0;
-  }
-  return (set.weight ?? 0) > 0;
-};
+): boolean => metrics.every((metric) => (set[metric] ?? 0) > 0);
 
 export const serializeWorkoutSet = (
   set: ExerciseSet,
@@ -177,22 +169,10 @@ export const shouldHighlightSetMetric = (
   showErrors: boolean,
 ): boolean => {
   if (!showErrors || !exercise.exerciseId) return false;
-  if (isValidSetForMetrics(set, exercise.metrics)) return false;
   if (!exercise.metrics.includes(metric)) return false;
+  if (isValidSetForMetrics(set, exercise.metrics)) return false;
 
-  if (metric === "reps" || metric === "duration") {
-    return (set[metric] ?? 0) <= 0;
-  }
-
-  if (
-    metric === "weight" &&
-    !exercise.metrics.includes("reps") &&
-    !exercise.metrics.includes("duration")
-  ) {
-    return (set.weight ?? 0) <= 0;
-  }
-
-  return false;
+  return (set[metric] ?? 0) <= 0;
 };
 
 // ============================================================

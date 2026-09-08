@@ -1,8 +1,8 @@
 import { NavLink, Outlet, useNavigate, useParams } from "react-router-dom";
 import { MoreVertical } from "lucide-react";
 import clsx from "clsx";
-import { useWorkout } from "@/hooks/useWorkout";
-import { useWorkoutMutation } from "@/hooks/useWorkoutMutation";
+import { useApiQuery } from "@/hooks/useApiQuery";
+import { useApiMutation } from "@/hooks/useApiMutation";
 import { Workout } from "@/types/entities";
 import Button from "@/components/ui/Button";
 import Text from "@/components/ui/Text";
@@ -12,7 +12,7 @@ import DropdownMenu from "@/components/ui/DropdownMenu";
 export interface WorkoutOutletContext {
   workout: Workout;
   workoutId: string;
-  refetchWorkout: () => Promise<void>;
+  refetchWorkout: () => Promise<Workout | null>;
 }
 
 /**
@@ -22,12 +22,29 @@ export interface WorkoutOutletContext {
 const WorkoutLayout = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { workout, loading, error, refetch } = useWorkout(id);
-  const { deleteWorkout, cloneWorkout } = useWorkoutMutation();
+  const {
+    data: workout,
+    loading,
+    error,
+    refetch,
+  } = useApiQuery<Workout>({
+    endpoint: `/workouts/detail/${id}`,
+    enabled: !!id,
+  });
+  const { execute: deleteWorkout } = useApiMutation<void, void>({
+    method: "DELETE",
+    endpoint: `/workouts/${id}`,
+    enabled: !!id,
+  });
+  const { execute: cloneWorkout } = useApiMutation<Workout, void>({
+    method: "POST",
+    endpoint: `/workouts/${id}/clone`,
+    enabled: !!id,
+  });
 
   const handleClone = async () => {
     if (!id) return;
-    const cloned = await cloneWorkout(id);
+    const cloned = await cloneWorkout();
     if (cloned) {
       navigate(`/workouts/${cloned._id}/edit`);
     }
@@ -38,8 +55,8 @@ const WorkoutLayout = () => {
     if (!window.confirm("Are you sure you want to delete this workout?")) {
       return;
     }
-    const success = await deleteWorkout(id);
-    if (success) {
+    const deleted = await deleteWorkout();
+    if (deleted !== null) {
       navigate("/workouts");
     }
   };
@@ -58,7 +75,7 @@ const WorkoutLayout = () => {
     return (
       <div className="flex flex-1 min-h-0 flex-col items-center justify-center gap-6">
         <Text variant="p" className="text-red-600 text-lg">
-          {error || "Workout not found"}
+          {error?.message || "Workout not found"}
         </Text>
         <Button variant="primary" to="/workouts">
           ← Back to workouts

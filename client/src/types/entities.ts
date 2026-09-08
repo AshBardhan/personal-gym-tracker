@@ -81,6 +81,8 @@ export interface ExerciseVariant {
   metrics: ExerciseMetric[];
 }
 
+export type WorkoutWrite = Omit<Workout, "_id" | "createdAt" | "updatedAt">;
+
 /** Session — workout list and workout page. One GET, no catalog join. */
 export interface Workout {
   _id: string;
