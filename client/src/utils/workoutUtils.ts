@@ -281,35 +281,35 @@ const toDistribution = (totals: Record<string, number>): DistributionItem[] => {
     .sort((a, b) => b.percent - a.percent);
 };
 
-/**
- * Category distribution: logged lines per category
- */
-export const getCategoryDistribution = (workout: {
-  exercises: { category?: string }[];
-}): DistributionItem[] => {
+type CategoryExercise = { category?: string };
+
+type MuscleExercise = {
+  muscleGroup?: string[];
+  primaryMuscleGroup?: string;
+  secondaryMuscleGroups?: string[];
+};
+
+type EquipmentExercise = { equipment?: Equipment };
+
+const collectCategoryTotals = (
+  exercises: CategoryExercise[],
+): Record<string, number> => {
   const totals: Record<string, number> = {};
 
-  for (const exercise of workout.exercises) {
+  for (const exercise of exercises) {
     const category = formatCategory(exercise.category?.trim() || "other");
     totals[category] = (totals[category] || 0) + 1;
   }
 
-  return toDistribution(totals);
+  return totals;
 };
 
-/**
- * Muscle distribution: each logged line counts toward primary + secondary
- */
-export const getMuscleGroupDistribution = (workout: {
-  exercises: {
-    muscleGroup?: string[];
-    primaryMuscleGroup?: string;
-    secondaryMuscleGroups?: string[];
-  }[];
-}): DistributionItem[] => {
+const collectMuscleTotals = (
+  exercises: MuscleExercise[],
+): Record<string, number> => {
   const totals: Record<string, number> = {};
 
-  for (const exercise of workout.exercises) {
+  for (const exercise of exercises) {
     const groups = (
       exercise.muscleGroup ?? [
         exercise.primaryMuscleGroup,
@@ -330,26 +330,65 @@ export const getMuscleGroupDistribution = (workout: {
     }
   }
 
-  return toDistribution(totals);
+  return totals;
 };
 
-/**
- * Equipment distribution: logged lines per equipment
- */
-export const getEquipmentDistribution = (workout: {
-  exercises: { equipment?: Equipment }[];
-}): DistributionItem[] => {
+const collectEquipmentTotals = (
+  exercises: EquipmentExercise[],
+): Record<string, number> => {
   const totals: Record<string, number> = {};
 
-  for (const exercise of workout.exercises) {
+  for (const exercise of exercises) {
     const label = exercise.equipment
       ? formatEquipment(exercise.equipment)
       : "Other";
     totals[label] = (totals[label] || 0) + 1;
   }
 
-  return toDistribution(totals);
+  return totals;
 };
+
+const flattenWorkoutExercises = <T>(workouts: { exercises: T[] }[]): T[] =>
+  workouts.flatMap((workout) => workout.exercises);
+
+/**
+ * Category distribution: logged lines per category
+ */
+export const getCategoryDistribution = (workout: {
+  exercises: CategoryExercise[];
+}): DistributionItem[] =>
+  toDistribution(collectCategoryTotals(workout.exercises));
+
+export const getCategoryDistributionFromWorkouts = (
+  workouts: { exercises: CategoryExercise[] }[],
+): DistributionItem[] =>
+  toDistribution(collectCategoryTotals(flattenWorkoutExercises(workouts)));
+
+/**
+ * Muscle distribution: each logged line counts toward primary + secondary
+ */
+export const getMuscleGroupDistribution = (workout: {
+  exercises: MuscleExercise[];
+}): DistributionItem[] =>
+  toDistribution(collectMuscleTotals(workout.exercises));
+
+export const getMuscleGroupDistributionFromWorkouts = (
+  workouts: { exercises: MuscleExercise[] }[],
+): DistributionItem[] =>
+  toDistribution(collectMuscleTotals(flattenWorkoutExercises(workouts)));
+
+/**
+ * Equipment distribution: logged lines per equipment
+ */
+export const getEquipmentDistribution = (workout: {
+  exercises: EquipmentExercise[];
+}): DistributionItem[] =>
+  toDistribution(collectEquipmentTotals(workout.exercises));
+
+export const getEquipmentDistributionFromWorkouts = (
+  workouts: { exercises: EquipmentExercise[] }[],
+): DistributionItem[] =>
+  toDistribution(collectEquipmentTotals(flattenWorkoutExercises(workouts)));
 
 export const getCatalogExerciseOptions = (
   exercises: Exercise[],

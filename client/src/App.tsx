@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import clsx from "clsx";
 import { ThemeProvider, useTheme } from "@/context/ThemeContext";
 import Navbar from "@/components/layout/Navbar";
+import DashboardPage from "@/pages/DashboardPage";
 import WorkoutListPage from "@/pages/WorkoutListPage";
 import WorkoutFormPage from "@/pages/WorkoutFormPage";
 import WorkoutLayout from "@/pages/workout/WorkoutLayout";
@@ -24,7 +25,7 @@ const AppShell = () => {
         <Navbar />
         <main className="main-content">
           <Routes>
-            <Route path="/" element={<WorkoutListPage />} />
+            <Route path="/" element={<DashboardPage />} />
             <Route path="/workouts" element={<WorkoutListPage />} />
             <Route path="/workouts/new" element={<WorkoutFormPage />} />
             <Route path="/exercises" element={<ExerciseListPage />} />

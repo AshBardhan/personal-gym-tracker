@@ -16,6 +16,7 @@ const navLinkClass = ({ isActive }: { isActive: boolean }) =>
 const Navbar = () => {
   const { theme, setTheme } = useTheme();
   const { pathname } = useLocation();
+  const workoutsActive = pathname.startsWith("/workouts");
   const exercisesActive = pathname.startsWith("/exercises");
 
   return (
@@ -24,6 +25,7 @@ const Navbar = () => {
         <div className="flex items-center gap-8">
           <Link
             to="/"
+            aria-label="Home"
             className="text-2xl font-bold text-gray-900 no-underline transition-colors hover:text-gray-200 dark:text-white dark:hover:text-gray-300"
           >
             Gym Tracker
