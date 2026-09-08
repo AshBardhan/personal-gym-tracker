@@ -1,6 +1,5 @@
 import { useOutletContext } from "react-router-dom";
 import {
-  DistributionItem,
   formatVolume,
   getCategoryDistribution,
   getEquipmentDistribution,
@@ -10,47 +9,12 @@ import {
   getTotalVolume,
   hasWorkoutWeightedVolume,
 } from "@/utils/workoutUtils";
+import DistributionSection from "@/components/analytics/DistributionSection";
 import Text from "@/components/ui/Text";
 import Card from "@/components/ui/Card";
 import Metric from "@/components/ui/Metric";
 import Tile from "@/components/ui/Tile";
 import { WorkoutOutletContext } from "@/pages/workout/WorkoutLayout";
-
-interface DistributionSectionProps {
-  title: string;
-  emptyMessage: string;
-  items: DistributionItem[];
-}
-
-const DistributionSection = ({
-  title,
-  emptyMessage,
-  items,
-}: DistributionSectionProps) => (
-  <section>
-    <Text variant="h3" className="mb-2">
-      {title}
-    </Text>
-    {items.length === 0 ? (
-      <Tile>
-        <Text variant="p" className="text-gray-500 dark:text-gray-300">
-          {emptyMessage}
-        </Text>
-      </Tile>
-    ) : (
-      <Tile className="grid grid-cols-3 gap-4">
-        {items.map(({ label, percent }) => (
-          <Metric
-            key={label}
-            label={label}
-            value={`${percent}%`}
-            reverse={true}
-          />
-        ))}
-      </Tile>
-    )}
-  </section>
-);
 
 /**
  * Workout analytics tab — category, muscle, and equipment shares plus session stats.
