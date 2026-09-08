@@ -25,7 +25,7 @@ A full-stack MERN application with TypeScript support for tracking gym workouts 
 | `/workouts/:id/edit` | WorkoutEditorPage | Edit workout |
 | `/workouts/:id/analytics` | WorkoutAnalyticsPage | Workout analytics |
 | `/exercises` | ExerciseListPage | Exercise catalog |
-| `/exercise/new` | ExerciseFormPage | Create custom exercise |
+| `/exercises/new` | ExerciseFormPage | Create custom exercise |
 | `/exercises/:id` | ExerciseOverviewPage | Exercise detail |
 | `/exercises/:id/edit` | ExerciseEditorPage | Edit exercise |
 | `/exercises/:id/history` | ExerciseHistoryPage | Exercise history across workouts |

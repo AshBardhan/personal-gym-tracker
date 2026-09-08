@@ -16,9 +16,7 @@ const navLinkClass = ({ isActive }: { isActive: boolean }) =>
 const Navbar = () => {
   const { theme, setTheme } = useTheme();
   const { pathname } = useLocation();
-  const workoutsActive = pathname === "/" || pathname.startsWith("/workouts");
-  const exercisesActive =
-    pathname.startsWith("/exercises") || pathname.startsWith("/exercise");
+  const exercisesActive = pathname.startsWith("/exercises");
 
   return (
     <nav className="app-navbar sticky top-0 z-50 shrink-0 border-b border-transparent bg-gray-400 py-4 shadow dark:shadow-none">

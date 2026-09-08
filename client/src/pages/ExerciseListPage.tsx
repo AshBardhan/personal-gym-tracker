@@ -190,7 +190,7 @@ const ExerciseListPage = () => {
                   variant="primary"
                   size="medium"
                   className="shrink-0"
-                  to="/exercise/new"
+                  to="/exercises/new"
                 >
                   New Exercise
                 </Button>
@@ -234,7 +234,7 @@ const ExerciseListPage = () => {
               >
                 Add your first exercise to get started.
               </Text>
-              <Button variant="primary" size="large" to="/exercise/new">
+              <Button variant="primary" size="large" to="/exercises/new">
                 New Exercise
               </Button>
             </Card>

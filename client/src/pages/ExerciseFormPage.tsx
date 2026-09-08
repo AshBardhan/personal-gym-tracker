@@ -13,7 +13,7 @@ import {
 } from "@/utils/exerciseUtils";
 
 /**
- * Create-exercise page at `/exercise/new`.
+ * Create-exercise page at `/exercises/new`.
  */
 const ExerciseFormPage = () => {
   const navigate = useNavigate();

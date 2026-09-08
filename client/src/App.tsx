@@ -28,7 +28,7 @@ const AppShell = () => {
             <Route path="/workouts" element={<WorkoutListPage />} />
             <Route path="/workouts/new" element={<WorkoutFormPage />} />
             <Route path="/exercises" element={<ExerciseListPage />} />
-            <Route path="/exercise/new" element={<ExerciseFormPage />} />
+            <Route path="/exercises/new" element={<ExerciseFormPage />} />
 
             <Route path="/workouts/:id" element={<WorkoutLayout />}>
               <Route index element={<WorkoutOverviewPage />} />

@@ -108,7 +108,7 @@ Lists are ordered **highest priority first** within each category.
 - [x] `/workouts/:id/edit` — edit workout
 - [x] `/workouts/:id/analytics` — workout analytics
 - [x] `/exercises` — exercise catalog list
-- [x] `/exercise/new` — create custom exercise
+- [x] `/exercises/new` — create custom exercise
 - [x] `/exercises/:id` — exercise overview
 - [x] `/exercises/:id/edit` — edit exercise
 - [x] `/exercises/:id/history` — exercise history across workouts

@@ -58,7 +58,7 @@ Routes implemented in `src/App.tsx`. Workout pages use the demo user ID from con
 | `/workouts/:id/edit` | `WorkoutEditorPage` | Edit workout |
 | `/workouts/:id/analytics` | `WorkoutAnalyticsPage` | Workout analytics |
 | `/exercises` | `ExerciseListPage` | Browse and search exercise catalog |
-| `/exercise/new` | `ExerciseFormPage` | Create custom exercise |
+| `/exercises/new` | `ExerciseFormPage` | Create custom exercise |
 | `/exercises/:id` | `ExerciseOverviewPage` | Exercise detail |
 | `/exercises/:id/edit` | `ExerciseEditorPage` | Edit exercise |
 | `/exercises/:id/history` | `ExerciseHistoryPage` | Exercise history across workouts |
