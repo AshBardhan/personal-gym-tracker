@@ -4,94 +4,152 @@ Checklist for a deployable Personal Gym Tracker MVP, derived from [client/docs/I
 
 ## Product Overview
 
-**Personal Gym Tracker** is a full-stack app for logging workouts and reviewing progress.
+**Personal Gym Tracker** is a mobile-first, responsive full-stack app for logging workouts in the gym and reviewing progress over time.
 
 | Persona | Goal |
 | ------- | ---- |
-| **User** (top priority) | Log sets on a phone in the gym and analyse progress over time |
-| **Admin** | Dashboard to manage users and the shared exercise catalog |
+| **User** (top priority) | Log sets quickly on a phone, track personal records, and analyse progress |
+| **Admin** | Manage users and the shared exercise catalog |
 
-**MVP scope (build order):** (1) workout + exercise pages with real or MSW data, (2) server models/API + client integration, (3) auth with `user` / `admin` roles and ownership, then mobile polish, progress charts, admin management, and deploy (Atlas + static client + Node API).
+**Build order:**
 
-**Explicitly post-MVP:** PWA install/offline shell, workout templates, server progress/records APIs, password-reset email flows, AI personalized plans, social features, API versioning polish.
+| Priority | Categories |
+| -------- | ---------- |
+| **Done** | Workout and exercise pages, catalog-backed workouts, `ApiResponse<T>` contract, MSW parity, dashboard page |
+| **P0** | Layout and UI foundation · Workout domain foundations · Live workout sessions |
+| **P1** | Personal records · Workout history and exercise insights |
+| **P2** | Dashboard · Exercise catalog · Workout templates (medium) |
+| **Pre-deploy** | Server hardening · Authentication and admin · Deploy |
+| **P3 / post-MVP** | Logging extras and settings · PWA · advanced features |
 
-**Development lanes:** Prefer client-only work behind MSW, server-only work verified with curl/`mongosh`, and short integration spikes for contract changes (exercise IDs, workout payloads, then auth identity and CORS).
+**Development lanes:** client-only work behind MSW, server-only work verified with curl/`mongosh`, and short integration spikes for contract changes. Every API change ships with matching MSW handlers.
 
 ---
 
 ## Task Checklist
 
-Lists are ordered **highest priority first** within each category.
+Ordered by priority within each category. Tags: **[C]** client, **[S]** server, **[C+S]** both.
 
-### Client-only (MSW; integrate later)
+### Done — Foundation
 
-- [x] Workout pages: list, detail (overview/edit/analytics), create, edit, clone aligned to catalog + variant + sets
-- [x] Exercise pages: browse/search catalog; create/edit/clone custom exercises; overview and history
-- [x] Domain types + MSW handlers aligned with server exercise/workout contracts and `ApiResponse<T>`
-- [x] API client unwraps `ApiResponse` envelope and normalizes error messages
-- [ ] Mobile gym UX: touch targets, stacked layouts, sticky primary actions, numeric keyboards for reps/weight
-- [ ] Workout logging polish: faster add exercise/set, skeletons, empty/error states, toasts for mutations
-- [ ] Progress page (`/progress`): 7d / 30d / all-time volume charts from workout list data (client-calc)
-- [ ] Admin shell: `/admin`, `/admin/users`, `/admin/exercises` (role guards when auth lands)
-- [ ] Admin users table CRUD against MSW
-- [ ] Exercise catalog admin UI (name, category, primary/secondary muscles, variants)
-- [ ] Workout form validation hardening (shared schema; field-level messages)
-- [ ] Env hygiene: validate Vite env; ensure MSW off in production builds; keep `.env.example` accurate
-- [ ] Vitest + RTL against MSW for workout CRUD and exercise catalog flows
-- [ ] Error boundaries for unexpected render failures
-- [ ] Auth UI: `/login`, `/register`, logout, session expiry (MSW tokens) — **after** domain pages
-- [ ] Client session layer: Axios credentials/Bearer, 401 redirect, refresh flow stubbed in MSW
-- [ ] Route guards for user pages; redirect unauthenticated users to login
-- [ ] Accessibility pass on workout form, exercise UI, and (later) auth/admin tables
-- [ ] Lazy-load routes / Suspense fallbacks
-- [ ] Search/filter workout history in the list UI
-- [ ] PWA manifest + service worker shell (post-MVP stretch; can start client-only)
-- [ ] Templates UI list/create/apply (post-MVP; MSW first)
-- [ ] Password-reset / forgot-password pages (post-MVP)
-- [ ] Playwright e2e for core journeys (post-MVP or late MVP)
+- [x] [C] Workout pages: list, detail (overview / edit / analytics), create, edit, clone
+- [x] [C] Exercise pages: browse/search catalog; create / edit / clone custom exercises; overview and history
+- [x] [C] Dashboard page with analytics and recent workouts
+- [x] [C] `useApiQuery` / `useApiMutation` hooks; API client unwraps `ApiResponse<T>` and normalizes errors
+- [x] [S] Exercise model with embedded variants, seeded from [EXERCISES.md](EXERCISES.md); category, muscle, and equipment indexes
+- [x] [S] Workout schema: ordered exercises with `exerciseId`, `variantId`, snapshots, and sets
+- [x] [S] Exercise and workout CRUD routes; workout and exercise clone routes
+- [x] [S] Seed script (demo user, catalog, sample workouts) and `ApiResponse<T>` envelope on all routes
+- [x] [C+S] Catalog alignment: seed ↔ MSW ↔ picker ↔ workout submit with `exerciseId`
 
-### Server-only (curl + mongosh; client later)
+### P0 — Layout and UI Foundation
 
-- [x] Exercise model + relationships + seed from [EXERCISES.md](EXERCISES.md); indexes on category, muscle group, equipment
-- [x] Workout schema: ordered exercises with `exerciseId` + snapshots + variant + sets
-- [x] Exercise CRUD API routes (`/api/exercises`)
-- [x] Workout CRUD API routes (`/api/workouts`; legacy `:userId` list + `/detail/:id` get)
-- [x] Clone APIs: `POST /api/workouts/:id/clone` and `POST /api/exercises/:id/clone`
-- [x] Seed script: demo user, exercise catalog, sample workouts (`npm run seed`)
-- [x] Structured `ApiResponse<T>` envelope on all routes (`sendSuccess` / `sendError`)
-- [ ] Env validation and typed config (`MONGODB_URI`, `PORT`, `NODE_ENV`)
-- [ ] Request validation (users, workouts, exercises, ObjectIds) with field-level errors
-- [ ] Security baseline: Helmet, rate limits, CORS allowlist, body size limits, NoSQL injection guards
-- [ ] `GET /api/health` liveness/readiness (Mongo check)
-- [ ] Reshape workout routes toward `GET /api/workouts` and `GET /api/workouts/:id` (deprecate `:userId` / `detail`)
-- [ ] Query indexes verified in `mongosh` (compound `userId` + `date` on workouts)
-- [ ] Smoke curl script(s) covering exercises and workouts
-- [ ] Auth API: register, login, logout, refresh; bcrypt — **after** domain API works with client
-- [ ] `GET /api/auth/me` returning user + role
-- [ ] Auth middleware attaching `req.user`; reject invalid/expired credentials
-- [ ] User roles (`user` / `admin`); protect admin-only user/exercise writes
-- [ ] Workout ownership: ignore client-supplied `userId`; scope list/update/delete to owner
-- [ ] Structured request logging (medium)
-- [ ] Progress/summary APIs (post-MVP if client-calc is enough for MVP)
-- [ ] All-time records + reconciliation (post-MVP)
-- [ ] Templates API + instantiate (post-MVP)
-- [ ] Password-reset tokens + email (post-MVP)
-- [ ] `/api/v1` versioning, OpenAPI, pagination/filtering (post-MVP)
-- [ ] Integration tests for authz and validation (post-MVP / hardening)
+- [ ] [C] 1280px (`max-w-screen-xl`) centered container; mobile-first breakpoints
+- [ ] [C] Bottom tab bar on phones (Home, History, Workout, Exercises); top navbar from `md`
+- [ ] [C] Safe-area insets and bottom padding for fixed UI (tab bar, session panel)
+- [ ] [C] Alert dialog replacing `window.confirm`
+- [ ] [C] Toast with progress, success, warning, and failure variants
+- [ ] [C] Badge with default and active variants
+- [ ] [C] Text button variant for secondary actions; action sheet for menus on phones
+- [ ] [C] Numeric keyboards, 44px touch targets, consistent loading / empty / error states
 
-### Must implement together
+### P0 — Workout Domain Foundations
 
-- [x] Shared `ApiResponse<T>` contract and client unwrap layer
-- [x] Exercise catalog: seed ↔ MSW ↔ client picker ↔ workout submit with `exerciseId`
-- [x] Workout create/update payload alignment (types, MSW, form submit)
-- [x] Workout/exercise clone: server payload helpers, MSW handlers, and list/detail Clone actions
-- [ ] Auth end-to-end: real login/register against API; MSW parity for status codes and bodies
-- [ ] Replace `VITE_DEMO_USER_ID` with authenticated identity on all workout calls
-- [ ] CORS + credentials for staging/production client origin(s)
-- [ ] Admin authorization live: UI role guards + server admin checks before any public deploy
-- [ ] Staging deploy: static client + Node API + MongoDB Atlas; health check green
-- [ ] Decide progress strategy for MVP (client-calc vs progress APIs) and stick to one
-- [ ] Production checklist: MSW disabled, secrets set, HTTPS, rate limits on auth
+- [ ] [C] Separate read and write types; typed workout and exercise services; remove legacy types
+- [ ] [C+S] Error `code` in `ApiResponse` (e.g. `ACTIVE_WORKOUT_EXISTS`); MSW parity
+- [ ] [S] Static routes before parameter routes; cursor pagination helper
+- [ ] [S] Migration runner and guarded `npm run setup` (reset → migrate → seed → records rebuild)
+- [ ] [S] Service layer for workouts and exercises; thin routes
+- [ ] [C+S] Vitest in both packages with shared fixtures; `npm test` in `check:release`
+
+### P0 — Live Workout Sessions
+
+- [ ] [S] Workout `status`, `startedAt`, `finishedAt`; set `completed`; one in-progress workout per user
+- [ ] [S] Start, active, finish, and previous-sets endpoints; lists return finished workouts only
+- [ ] [C] Start hub (`/workouts/new`) with Start empty workout, Resume, and Repeat recent
+- [ ] [C] Active workout page (`/workouts/active`) with Finish and Cancel
+- [ ] [C] Set logging: set type menu, Previous column and placeholders (only with variant history), ✓ fills empty inputs from placeholders, completed sets stay editable
+- [ ] [C] Switching exercise or variant resets its sets (confirm when data exists)
+- [ ] [C] Exercise reorder with up / down buttons (active page and editor)
+- [ ] [C] Autosave (debounced, serialized, client IDs, local draft) with save status
+- [ ] [C] Floating session panel and session store hydrated on app load
+- [ ] [C] Finish summary page (`/workouts/:id/summary`)
+- [ ] [C+S] Repeat workout replaces workout clone
+- [ ] [C+S] Exercise notes in a session (medium, optional)
+
+### P1 — Personal Records
+
+- [ ] [C+S] Canonical volume and e1RM functions (Epley/Brzycki average; e1RM only for ≤ 12 reps)
+- [ ] [S] PR rules per exercise variant; `prs` / `currentPrs` set flags
+- [ ] [S] Recalculation on finish, edit, and delete; `records:rebuild` script; seed rebuild
+- [ ] [C+S] Unit tests with shared vectors; MSW recalculation parity
+- [ ] [C] PR badges (past = default, current = active with crown) and workout PR totals
+- [ ] [C+S] Provisional PR feedback when completing a set
+
+### P1 — Workout History and Exercise Insights
+
+- [ ] [C] Chart library (Recharts) with shared chart wrappers
+- [ ] [C] History grid: 1 column on phones, 2 from `md`; month grouping
+- [ ] [C] Workout card: collapsed (duration, volume, sets, PRs) and expanded (best set by volume per exercise, `F` icon for failure)
+- [ ] [C] Workout overview with e1RM column, PR badges, duration, and volume
+- [ ] [C] Exercise tabs: Overview (variants table, stats filter), History (variant filter, divider layout), Charts, Records
+- [ ] [C] Records tab: current PRs, PR history list and timeline, Top 10, rep-max table
+- [ ] [C+S] Paginated history and exercise history/progress/records endpoints (when data volume requires)
+
+### P2 — Dashboard
+
+- [ ] [C] Header stats and Start / Resume action
+- [ ] [C] Workouts per week / month bar chart (toggle)
+- [ ] [C] Monthly muscle distribution donut chart (month select)
+- [ ] [C] Recent PRs list
+
+### P2 — Exercise Catalog
+
+- [ ] [C] Times performed and last performed per exercise
+- [ ] [C] Sort by name, frequency, or last performed; equipment filter; A–Z sections
+- [ ] [C] Simplified create / edit form (essentials first, tracking presets per variant)
+- [ ] [S] Server-side usage and sorting (optional)
+
+### P2 — Workout Templates (medium)
+
+- [ ] [S] Template model and CRUD / duplicate API; read-only example templates
+- [ ] [C] My Templates and Example Templates on the start hub
+- [ ] [C] Template create / edit (exercises, variants, set types)
+- [ ] [C+S] Start workout from template; save finished workout as template
+
+### Pre-deploy — Server Hardening
+
+- [ ] [S] Env validation and typed config (`MONGODB_URI`, `PORT`, `NODE_ENV`)
+- [ ] [S] Request validation (users, workouts, exercises, ObjectIds) with field-level errors
+- [ ] [S] Security baseline: Helmet, rate limits, CORS allowlist, body size limits, NoSQL injection guards
+- [ ] [S] `GET /api/health` liveness/readiness
+- [ ] [S] Compound `userId` + `date` index verified in `mongosh`; smoke curl scripts
+- [ ] [C] Form validation hardening (shared schema; field-level messages)
+- [ ] [C] Env hygiene: validate Vite env; MSW off in production builds
+- [ ] [C] Error boundaries
+
+### Pre-deploy — Authentication and Admin
+
+- [ ] [S] Register, login, logout, refresh; bcrypt; `GET /api/auth/me`
+- [ ] [S] Auth middleware; `user` / `admin` roles; workout ownership from `req.user`
+- [ ] [C] `/login`, `/register`, session expiry, 401 redirect, route guards
+- [ ] [C+S] Replace `VITE_DEMO_USER_ID` and `:userId` routes with authenticated identity
+- [ ] [C] Admin shell: `/admin`, `/admin/users`, `/admin/exercises`
+- [ ] [C+S] Admin authorization: UI role guards and server checks
+
+### Pre-deploy — Deploy
+
+- [ ] [C+S] CORS and credentials for staging/production origins
+- [ ] [C+S] Staging: static client + Node API + MongoDB Atlas; health check green
+- [ ] [C+S] Production checklist: MSW disabled, secrets set, HTTPS, auth rate limits
+
+### P3 / Post-MVP
+
+- [ ] [C] Rest timer, per-exercise session summary, supersets
+- [ ] [C+S] Settings: weight unit, default rest, week start
+- [ ] [C] PWA manifest and service worker; offline logging
+- [ ] [C] Lazy-loaded routes; accessibility pass; Playwright e2e
+- [ ] [C+S] Password reset, data export, API versioning, AI plans
 
 ---
 
@@ -99,102 +157,61 @@ Lists are ordered **highest priority first** within each category.
 
 ### Page Routes
 
-#### Implemented
-
-- [x] `/` — workout list (home)
-- [x] `/workouts` — workout list
-- [x] `/workouts/new` — create workout
-- [x] `/workouts/:id` — workout overview (detail)
-- [x] `/workouts/:id/edit` — edit workout
-- [x] `/workouts/:id/analytics` — workout analytics
-- [x] `/exercises` — exercise catalog list
-- [x] `/exercises/new` — create custom exercise
-- [x] `/exercises/:id` — exercise overview
-- [x] `/exercises/:id/edit` — edit exercise
-- [x] `/exercises/:id/history` — exercise history across workouts
-
-#### To be implemented (MVP)
-
-- [ ] `/login` — sign in
-- [ ] `/register` — sign up
-- [ ] `/progress` — user progress / analysis
-- [ ] `/admin` — admin dashboard home
-- [ ] `/admin/users` — manage users
-- [ ] `/admin/exercises` — manage exercise catalog
-- [ ] Gate existing `/`, `/workouts*`, `/exercises*` behind auth (behavior change, same paths)
-
-#### Future (post-MVP)
-
-- [ ] `/forgot-password` — request reset
-- [ ] `/reset-password` — complete reset
-- [ ] `/settings` or `/profile` — preferences / goals
-- [ ] `/templates` — template list
-- [ ] `/templates/new` — create template
-- [ ] `/templates/:id` — view template
-- [ ] `/templates/:id/edit` — edit template
-- [ ] AI plan entry (dedicated route or modal flow)
+| Route | Status | Purpose |
+| ----- | ------ | ------- |
+| `/` | Done (redesign P2) | Dashboard |
+| `/workouts` | Done (redesign P1) | Workout history |
+| `/workouts/new` | Done (becomes start hub P0) | Start empty, resume, repeat, templates |
+| `/workouts/active` | P0 | Live workout logging |
+| `/workouts/:id` | Done (redesign P1) | Workout overview |
+| `/workouts/:id/summary` | P0 | Finish summary |
+| `/workouts/:id/edit` | Done | Edit finished workout |
+| `/workouts/:id/analytics` | Done (may merge into overview) | Workout analytics |
+| `/exercises` | Done (polish P2) | Exercise catalog |
+| `/exercises/new` | Done (polish P2) | Create custom exercise |
+| `/exercises/:id` | Done (redesign P1) | Exercise overview |
+| `/exercises/:id/edit` | Done (polish P2) | Edit exercise |
+| `/exercises/:id/history` | Done (redesign P1) | Exercise history |
+| `/exercises/:id/charts` | P1 | Exercise charts |
+| `/exercises/:id/records` | P1 | Exercise records |
+| `/templates/new`, `/templates/:id/edit` | P2 | Template editor |
+| `/login`, `/register` | Pre-deploy | Authentication |
+| `/admin`, `/admin/users`, `/admin/exercises` | Pre-deploy | Admin |
+| `/settings` | P3 | Preferences |
+| `/forgot-password`, `/reset-password` | Post-MVP | Account recovery |
 
 ### API Routes
 
-#### Implemented
-
-- [x] `GET /` — API status (`ApiResponse` with message)
-- [x] `GET /api/users` — list users
-- [x] `GET /api/users/:id` — get user
-- [x] `POST /api/users` — create user
-- [x] `PUT /api/users/:id` — update user
-- [x] `DELETE /api/users/:id` — delete user
-- [x] `GET /api/exercises` — list exercises
-- [x] `GET /api/exercises/:id` — get exercise
-- [x] `POST /api/exercises` — create exercise
-- [x] `PUT /api/exercises/:id` — update exercise
-- [x] `POST /api/exercises/:id/clone` — clone exercise
-- [x] `DELETE /api/exercises/:id` — delete exercise
-- [x] `GET /api/workouts/:userId` — list workouts for user
-- [x] `GET /api/workouts/detail/:id` — get workout
-- [x] `POST /api/workouts` — create workout
-- [x] `PUT /api/workouts/:id` — update workout
-- [x] `POST /api/workouts/:id/clone` — clone workout into a new session
-- [x] `DELETE /api/workouts/:id` — delete workout
+| Method | Endpoint | Status |
+| ------ | -------- | ------ |
+| `GET` | `/` | Done |
+| `GET` `POST` `PUT` `DELETE` | `/api/users`, `/api/users/:id` | Done (lock down pre-deploy) |
+| `GET` `POST` `PUT` `DELETE` | `/api/exercises`, `/api/exercises/:id` | Done |
+| `POST` | `/api/exercises/:id/clone` | Done |
+| `GET` | `/api/workouts/:userId` | Done (finished only P0; paginated P1) |
+| `GET` | `/api/workouts/detail/:id` | Done |
+| `POST` | `/api/workouts` | Done (starts a session P0) |
+| `PUT` `DELETE` | `/api/workouts/:id` | Done (autosave / cancel P0) |
+| `POST` | `/api/workouts/:id/clone` | Done (removed P0 → `repeat`) |
+| `GET` | `/api/workouts/active/:userId` | P0 |
+| `POST` | `/api/workouts/:id/finish` | P0 |
+| `POST` | `/api/workouts/:id/repeat` | P0 |
+| `GET` | `/api/workouts/previous-sets` | P0 |
+| `GET` | `/api/exercises/:id/history`, `/progress`, `/records` | P1 (optional) |
+| `GET` `POST` `PUT` `DELETE` | `/api/templates`, `/api/templates/:id` | P2 |
+| `POST` | `/api/templates/:id/duplicate`, `/api/templates/:id/start` | P2 |
+| `POST` | `/api/workouts/:id/template` | P2 |
+| `GET` | `/api/health` | Pre-deploy |
+| `POST` | `/api/auth/register`, `/login`, `/logout`, `/refresh` | Pre-deploy |
+| `GET` | `/api/auth/me`, `/api/workouts/active` (auth-scoped) | Pre-deploy |
 
 All endpoints return `{ success, data?, error? }`.
 
-#### To be implemented (MVP)
-
-- [ ] `POST /api/auth/register` — register
-- [ ] `POST /api/auth/login` — login
-- [ ] `POST /api/auth/logout` — logout
-- [ ] `POST /api/auth/refresh` — refresh tokens
-- [ ] `GET /api/auth/me` — current user + role
-- [ ] `GET /api/health` — liveness/readiness
-- [ ] `GET /api/workouts` — list **my** workouts (auth; replace `:userId` list)
-- [ ] `GET /api/workouts/:id` — get workout with ownership (replace `/detail/:id`)
-- [ ] Lock down existing `/api/users*` with authz (admin vs self)
-- [ ] Enforce ownership on `POST`/`PUT`/`DELETE` `/api/workouts*`
-- [ ] Restrict exercise writes to admin (or owner for custom exercises) when auth lands
-
-#### Future (post-MVP)
-
-- [ ] `POST /api/auth/forgot-password`
-- [ ] `POST /api/auth/reset-password`
-- [ ] `GET|POST|PUT|DELETE /api/templates` (+ `/:id`)
-- [ ] `POST /api/templates/:id/instantiate`
-- [ ] `GET /api/progress/summary`
-- [ ] `GET /api/progress/muscles`
-- [ ] `GET /api/progress/exercises/:id`
-- [ ] Records endpoints (or embedded in progress)
-- [ ] Paginated/filtered `GET /api/workouts` query params
-- [ ] `GET /api/export/workouts` (JSON/CSV)
-- [ ] AI plan endpoint (e.g. `POST /api/ai/plans`)
-- [ ] Migrate public surface to `/api/v1/...`
-
 ---
 
-## Related docs
+## Related Docs
 
 - [Root README](README.md)
 - [Exercise Catalog](EXERCISES.md) — categories, muscles, variants, seed exercises
-- [Client README](client/README.md) — page routes and frontend structure
-- [Server README](server/README.md) — API routes and backend structure
-- [Client improvements](client/docs/IMPROVEMENTS.md)
-- [Server improvements](server/docs/IMPROVEMENTS.md)
+- [Client README](client/README.md) and [Client improvements](client/docs/IMPROVEMENTS.md)
+- [Server README](server/README.md) and [Server improvements](server/docs/IMPROVEMENTS.md)

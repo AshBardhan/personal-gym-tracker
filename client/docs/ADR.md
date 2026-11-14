@@ -32,13 +32,12 @@ This document summarizes the principal technology and design decisions for the f
 ### Data Access
 
 - **Shared API client**: A configured Axios instance owns the base URL, timeout, headers, and `ApiResponse<T>` unwrapping in a response interceptor.
-- **Domain services**: User, workout, and exercise services expose typed operations so components and hooks do not depend on HTTP details.
-- **Custom data hooks**: Fetching and mutation state is encapsulated in hooks to keep page components focused on rendering and user interaction.
+- **Generic data hooks**: `useApiQuery` and `useApiMutation` wrap a typed `apiRequest` helper and expose `data`, `loading`, `error`, and `execute`/`refetch`, keeping pages focused on rendering and user interaction.
 - **Error normalization**: Failed API responses extract `error.message` from the envelope and reject with a standard `Error`.
 
 ### Routing
 
-- **Client-side routing**: React Router maps list, detail, create, and edit URLs to page components within a single-page application.
+- **Client-side routing**: React Router maps the dashboard (`/`) and the workout and exercise list, detail, create, and edit URLs to page components within a single-page application.
 - **REST-aligned paths**: Workout and exercise URLs use resource-oriented paths that make navigation intent clear and correspond closely to API concepts.
 - **Shared form pages**: Creation flows use dedicated form pages; editing uses nested routes under the detail layout.
 

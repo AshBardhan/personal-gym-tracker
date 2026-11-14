@@ -1,166 +1,130 @@
 # Frontend Improvements
 
-Priorities align with the near-term build order: **mobile polish, progress page, and validation** next, then **auth for deploy**. See [MVP_ROADMAP.md](../../MVP_ROADMAP.md). Shared catalog reference: [EXERCISES.md](../../EXERCISES.md).
+Planned frontend enhancements, ordered by priority. The app is **mobile-first**: every feature is designed for a phone in the gym first, then enhanced for tablets and small laptops. Task tracking lives in [MVP_ROADMAP.md](../../MVP_ROADMAP.md); catalog reference in [EXERCISES.md](../../EXERCISES.md).
 
-## High Priority
+## High Priority (P0)
 
-### Mobile Gym Experience
+### Layout and UI Foundation
 
-- **Mobile layouts**: Optimize workout list, detail, and form for phone use in the gym.
-  - Stack dense content appropriately on small screens.
-  - Use touch targets of at least 44 × 44 pixels.
-  - Adapt navigation for limited width; keep primary actions (new workout, add set) easy to reach.
-- **Mobile inputs**: Use device-appropriate form controls.
-  - Show numeric keyboards for repetitions and weight.
-  - Use a suitable date picker for workout dates.
-- **Workout logging polish**: Reduce friction while recording sets between exercises.
-  - Faster add-exercise / add-set flows.
-  - Clear loading, empty, and error states on list, detail, and form pages.
-  - Use existing skeleton components to avoid layout shift.
+- **Responsive container**: Cap content at 1280px (`max-w-screen-xl`) and center it on wider screens.
+- **Navigation**: Bottom tab bar on phones (Home, History, Workout, Exercises); top navbar from tablet width.
+- **Fixed bottom UI**: Reserve space for the tab bar and session panel; respect safe-area insets.
+- **Shared components**:
+  - Alert dialog for confirming actions (replaces `window.confirm`).
+  - Toast with progress, success, warning, and failure variants.
+  - Badge with default and active variants.
+  - Text-style button for secondary actions (no border, padding, or background).
+  - Action sheet for menus on phones.
+- **Mobile ergonomics**: Numeric keyboards for weight, reps, and duration; touch targets of at least 44 × 44px.
+- **Page states**: Consistent loading skeletons, empty states, and error states.
 
-### Progress Analysis (User)
+### Workout Domain Foundations
 
-- **Progress page**: Let users analyse training without waiting on dedicated progress APIs.
-  - Add `/progress` with 7-day, 30-day, and all-time views.
-  - Chart volume (and optionally sets) from workout list/detail data on the client for MVP.
-  - Keep MSW fixtures rich enough to exercise charts offline.
+- **Typed contracts**: Separate read models from create/update inputs; remove legacy name-based types.
+- **Services**: Typed workout and exercise services so pages never build URLs or payloads.
+- **Error codes**: Surface API error codes (e.g. an active workout already exists) for flow decisions.
+- **Testing setup**: Vitest and React Testing Library with fixtures shared with the server.
 
-### Admin Experience
+### Live Workout Sessions
 
-- **Admin shell**: Provide a dashboard layout for elevated users (role guards can wait until auth).
-  - Add `/admin`, `/admin/users`, and `/admin/exercises` routes.
-- **User management UI**: List, create, update, and delete users against MSW, then the real API.
-- **Exercise catalog UI**: Manage the shared exercise list (name, category, primary/secondary muscles, variants).
+- **Start hub**: `/workouts/new` offers Start empty workout, Resume (when a session is active), and Repeat for recent workouts.
+- **Active workout page**: `/workouts/active` with elapsed time, Finish, and Cancel workout.
+- **Set logging**:
+  - Set type menu (warm-up, drop, failure) from the set number.
+  - Previous column and input placeholders only when the exercise variant was done before.
+  - Completing a set fills empty inputs from placeholders; completed sets stay editable.
+  - Switching exercise or variant resets its sets (with confirmation when data exists).
+  - Add set and Add exercise as text-style buttons.
+- **Reorder exercises**: Up / down buttons on the active page and the workout editor; drag-and-drop later.
+- **Autosave**: Debounced, ordered saves with a local draft copy and a visible save status.
+- **Session panel**: Floating panel on other pages while a workout is in progress; tap to return.
+- **Finish summary**: Summary page after Finish with duration, volume, and PR count.
+- **Repeat workout**: Replaces workout clone; starts a new session from a past workout.
+- **Exercise notes** (medium, optional): Note per exercise within a session.
 
-### Error Handling and Feedback
+## High Priority (P1)
 
-- **User notifications**: Provide clear feedback for successful and failed operations.
-  - Add toast notifications for create, update, clone, and delete actions.
-  - Display user-friendly messages for API and network failures.
-  - Provide contextual errors beside invalid form fields.
-- **Application error boundaries**: Prevent rendering failures from breaking the entire interface.
-  - Provide fallback views for unexpected component errors.
-- **401 handling**: Redirect to login when auth lands (Axios interceptor already normalizes `ApiResponse` errors).
+### Personal Records
 
-### Environment Configuration
+- **PR types**: Max Weight, Best Volume, and Best e1RM per exercise variant.
+- **Badges**: Past PRs use the default badge; current PRs use the active badge with a crown.
+- **Totals**: PR count on the finish summary, workout overview, and history cards.
+- **Live feedback**: Highlight a new PR as soon as a set is completed.
+- **Shared formulas**: Volume and e1RM calculated in one place and tested against the server's rules.
 
-- **Configuration validation**: Detect invalid or missing values during startup.
-  - Keep `.env.example` accurate for API, demo-user, and MSW variables.
-  - Validate required variables; disable MSW in production builds.
-  - Separate development, staging, and production settings.
+### Workout History and Exercise Insights
 
-### Form Validation
+- **Charts**: Adopt a chart library (Recharts) with shared, accessible chart components.
+- **History grid**: One column on phones, two from tablet width; grouped by month.
+- **Workout card**:
+  - Collapsed: title, date, duration, volume, sets, and PRs.
+  - Expanded: each exercise with its best set by volume and a failure icon when relevant.
+- **Workout overview**: Sets with e1RM and PR badges, duration, and total volume.
+- **Exercise detail tabs**:
+  - Overview: variants table with current PRs; stats with an Overall / variant filter.
+  - History: variant filter; sessions separated by dividers instead of gray tiles.
+  - Charts: e1RM, max weight, volume, and reps over time.
+  - Records: current PRs, PR history, Top 10, and a rep-max table.
 
-- **Schema validation**: Define a single typed validation contract for workout and exercise forms.
-  - Validate workout date, title, exercises, variant, sets, repetitions, and weight.
-  - Reuse validation rules during editing and submission.
-- **Detailed feedback**: Make invalid fields easy to identify and correct.
-  - Show field-specific messages in real time.
-  - Prevent submission until required data is valid.
-- **Form tooling**: Adopt dedicated form and schema libraries where they reduce custom state logic.
-  - Evaluate React Hook Form for field lifecycle management.
-  - Use Zod for typed validation schemas.
+## Medium Priority (P2)
 
-### Testing (MVP-critical paths)
+### Dashboard
 
-- **Unit coverage**: Test isolated frontend behavior with Vitest and React Testing Library.
-  - Cover reusable UI components and validation states.
-  - Cover custom data hooks, utilities, and Zustand form actions.
-- **Integration coverage**: Test critical workflows against MSW handlers.
-  - Create, edit, clone, and delete workouts; exercise catalog flows including clone; loading, empty, and error states.
+- **Quick start**: Start workout or Resume from the home page; total workouts and streak.
+- **Workout frequency**: Bar chart of workouts per week or month (toggle).
+- **Muscle distribution**: Donut chart of monthly volume by primary muscle (month select).
+- **Recent PRs**: Latest PRs with links to their workouts.
 
-## Medium Priority
+### Exercise Catalog
 
-### Authentication and Authorization
+- **List**: Times performed, sort by name / frequency / last performed, equipment filter, A–Z sections.
+- **Create and edit form**: Essentials first (name, category, primary muscle); secondary muscles on demand; one row per variant with equipment and a tracking preset instead of metric checkboxes.
 
-Deferred until mobile polish and progress page are in good shape.
+### Workout Templates
 
-- **Authentication flow**: Add secure account access for production use.
-  - Create login and registration pages (`/login`, `/register`).
-  - Support access and refresh tokens (mirror MSW until the real API is ready).
-  - Log users out when sessions expire.
-- **Protected navigation**: Restrict application routes according to authentication state.
-  - Add route guards for workout and progress pages.
-  - Redirect unauthenticated users to login.
-  - Restrict admin pages to users with the `admin` role.
-  - Handle unauthorized and forbidden responses consistently.
-- **Secure token handling**: Integrate authentication with the API client.
-  - Prefer secure HTTP-only cookies when the server contract uses them; otherwise attach Bearer tokens.
-  - Attach credentials to API requests.
-  - Refresh expired access tokens without interrupting active workflows.
-  - Remove reliance on `VITE_DEMO_USER_ID` once auth is live.
+- **Start hub sections**: My Templates and Example Templates as cards with exercise summaries.
+- **Template editor**: Exercises, variants, and set types; reorder with up / down buttons.
+- **Workflows**: Start a workout from a template; save a finished workout as a template; duplicate example templates.
 
-### Workout Templates and Rich Dashboard
+### Pre-deploy
 
-- **Dashboard experience**: Combine workout history, progress distribution, and templates.
-  - Workout and exercise clone is available from list cards and detail menus (opens the new record in the editor).
-  - Remaining: view, duplicate, and delete actions for template summaries; create-template actions.
-- **Workout and template editing**: Support ordered exercise workflows.
-  - Add, replace, remove, and reorder workout exercises and their raw sets.
-  - Create and edit templates containing ordered exercises without completed set data.
-  - Instantiate templates into workout forms with empty sets.
-- **Performance details**: Make workout records and exercise progress visible.
-  - Calculate volume and estimated 1RM on the client.
-  - Compare sets with server-owned all-time records and display record badges.
-  - Add exercise lifetime statistics and progress graphs for volume, max weight, and e1RM.
+- **Form validation**: One typed validation contract (evaluate Zod and React Hook Form); field-level messages.
+- **Error boundaries**: Fallback views for unexpected rendering failures.
+- **Environment configuration**: Validate Vite env variables; disable MSW in production builds; keep `.env.example` accurate.
+- **Authentication**:
+  - Login and registration pages (`/login`, `/register`); session expiry and token refresh.
+  - Route guards; redirect unauthenticated users; handle 401 and 403 consistently.
+  - Remove reliance on `VITE_DEMO_USER_ID`.
+- **Admin experience**: `/admin`, `/admin/users`, and `/admin/exercises` with role guards.
+- **Integration tests**: Critical flows against MSW — start, autosave, finish, cancel, repeat, edit, delete, PR badges.
 
-### Account Recovery and Session Niceties
+## Low Priority (P3 and Post-MVP)
 
-- **Password reset and remember-me**: Add forgot/reset password pages and optional persistent sessions.
-- **Network resilience**: Detect offline states and add retry where operations are safe to repeat.
+### Logging Extras and Settings
+
+- **Rest timer**: Starts when a set is completed; per-exercise default; countdown in the session panel.
+- **Session summary**: Volume and change vs last session under each exercise.
+- **Supersets**: Group exercises in a workout and template.
+- **Settings**: Weight unit (kg / lb), default rest time, week start, theme.
 
 ### Progressive Web App
 
-- **Installable app**: Extend offline and installable behavior for gym use without a network.
-  - Add an application manifest.
-  - Cache the application shell with a service worker.
-  - Provide an installation prompt where supported.
+- **Installable app**: Manifest, service worker for the app shell, install prompt.
+- **Offline logging**: Pair with autosave drafts for gyms with poor signal.
 
-### User Experience
+### Quality and Performance
 
-- **Optimistic actions**: Update create and delete views before the request completes; roll back on failure.
-- **Safe deletion**: Confirmation dialogs (list already uses `confirm`) plus undo where practical.
-- **Workout discovery**: Search by title or exercise; filter by date range and muscle group.
-- **Workout editing**: Drag-and-drop reorder; keyboard shortcuts for common actions.
-- **Data export**: Export workout summaries to CSV or PDF.
-
-### Performance Optimization
-
-- **Route loading**: Lazy-load page components with Suspense fallbacks.
-- **Render efficiency**: Focused Zustand selectors; debounce search/filter input.
-- **Large datasets**: Pagination or infinite scrolling; virtualize long lists; monitor bundle size.
-
-### Accessibility
-
-- **Semantic controls**: Associate labels and errors with form fields; meaningful names and roles.
-- **Keyboard support**: Logical tab order, visible focus, dialog focus management, skip link.
-- **Assistive technology**: Announce errors; meet WCAG AA contrast; test with common screen readers.
-
-### End-to-End Testing
-
-- **Browser journeys**: Playwright coverage for navigation, form submission, validation, and destructive actions.
-- Add coverage reporting to the development workflow.
-
-## Low Priority
-
-### Code Quality
-
-- **Stricter typing**: Enable stricter TypeScript options; improve component and service interfaces.
-- **Shared conventions**: Extract validation limits and shared constants; reusable hooks (debounce, storage, media).
-- **Component documentation**: Focused JSDoc; consider Storybook for reusable components.
-- **Automated standards**: Prettier, pre-commit checks, conventional commit validation.
-
-### Developer Experience
-
-- **Editor setup**: Recommended VS Code extensions, workspace settings, Vite debug configs.
-- **Development guidance**: Document component/state patterns, testing, and optional debug logging.
-- **MSW documentation**: Restore or add `src/mocks/README.md` referenced from the client README.
+- **Route loading**: Lazy-load pages with Suspense fallbacks.
+- **Large datasets**: Infinite scrolling and list virtualization; monitor bundle size.
+- **Accessibility**: Labelled fields and errors, keyboard support, WCAG AA contrast, screen reader checks.
+- **End-to-end tests**: Playwright for core journeys and destructive actions.
+- **Code quality**: Stricter TypeScript, Prettier, pre-commit checks, focused JSDoc.
+- **Developer experience**: Editor settings, development guidance, MSW documentation.
 
 ### Advanced Features
 
-- **Personalization**: Dark mode, persisted display preferences, internationalization.
-- **Workout guidance**: Plans, programs, exercise descriptions, demo media, rest timers.
-- **Progress tracking extras**: Calendar view, achievements, progress photos, reminders.
-- **Data portability**: Import workouts from supported formats; full history export.
-- **AI personalization**: Personalized workout templates from goals and ongoing progress.
-- **Social features**: Share selected workout activity with privacy controls.
+- **Account recovery**: Forgot / reset password pages.
+- **Data portability**: Import and export workouts (CSV / JSON).
+- **Progress extras**: Calendar view, achievements, reminders.
+- **AI personalization**: Suggested templates from goals and progress.
+- **Social features**: Share selected workouts with privacy controls.

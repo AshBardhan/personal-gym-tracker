@@ -2,7 +2,7 @@
 
 Shared reference for **client** and **server**: taxonomy enums and the predefined exercise seed list. Use this when implementing the exercise collection, admin UI, MSW fixtures, and workout logging (variant + sets on the workout exercise, not on the catalog).
 
-Related: [MVP Roadmap](MVP_ROADMAP.md), [client constants](client/src/constants/exercises.ts), [server domain plan](server/plans/WORKOUT_DOMAIN_REDESIGN.md).
+Related: [MVP Roadmap](MVP_ROADMAP.md), [client constants](client/src/constants/exercises.ts).
 
 ---
 
